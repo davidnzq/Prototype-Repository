@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longbridge Web · v17 · Signal 卡片 + Signal 详情</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/detail.css">
+<link rel="stylesheet" href="css/dynamic.css">
+</head>
+<body>
+<div class="shell">
+
+<!-- TOP NAV -->
+<div class="tn">
+  <div class="tn-logo"><div class="tn-logo-mark"><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div></div><div class="tn-logo-text"><div class="tn-logo-subtitle">Hong Kong</div><div class="tn-logo-title">LONGBRIDGE</div></div></div>
+  <div class="tn-indices" id="tnIndices"></div>
+  <div class="tn-sp"></div>
+  <div class="tn-menu">
+    <div class="tn-mi">平台特色<span class="tn-mi-caret">⌄</span></div>
+    <div class="tn-mi">费用</div>
+    <div class="tn-mi">下载</div>
+    <div class="tn-mi">账户类型<span class="tn-mi-caret">⌄</span></div>
+    <div class="tn-mi">帮助</div>
+    <div class="tn-mi">关于<span class="tn-mi-caret">⌄</span></div>
+  </div>
+  <div class="tn-icons">
+    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0118 0v6"/></svg></div>
+    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20"/></svg></div>
+    <div class="tn-avatar">C</div>
+  </div>
+</div>
+
+<div class="bd">
+  <!-- ICON NAV -->
+  <div class="in">
+    <div class="ni on" data-v="home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>首页</span><span class="ni-b" id="badge">4</span></div>
+    <div class="ni-s"></div>
+    <div class="ni" data-v="watchlist" onclick="go('watchlist')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>自选</span></div>
+    <div class="ni" data-v="portfolio" onclick="go('portfolio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><span>资产</span></div>
+    <div class="ni" data-v="news" onclick="go('news')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2"/></svg><span>资讯</span></div>
+    <div class="ni-s"></div>
+    <div class="ni" data-v="market" onclick="go('market')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>市场</span></div>
+    <div class="ni" data-v="community" onclick="go('community')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>社区</span></div>
+    <div class="ni" data-v="trade" onclick="go('trade')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>交易</span></div>
+  </div>
+
+  <div class="fr">
+    <div class="mr">
+      <!-- 1. MAIN BROWSE -->
+      <div class="mc" id="mc">
+        <div class="dyn-header hide" id="dynHeader">
+          <button class="dyn-back" onclick="exitDynamic()">← 返回</button>
+          <div><div class="dyn-title" id="dynTitle"></div><div class="dyn-sub" id="dynSub"></div></div>
+          <div style="margin-left:auto"><span class="dyn-badge"><span class="dyn-badge-dot"></span>实时布局</span></div>
+        </div>
+        <div class="vw on" id="v-home"></div>
+        <div class="vw" id="v-watchlist"></div>
+        <div class="vw" id="v-portfolio"></div>
+        <div class="vw" id="v-news"></div>
+        <div class="vw" id="v-market"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">市场</p></div>
+        <div class="vw" id="v-community"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">社区</p></div>
+        <div class="vw" id="v-trade"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">交易</p></div>
+        <div class="vw" id="v-dyn-risk"></div>
+        <div class="vw" id="v-dyn-compare"></div>
+        <div class="vw" id="v-dyn-tradeplan"></div>
+        <div class="vw" id="v-dyn-research"></div>
+        <div class="vw" id="v-dyn-attribution"></div>
+      </div>
+
+      <!-- 2. DETAIL (between main and AI workbench) -->
+      <div class="dp" id="dp">
+        <div class="dp-inner" id="dpInner"></div>
+        <button class="dp-close" onclick="closeDetail()">✕</button>
+      </div>
+
+      <!-- 3. AI 工作台 (renamed from 感知敞口) -->
+      <div class="aw" id="aw">
+        <div class="aw-hd"><div class="aw-hd-icon">AI</div><span class="aw-hd-t">AI 工作台</span><span class="aw-hd-s" id="awCount">6 项</span></div>
+        <div class="aw-body" id="awBody"></div>
+      </div>
+
+      <!-- 4. CHAT -->
+      <div class="ch">
+        <div class="ch-hd"><div class="ch-logo">AI</div><span class="ch-brand">LongbridgeAI</span><span class="ch-tag" id="chtag">首页</span></div>
+        <div class="ch-msgs" id="chm"></div>
+      </div>
+    </div>
+
+    <div class="gi">
+      <div class="hint-tip" id="hintTip"><span class="hint-tip-dot"></span>布局已按意图实时重组 · 继续输入可细化 · Enter 发送给 AI</div>
+      <div class="gi-tries" id="giTries">
+        <button class="gi-try" onclick="tryIntent('分析我的持仓风险')">分析持仓风险</button>
+        <button class="gi-try" onclick="tryIntent('NVDA 能追吗')">NVDA 能追吗</button>
+        <button class="gi-try" onclick="tryIntent('对比 NVDA 和 AMD')">对比 NVDA 和 AMD</button>
+        <button class="gi-try" onclick="tryIntent('帮我建一个 NVDA Trade Plan')">建 Trade Plan</button>
+        <button class="gi-try" onclick="tryIntent('今天为什么跌了')">今天为什么跌了</button>
+      </div>
+      <div class="gi-box" id="giBox">
+        <span class="gi-live-dot"></span>
+        <input placeholder="试试：分析持仓风险 / NVDA 能追吗 / 对比 NVDA 和 AMD / 建 Trade Plan / 今天为什么跌了" id="gin" onfocus="showTries()" onblur="hideTries()">
+        <span class="gi-hint">已接入持仓·自选·行情·策略</span>
+        <button class="gi-send" onclick="sendG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="demo">
+  <button class="demo-b on" onclick="setS('active')">活跃日</button>
+  <button class="demo-b" onclick="setS('calm')">平静日</button>
+  <button class="demo-b" onclick="setS('down')">下跌日</button>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/home.js"></script>
+<script src="js/detail.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/dynamic.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

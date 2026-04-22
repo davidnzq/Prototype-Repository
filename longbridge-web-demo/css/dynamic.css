@@ -1,0 +1,114 @@
+/* ============================================================
+   dynamic.css — 5 种动态视图布局 + 内部组件(面板/KPI/柱条/表格/行内项/动作/风险仪表)
+   ============================================================ */
+
+.dyn-header{padding:12px 18px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);margin-bottom:10px;background:linear-gradient(to bottom,rgba(110,231,183,.03),transparent)}
+.dyn-header.hide{display:none}
+.dyn-back{padding:5px 12px;border-radius:14px;border:1px solid var(--bd);background:var(--sf);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;display:flex;align-items:center;gap:3px}
+.dyn-back:hover{border-color:var(--bda);color:var(--tp)}
+.dyn-badge{padding:2px 8px;border-radius:3px;background:var(--aibg);color:var(--ai);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;gap:4px}
+.dyn-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--ai);animation:pulse 1.5s infinite}
+.dyn-title{font-size:13px;font-weight:600;color:var(--tp)}
+.dyn-sub{font-size:10px;color:var(--tm);margin-top:2px}
+
+/* 5 种视图的 grid 区域 */
+.dyn-grid{display:grid;gap:10px;padding:0 18px 14px}
+.dyn-grid.risk{grid-template-columns:1fr 1fr;grid-template-areas:"overview risk-score" "allocation concentration" "holdings holdings" "orders strategies"}
+.dyn-grid.compare{grid-template-columns:1fr 1fr;grid-template-areas:"a b" "ai ai" "actions actions"}
+.dyn-grid.tradeplan{grid-template-columns:2fr 1fr;grid-template-areas:"plan summary" "reasoning reasoning" "actions actions"}
+.dyn-grid.research{grid-template-columns:1fr 1fr}
+.dyn-grid.attribution{grid-template-columns:1fr 1fr}
+.area-overview{grid-area:overview}
+.area-risk-score{grid-area:risk-score}
+.area-allocation{grid-area:allocation}
+.area-concentration{grid-area:concentration}
+.area-holdings{grid-area:holdings}
+.area-orders{grid-area:orders}
+.area-strategies{grid-area:strategies}
+.area-a{grid-area:a}
+.area-b{grid-area:b}
+.area-ai{grid-area:ai}
+.area-actions{grid-area:actions}
+.area-plan{grid-area:plan}
+.area-summary{grid-area:summary}
+.area-reasoning{grid-area:reasoning}
+
+/* 通用面板 */
+.dp-panel{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;min-width:0}
+.dp-panel-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.dp-panel-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px}
+.dp-panel-t{font-size:11px;font-weight:600}
+.dp-panel-s{margin-left:auto;font-size:9px;color:var(--tm)}
+
+/* KPI */
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi-l{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--tm)}
+.kpi-v{font-family:var(--m);font-size:18px;font-weight:700;margin-top:2px}
+.kpi-s{font-family:var(--m);font-size:9px;margin-top:1px}
+
+/* 柱条 */
+.bar-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:10px}
+.bar-tk{font-weight:600;width:46px;flex-shrink:0;cursor:pointer;transition:color .12s}
+.bar-tk:hover{color:var(--b)}
+.bar-track{flex:1;height:6px;background:var(--sf2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease-out}
+.bar-pct{font-family:var(--m);font-size:9px;color:var(--ts);width:40px;text-align:right;flex-shrink:0}
+
+/* 风险仪表盘 */
+.risk-score{display:flex;align-items:center;gap:12px}
+.risk-gauge{width:80px;height:80px;position:relative;flex-shrink:0}
+.risk-gauge-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.risk-gauge-val{font-family:var(--m);font-size:20px;font-weight:700}
+.risk-gauge-lbl{font-size:8px;color:var(--tm);margin-top:1px}
+.risk-factors{flex:1;display:flex;flex-direction:column;gap:5px}
+.risk-factor{display:flex;align-items:center;gap:6px;font-size:10px}
+.risk-factor-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.risk-factor-l{color:var(--ts);flex:1}
+.risk-factor-v{font-family:var(--m);font-size:10px;color:var(--tp)}
+
+/* 密集表格 */
+.tbl-dense{width:100%;border-collapse:collapse}
+.tbl-dense th{text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);padding:6px 6px;border-bottom:1px solid var(--bd);font-weight:500}
+.tbl-dense td{padding:7px 6px;border-bottom:1px solid var(--bd);font-size:10px;cursor:pointer}
+.tbl-dense tr:hover td{background:var(--sf2)}
+.tbl-dense .tk{font-weight:600}
+.tbl-dense .mn{font-family:var(--m)}
+
+/* 小标签 */
+.pill{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.pill.r{background:var(--rbg);color:var(--r)}
+.pill.o{background:var(--obg);color:var(--o)}
+.pill.g{background:var(--gbg);color:var(--g)}
+
+/* 行内列表 */
+.inline-list{display:flex;flex-direction:column;gap:6px}
+.inline-item{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;background:var(--sf2);border-radius:5px;border-left:2px solid var(--bd);font-size:10px}
+.inline-item.run{border-left-color:var(--o)}
+.inline-item.ok{border-left-color:var(--g)}
+.inline-item.warn{border-left-color:var(--r)}
+.inline-item-b{flex:1}
+.inline-item-t{font-size:10px;font-weight:500;color:var(--tp)}
+.inline-item-s{font-size:9px;color:var(--tm);margin-top:2px;line-height:1.4}
+
+/* AI 文本块 */
+.ai-para{font-size:11px;line-height:1.7;color:var(--ts);margin-bottom:6px}
+.ai-para strong{color:var(--tp);font-weight:600}
+.ai-bul{display:flex;gap:6px;font-size:10px;line-height:1.6;padding:3px 0;color:var(--ts)}
+.ai-bul-d{color:var(--g);flex-shrink:0;margin-top:4px}
+.ai-bul strong{color:var(--tp);font-weight:500}
+
+/* 动作按钮 */
+.action-bar{display:flex;gap:6px;flex-wrap:wrap}
+.action-btn{padding:7px 14px;border-radius:16px;border:1px solid var(--bd);background:var(--sf2);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;transition:all .12s}
+.action-btn:hover{border-color:var(--bda);color:var(--tp)}
+.action-btn.primary{border-color:var(--g);background:var(--gbg);color:var(--g)}
+
+/* 对比行 */
+.cmp-row{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px dashed var(--bd)}
+.cmp-row:last-child{border:none}
+.cmp-l{color:var(--tm)}
+.cmp-v{font-family:var(--m);color:var(--tp)}
+.cmp-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer}
+.cmp-title:hover{color:var(--b)}
+.cmp-chg{font-family:var(--m);font-size:10px;margin-left:auto}
