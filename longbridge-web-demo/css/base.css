@@ -76,7 +76,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--tp);height:100vh;over
 .mc{flex:1;overflow-y:auto;min-width:0;scrollbar-width:thin;scrollbar-color:var(--sf3) transparent}
 .mc::-webkit-scrollbar{width:3px}
 .mc::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:2px}
-.vw{display:none;padding:14px 18px}
+.vw{display:none;padding:14px 18px;max-width:880px;margin:0 auto}
 .vw.on{display:block}
 
 /* DETAIL panel shell(内容样式在 detail.css) */
@@ -87,7 +87,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--tp);height:100vh;over
 .dp-close:hover{background:var(--sf3);color:var(--tp)}
 
 /* AI 工作台 */
-.aw{width:240px;border-left:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;transition:width .3s cubic-bezier(.4,0,.2,1)}
+.aw{width:260px;border-left:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;transition:width .3s cubic-bezier(.4,0,.2,1)}
 .aw.compact{width:208px}
 .aw-hd{padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px;flex-shrink:0}
 .aw-hd-icon{width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,var(--ai),#34d399);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000}
@@ -126,7 +126,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--tp);height:100vh;over
 .aw-act-btn.primary{border-color:var(--g);color:var(--g);background:var(--gbg)}
 
 /* CHAT */
-.ch{width:280px;display:flex;flex-direction:column;flex-shrink:0;background:var(--sf);border-left:1px solid var(--bd)}
+.ch{width:300px;display:flex;flex-direction:column;flex-shrink:0;background:var(--sf);border-left:1px solid var(--bd)}
 .ch-hd{padding:8px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:5px}
 .ch-logo{width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,var(--ai),#34d399);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000}
 .ch-brand{font-size:11px;font-weight:600}
