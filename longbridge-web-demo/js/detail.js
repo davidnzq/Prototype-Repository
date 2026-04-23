@@ -1,7 +1,17 @@
 /* ============================================================
-   detail.js — 右侧详情列:普通标的详情 + Signal 详情
+   detail.js — 右侧详情列:普通标的详情 + Signal 详情 + Trade Plan 触发
+   v18: 详情面板采用 sticky header + sticky footer
+        新增 dpHistory 栈(供 dpGoBack 返回上一页)
+        新增 buildTradePlan → 向 AI 工作台推送动态卡片
    依赖: data.js (ddb, signalDB)
+   依赖: home.js (renderAW via sidebar)
    ============================================================ */
+
+/* Detail 面板历史栈(供返回按钮使用) */
+let dpHistory = [];
+
+/* Build Trade Plan 触发后向 AI 工作台推入的动态卡片列表 */
+let dynamicAWCards = [];
 
 /* 普通标的详情 */
 function openDetail(tk, evTx) {
@@ -22,8 +32,10 @@ function openDetail(tk, evTx) {
       <div class="dt-stat"><div class="dt-stat-l">P/E</div><div class="dt-stat-v">${d.pe}</div></div>
       <div class="dt-stat"><div class="dt-stat-l">市值</div><div class="dt-stat-v">${d.cap}</div></div>
     </div>
-    <div class="dt-actions"><button class="dt-act primary">Build Trade Plan</button><button class="dt-act">加入自选</button></div>
+    <div class="dt-actions" style="display:none"></div>
   `;
+  document.getElementById('dpFooter').innerHTML = `<div class="dt-actions"><button class="dt-act primary" onclick="buildTradePlan('${d.tk}')">交易</button></div>`;
+  document.getElementById('dpBack').classList.remove('show');
   dp.classList.add('open');
   document.getElementById('aw').classList.add('compact');
   setTimeout(() => {
@@ -48,9 +60,60 @@ function openDetail(tk, evTx) {
   }, 350);
 }
 
+/* 关闭详情面板 */
 function closeDetail() {
   document.getElementById('dp').classList.remove('open');
   document.getElementById('aw').classList.remove('compact');
+  dpHistory = [];
+  document.getElementById('dpBack').classList.remove('show');
+  document.getElementById('dpFooter').innerHTML = '';
+}
+
+/* 返回上一个 Detail 视图(历史栈) */
+function dpGoBack() {
+  if (dpHistory.length > 0) {
+    const prev = dpHistory.pop();
+    prev();
+    if (dpHistory.length === 0) document.getElementById('dpBack').classList.remove('show');
+  }
+}
+
+/* Build Trade Plan → 向 AI 工作台追加动态卡片并模拟进度 */
+function buildTradePlan(tk) {
+  const d = ddb[tk];
+  if (!d) return;
+  dynamicAWCards.push({status:'run',title:tk+' Trade Plan 生成中',desc:'AI 正在评估最优策略...',kv:[['标的',tk],['现价','$'+d.pr]],progress:35,actions:['查看','中断']});
+  renderAW();
+  // 动画推进
+  let prog = 35;
+  const iv = setInterval(() => {
+    prog += Math.random() * 8;
+    if (prog >= 100) {
+      clearInterval(iv);
+      const card = dynamicAWCards.find(c => c.title === tk + ' Trade Plan 生成中');
+      if (card) {
+        card.status = 'ok';
+        card.title = tk + ' Trade Plan 就绪';
+        card.desc = 'Long Call · 草案已生成';
+        card.progress = undefined;
+        card.actions = ['查看','下单'];
+      }
+      renderAW();
+      const el = document.getElementById('chm');
+      el.innerHTML += `<div class="ch-m bot fi"><div class="ch-ctx"><span class="ch-ctx-d"></span>Trade Plan 完成</div><div class="ch-bub"><b>${tk}</b> Trade Plan 已生成并放入 AI 工作台。点击查看详情。</div></div>`;
+      el.scrollTop = el.scrollHeight;
+    } else {
+      const card = dynamicAWCards.find(c => c.title === tk + ' Trade Plan 生成中');
+      if (card) card.progress = Math.min(95, Math.round(prog));
+      renderAW();
+    }
+  }, 600);
+  // 关闭详情
+  closeDetail();
+  // Chat 反馈
+  const el = document.getElementById('chm');
+  el.innerHTML += `<div class="ch-m bot fi"><div class="ch-ctx"><span class="ch-ctx-d"></span>AI 执行中</div><div class="ch-bub">正在为 <b>${tk}</b> 生成 Trade Plan,已放入 AI 工作台...</div></div>`;
+  el.scrollTop = el.scrollHeight;
 }
 
 /* Signal 详情 */
@@ -59,7 +122,7 @@ function openSignalDetail(tk) {
   if (!s) return;
   const d = s.detail;
   const dp = document.getElementById('dp');
-  const vb = s.verdict === 'bullish', vc = vb ? 'var(--g)' : 'var(--r)';
+  const vb = s.verdict === 'bullish', vc = vb ? 'var(--g)' : 'var(--r)', vbg = vb ? 'var(--gbg)' : 'var(--rbg)';
   // 估值条百分比
   const lo = parseInt(d.valLow.replace('$','')), hi = parseInt(d.valHigh.replace('$','')), bs = parseInt(d.valBase.replace('$','')), cu = parseInt(d.valCurrent.replace('$',''));
   const range = hi - lo, conW = Math.round((bs - lo) / range * 100), baseW = Math.round((hi - bs) / range * 100);
@@ -112,10 +175,11 @@ function openSignalDetail(tk) {
   d.exec.forEach(([k, v]) => h += `<div class="sd-exec-row"><span class="sd-exec-k">${k}</span><span class="sd-exec-v">${v}</span></div>`);
   h += `</div></div>`;
 
-  // CTA
-  h += `<button class="sd-cta">Build trade plan</button>`;
+  // CTA 挪到 footer
+  h += ``;
 
   document.getElementById('dpInner').innerHTML = h;
+  document.getElementById('dpFooter').innerHTML = `<button style="width:100%;padding:10px;border-radius:8px;border:none;background:#00B8B8;color:#000;font-size:12px;font-weight:600;font-family:var(--f);cursor:pointer" onclick="buildTradePlan('${tk}')">新建策略</button>`;
   dp.classList.add('open');
   document.getElementById('aw').classList.add('compact');
 }

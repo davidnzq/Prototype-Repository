@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longbridge Web · v18 · Design System Applied</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0E19;--sf:#141821;--sf2:#1C2029;--sf3:#232630;--bd:rgba(255,255,255,.06);--bda:rgba(255,255,255,.12);--tp:#FFFFFF;--ts:#9D9FA3;--tm:#60626A;--td:#3B3E47;--g:#00ADA2;--gbg:rgba(0,173,162,.08);--r:#FF3A75;--rbg:rgba(255,58,117,.08);--o:#FF9728;--obg:rgba(255,151,40,.08);--b:#2A99FE;--bbg:rgba(42,153,254,.08);--p:#a78bfa;--pbg:rgba(167,139,250,.08);--c:#00B8B8;--cbg:rgba(0,184,184,.08);--ai:#00F0C4;--aibg:rgba(0,240,196,.05);--f:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--m:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--f);background:var(--bg);color:var(--tp);height:100vh;overflow:hidden;font-size:12px}
+.shell{display:flex;flex-direction:column;height:100vh}
+
+/* TOP NAV */
+.tn{height:56px;background:var(--bg);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:30}
+.tn-logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0}
+.tn-logo-mark{display:flex;align-items:flex-end;gap:2px;height:24px}
+.tn-logo-bar{width:4px;border-radius:1px}
+.tn-logo-bar:nth-child(1){height:11px;background:#FF3A75}
+.tn-logo-bar:nth-child(2){height:18px;background:#FF9728}
+.tn-logo-bar:nth-child(3){height:24px;background:#00B8B8}
+.tn-logo-bar:nth-child(4){height:15px;background:#2A99FE}
+.tn-logo-text{display:flex;flex-direction:column;line-height:1}
+.tn-logo-subtitle{font-size:9px;font-weight:500;color:var(--ts);letter-spacing:.3px}
+.tn-logo-title{font-size:14px;font-weight:800;color:var(--tp);letter-spacing:.5px;margin-top:1px}
+.tn-indices{display:flex;align-items:center;gap:18px;flex-shrink:0}
+.tn-index{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer}
+.tn-index-icon{width:5px;height:11px;border-radius:1px;background:var(--r);flex-shrink:0}
+.tn-index-name{color:var(--tp);font-weight:500;font-size:11px;max-width:48px;overflow:hidden;text-overflow:ellipsis}
+.tn-index-value{color:var(--tp);font-weight:500;font-size:11px;font-family:var(--m)}
+.tn-index-arrow{color:var(--r);font-size:8px}
+.tn-index-change{color:var(--r);font-size:11px;font-family:var(--m);white-space:nowrap}
+.tn-index.up .tn-index-icon,.tn-index.up .tn-index-arrow,.tn-index.up .tn-index-change{color:var(--g)}
+.tn-index.up .tn-index-icon{background:var(--g)}
+.tn-sp{flex:1}
+.tn-menu{display:flex;align-items:center;gap:4px}
+.tn-mi{padding:6px 12px;font-size:12px;color:var(--ts);font-weight:500;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.tn-mi:hover{color:var(--tp);background:var(--sf2)}
+.tn-mi-caret{font-size:8px;margin-top:1px}
+.tn-icons{display:flex;align-items:center;gap:4px;margin-left:12px}
+.tn-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ts)}
+.tn-ic:hover{background:var(--sf2);color:var(--tp)}
+.tn-ic svg{width:15px;height:15px}
+.tn-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00F0C4,#00B8B8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;cursor:pointer;margin-left:4px}
+
+.bd{flex:1;display:flex;overflow:hidden}
+
+/* ICON NAV */
+.in{width:52px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;flex-shrink:0}
+.ni{width:40px;height:40px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--tm);position:relative;gap:1px}
+.ni:hover{background:var(--sf2);color:var(--ts)}
+.ni.on{color:#00B8B8;background:rgba(0,184,184,.1)}
+.ni svg{width:15px;height:15px}
+.ni span{font-size:8px;font-weight:500;letter-spacing:.2px}
+.ni-s{width:22px;height:1px;background:var(--bd);margin:3px 0}
+.ni-b{position:absolute;top:2px;right:2px;min-width:14px;height:14px;border-radius:7px;background:#F7415F;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px}
+
+.fr{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ==================================================
+   NEW LAYOUT RHYTHM: 导航 → 浏览 → 详情 → AI 工作台 → chat
+   ================================================== */
+.mr{flex:1;display:flex;overflow:hidden}
+
+/* MAIN (1st after icon-nav) */
+.mc{flex:1;overflow-y:auto;min-width:0;scrollbar-width:thin;scrollbar-color:var(--sf3) transparent}
+.mc::-webkit-scrollbar{width:3px}.mc::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:2px}
+.vw{display:none;padding:14px 18px}.vw.on{display:block}
+
+/* DETAIL (2nd - between main and AI workbench, slides in from right of main) */
+.dp{width:0;overflow:hidden;border-left:1px solid transparent;background:var(--sf);flex-shrink:0;transition:width .3s cubic-bezier(.4,0,.2,1),border-color .3s ease;position:relative;display:flex;flex-direction:column}
+.dp.open{width:340px;border-left-color:var(--bd)}
+.dp-inner{width:340px;padding:0;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:var(--sf3) transparent}
+.dp-inner>*{padding-left:14px;padding-right:14px}
+.dp-footer{width:340px;padding:10px 14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:none}
+.dp.open .dp-footer{display:block}
+.dp-close{position:sticky;top:0;right:0;z-index:3;width:100%;display:flex;align-items:center;padding:10px 14px;background:var(--sf);border-bottom:1px solid var(--bd)}
+.dp-close-btn{width:24px;height:24px;border-radius:8px;border:none;background:var(--sf2);color:var(--ts);cursor:pointer;font-size:11px;margin-left:auto}
+.dp-close-btn:hover{background:var(--sf3);color:var(--tp)}
+.dp-back-btn{display:flex;align-items:center;gap:4px;border:none;background:none;color:var(--ts);cursor:pointer;font-size:11px;font-family:var(--f);padding:0}
+.dp-back-btn:hover{color:var(--tp)}
+.dp-back-btn svg{width:14px;height:14px}
+.dp-back-btn.hide{display:none}
+
+/* AI 工作台 (3rd - between detail and chat) */
+.aw{width:0;border-left:none;background:var(--sf);flex-shrink:0;display:none;flex-direction:column;overflow:hidden;transition:width .3s cubic-bezier(.4,0,.2,1)}
+.aw.compact{width:208px}
+.aw-hd{padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px;flex-shrink:0}
+.aw-hd-icon{width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#00F0C4,#00B8B8);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000}
+.aw-hd-t{font-size:11px;font-weight:600}
+.aw-hd-s{margin-left:auto;font-size:8px;color:var(--tm);font-family:var(--m)}
+.aw-body{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:var(--sf3) transparent}
+.aw-body::-webkit-scrollbar{width:3px}.aw-body::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:2px}
+.aw-sec{font-size:8px;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px;padding:0 2px}
+.aw-sec:first-child{margin-top:0}
+.aw-sec-count{background:var(--sf3);padding:1px 5px;border-radius:8px;font-weight:500;color:var(--ts);font-size:8px;letter-spacing:0}
+.aw-card{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;cursor:pointer;position:relative;transition:all .15s}
+.aw-card:hover{border-color:var(--bda)}
+.aw-card.run{border-left:2px solid var(--o)}
+.aw-card.ok{border-left:2px solid #00B8B8}
+.aw-card.warn{border-left:2px solid var(--r);animation:warn-glow 2s infinite}
+.aw-card.paused{border-left:2px solid var(--tm);opacity:.75}
+@keyframes warn-glow{0%,100%{background:var(--sf2)}50%{background:rgba(255,77,106,.06)}}
+.aw-card-h{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.aw-card-status{font-size:7px;padding:1px 5px;border-radius:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.aw-card-status.run{background:var(--obg);color:var(--o)}
+.aw-card-status.ok{background:rgba(0,184,184,.1);color:#00B8B8}
+.aw-card-status.warn{background:var(--rbg);color:var(--r)}
+.aw-card-status.paused{background:var(--sf3);color:var(--tm)}
+.aw-card-title{font-size:10px;font-weight:600;margin-bottom:3px;line-height:1.35}
+.aw-card-desc{font-size:9px;color:var(--ts);line-height:1.3;margin-bottom:2px}
+.aw-card-meta{display:flex;flex-direction:column;gap:2px}
+.aw-card-kv{display:flex;justify-content:space-between;gap:6px;font-size:9px}
+.aw-card-k{color:var(--tm)}
+.aw-card-v{color:var(--tp);font-family:var(--m)}
+.aw-card-progress{height:2px;background:var(--sf3);border-radius:1px;margin-top:5px;overflow:hidden}
+.aw-card-progress-bar{height:100%;background:var(--o);border-radius:1px;transition:width .3s}
+.aw-card-actions{display:none;gap:4px;margin-top:6px}
+.aw-act-btn{padding:3px 6px;border-radius:3px;border:1px solid var(--bd);background:transparent;color:var(--ts);font-size:9px;font-family:var(--f);cursor:pointer;flex:1}
+.aw-act-btn:hover{border-color:var(--bda);color:var(--tp)}
+.aw-act-btn.primary{border-color:#00B8B8;color:#00B8B8;background:rgba(0,184,184,.1)}
+
+/* CHAT (4th - rightmost) */
+.ch{width:280px;display:flex;flex-direction:column;flex-shrink:0;background:var(--sf);border-left:1px solid var(--bd)}
+.ch-hd{padding:8px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:5px}
+.ch-logo{width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#00F0C4,#00B8B8);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000}
+.ch-brand{font-size:11px;font-weight:600}
+.ch-tag{margin-left:auto;font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(0,184,184,.1);color:#00B8B8}
+.ch-tag.live{background:rgba(0,240,196,.08);color:#00F0C4}
+.ch-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--sf3) transparent}
+.ch-m{max-width:95%}.ch-m.bot{align-self:flex-start}.ch-m.user{align-self:flex-end}
+.ch-bub{padding:8px 10px;border-radius:10px;font-size:11px;line-height:1.6}
+.ch-m.bot .ch-bub{background:rgba(0,240,196,.04);border:1px solid rgba(0,240,196,.1)}
+.ch-m.user .ch-bub{background:var(--sf2);border:1px solid var(--bd)}
+.ch-ctx{font-size:8px;color:var(--tm);margin-bottom:2px;display:flex;align-items:center;gap:3px}
+.ch-ctx-d{width:4px;height:4px;border-radius:50%;background:#00F0C4}
+.ch-sugs{display:flex;flex-direction:column;gap:3px;margin-top:4px}
+.ch-sug{padding:5px 8px;border-radius:5px;border:1px solid var(--bd);background:transparent;color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;text-align:left}
+.ch-sug:hover{border-color:#00B8B8;color:#00B8B8;background:rgba(0,184,184,.08)}
+
+/* GLOBAL INPUT */
+.gi{height:54px;background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:center;padding:0 14px;flex-shrink:0;position:relative}
+.gi-box{width:100%;max-width:720px;display:flex;align-items:center;gap:8px;background:var(--sf2);border:1px solid var(--bda);border-radius:12px;padding:8px 14px;transition:all .2s;position:relative}
+.gi-box:focus-within{border-color:#00B8B8;box-shadow:0 0 0 2px rgba(0,184,184,.08)}
+.gi-box.live-morph{border-color:#00F0C4;box-shadow:0 0 0 2px rgba(0,240,196,.1);background:linear-gradient(to right,var(--sf2),rgba(0,240,196,.04))}
+.gi-box input{flex:1;background:transparent;border:none;outline:none;color:var(--tp);font-size:12px;font-family:var(--f)}
+.gi-box input::placeholder{color:var(--tm)}
+.gi-live-dot{width:6px;height:6px;border-radius:50%;background:#00F0C4;animation:pulse 1s infinite;flex-shrink:0;opacity:0;transition:opacity .2s}
+.gi-box.live-morph .gi-live-dot{opacity:1}
+.gi-hint{font-size:8px;color:var(--td);white-space:nowrap}
+.gi-send{width:26px;height:26px;border-radius:6px;border:none;background:#00B8B8;color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gi-send svg{width:12px;height:12px}
+.gi-tries{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:6px 0;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:720px;flex-wrap:wrap;justify-content:center}
+.gi-tries.show{opacity:1;pointer-events:auto}
+.gi-try{padding:4px 10px;border-radius:12px;border:1px solid var(--bda);background:rgba(10,10,13,.95);backdrop-filter:blur(8px);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;white-space:nowrap}
+.gi-try:hover{border-color:#00B8B8;color:#00B8B8;background:rgba(0,184,184,.08)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hint-tip{position:absolute;bottom:68px;left:50%;transform:translateX(-50%);background:rgba(10,10,13,.95);backdrop-filter:blur(8px);color:var(--ts);padding:6px 12px;border-radius:16px;font-size:10px;border:1px solid var(--bda);white-space:nowrap;z-index:40;opacity:0;transition:opacity .2s;pointer-events:none;display:flex;align-items:center;gap:6px}
+.hint-tip.show{opacity:1}
+.hint-tip-dot{width:5px;height:5px;border-radius:50%;background:#00F0C4;animation:pulse 1s infinite}
+
+/* HOME */
+/* AI Workbench inline on homepage */
+.aw-inline{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.aw-inline-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.aw-inline-icon{width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#00F0C4,#00B8B8);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000}
+.aw-inline-t{font-size:11px;font-weight:600}
+.aw-inline-count{margin-left:auto;font-size:9px;color:var(--tm);font-family:var(--m)}
+.aw-inline-grid{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.aw-inline-grid::-webkit-scrollbar{display:none}
+.aw-inline-grid .aw-card{min-width:170px;max-width:200px;flex-shrink:0;padding:8px 10px}
+.aw-inline-grid .aw-card-title{font-size:10px;line-height:1.3}
+.aw-inline-grid .aw-card-desc{font-size:9px;margin-bottom:2px}
+.aw-inline-grid .aw-card-meta{gap:1px}
+.aw-inline-grid .aw-card-kv{font-size:8px}
+
+/* HERO - Asset Overview */
+.hm-hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.hm-hero-left,.hm-hero-right{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:8px 14px;min-height:0}
+.hm-hero-left{flex:1;min-width:0}
+.hm-hero-right{flex-shrink:0;display:flex;flex-direction:column}
+.hm-hero-top{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.hm-hero-curr{font-size:9px;color:var(--tm)}
+.hm-hero-total{font-family:var(--m);font-size:18px;font-weight:700}
+.hm-hero-eye{color:var(--tm);cursor:pointer;font-size:12px;margin-left:4px}
+.hm-hero-stats{display:flex;gap:20px;margin-bottom:6px}
+.hm-hero-stat-l{font-size:8px;color:var(--tm);margin-bottom:1px}
+.hm-hero-stat-v{font-family:var(--m);font-size:12px;font-weight:600}
+.hm-hero-safety{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--ts)}
+.hm-hero-safety-icon{width:16px;height:16px;border-radius:4px;background:rgba(0,173,162,.12);display:flex;align-items:center;justify-content:center;font-size:8px}
+.hm-hero-safety-link{margin-left:auto;color:var(--tm);cursor:pointer;font-size:9px}
+.hm-pnl-tabs{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.hm-pnl-tab-title{font-size:10px;font-weight:600;color:var(--tp);margin-right:auto}
+.hm-pnl-tab{padding:2px 8px;border-radius:5px;font-size:9px;border:1px solid var(--bd);background:transparent;color:var(--ts);cursor:pointer;font-family:var(--f)}
+.hm-pnl-tab.on{border-color:#00B8B8;color:#00B8B8;background:rgba(0,184,184,.08)}
+.hm-pnl-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.hm-pnl-label{font-size:8px;color:var(--tm)}
+.hm-pnl-val{font-family:var(--m);font-size:12px;font-weight:700}
+.hm-pnl-rate{font-family:var(--m);font-size:10px;font-weight:600}
+.hm-pnl-bench{font-size:8px;color:var(--ts);margin-bottom:2px;display:flex;align-items:center;gap:4px}
+.hm-pnl-bench-dot{width:5px;height:5px;border-radius:50%;background:#00B8B8}
+.hm-pnl-chart{flex:1;min-height:36px;border-radius:6px;overflow:hidden;position:relative}
+.hm-pnl-chart canvas{width:100%;height:100%}
+.hm-pnl-range{display:flex;justify-content:space-between;font-size:7px;color:var(--tm);font-family:var(--m);margin-top:2px}
+.hm-pf-sep{width:1px;height:24px;background:var(--bd)}
+.hm-pf-mini{cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s}
+.hm-pf-mini:hover{background:var(--sf2)}
+.hm-pf-ml{font-size:7px;color:var(--tm);font-family:var(--m)}
+.hm-pf-mv{font-family:var(--m);font-size:10px;margin-top:1px}
+.positive{color:#00ADA2}.negative{color:#FF3A75}
+
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:12px;font-size:10px;border:1px solid var(--bd);background:var(--sf);cursor:pointer}
+.chip-d{width:4px;height:4px;border-radius:50%}
+.chip.urg{border-color:rgba(255,77,106,.2)}.chip.urg .chip-d{background:var(--r);animation:pulse 1.5s infinite}
+.chip-l{color:var(--tm)}.chip-t{color:var(--tp);font-weight:500}
+
+/* Timeline grid - mixed layout */
+.tl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tl-grid .tl-div{grid-column:1/-1}
+.tl-grid .sig{grid-row:span 3}
+.tl-grid .sc{min-height:0}
+
+.tl-hd{display:flex;align-items:center;justify-content:space-between;margin:6px 0 8px}
+.tl-t{font-size:12px;font-weight:600}.tl-c{font-size:10px;color:#00B8B8}
+.sc{padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid var(--bd);background:var(--sf);position:relative;transition:all .15s}
+.sc:hover{background:var(--sf);border-color:var(--bd)}
+.sc.ur::before{content:'';position:absolute;left:0;top:10px;width:3px;height:18px;border-radius:0 2px 2px 0;background:#00B8B8}
+.sc-top{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.sc-tag{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;padding:1px 6px;border-radius:3px}
+.sc-tag.anomaly{background:var(--rbg);color:var(--r)}.sc-tag.catalyst{background:var(--obg);color:var(--o)}.sc-tag.news{background:var(--bbg);color:var(--b)}.sc-tag.community{background:var(--pbg);color:var(--p)}.sc-tag.system{background:var(--cbg);color:var(--c)}.sc-tag.signal{background:rgba(0,184,184,.1);color:#00B8B8}
+.sc-tk{font-family:var(--m);font-size:9px;color:var(--tm);padding:1px 5px;border-radius:3px;transition:all .12s;cursor:pointer}
+.sc-tk.tk-link{color:#2A99FE;background:rgba(42,153,254,.06);border:1px solid rgba(42,153,254,.15)}
+.sc-tk.tk-link:hover{background:rgba(42,153,254,.1);color:#2A99FE;border-color:rgba(42,153,254,.3);transform:translateY(-1px)}
+.sc-tm{font-size:9px;color:var(--tm);margin-left:auto}
+.sc-tx{font-size:11px;line-height:1.5}.sc-rl{font-size:10px;color:var(--ts);margin-top:2px;line-height:1.4}
+.sc-rl strong{color:var(--tp);font-weight:500}
+.sc.rd .sc-tx{color:var(--ts)}.sc.rd .sc-tag{opacity:.5}.sc.rd::before{display:none}
+
+/* SIGNAL RICH CARD (App-style) */
+.sig{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:0;cursor:pointer;transition:all .15s;position:relative;grid-column:span 1}}
+.sig:hover{border-color:var(--bda)}
+.sig.ur::before{content:'';position:absolute;left:0;top:14px;width:3px;height:20px;border-radius:0 2px 2px 0;background:#00B8B8}
+.sig.rd{opacity:.75}.sig.rd::before{display:none}
+.sig-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sig-logo{width:28px;height:28px;border-radius:50%;background:var(--sf3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;overflow:hidden}
+.sig-logo img{width:100%;height:100%;object-fit:cover}
+.sig-info{flex:1;min-width:0}
+.sig-tk{font-family:var(--m);font-size:11px;font-weight:600;color:var(--tp)}
+.sig-nm{font-size:10px;color:var(--ts)}
+.sig-fav{width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:var(--r);font-size:12px;cursor:pointer;flex-shrink:0}
+.sig-chart{width:100%;height:48px;background:var(--sf2);border-radius:6px;margin-bottom:8px;overflow:hidden}
+.sig-chart canvas{width:100%;height:100%}
+.sig-verdict{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-bottom:6px}
+.sig-verdict.bullish{background:rgba(0,173,162,.1);color:#00ADA2}
+.sig-verdict.bearish{background:var(--rbg);color:var(--r)}
+.sig-verdict.neutral{background:var(--obg);color:var(--o)}
+.sig-title{font-size:13px;font-weight:700;line-height:1.4;margin-bottom:4px;color:var(--tp)}
+.sig-desc{font-size:11px;color:var(--ts);line-height:1.5;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sig-footer{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--tm)}
+.sig-strategy{padding:1px 6px;border-radius:3px;background:var(--sf2);color:var(--ts);font-size:9px}
+.sig-more{font-size:10px;color:#2A99FE;margin-left:auto;cursor:pointer;display:flex;align-items:center;gap:3px}
+.sig-more:hover{color:#00B8B8}
+
+/* SIGNAL DETAIL (full detail panel) */
+.sd-back{display:none}
+.sd-back:hover{color:var(--tp)}
+.sd-back svg{width:14px;height:14px}
+.sd-head{margin-bottom:12px}
+.sd-head-tk{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.sd-head-logo{width:20px;height:20px;border-radius:50%;background:var(--sf3);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+.sd-head-code{font-family:var(--m);font-size:11px;color:var(--ts)}
+.sd-headline{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:4px}
+.sd-meta{font-size:9px;color:var(--tm)}
+.sd-section{margin-top:14px}
+.sd-section-t{font-size:10px;font-weight:600;color:var(--tp);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sd-verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sd-verdict-item{background:var(--sf2);border-radius:6px;padding:8px 10px}
+.sd-verdict-l{font-size:8px;color:var(--tm);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.sd-verdict-v{font-size:12px;font-weight:600;font-family:var(--m)}
+.sd-verdict-v.sm{font-size:10px}
+.sd-verdict-full{grid-column:1/-1;background:var(--sf2);border-radius:6px;padding:8px 10px}
+.sd-catalyst{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-top:6px}
+.sd-catalyst-t{font-size:11px;font-weight:600;line-height:1.4;margin-bottom:3px}
+.sd-catalyst-desc{font-size:10px;color:var(--ts);line-height:1.5}
+.sd-catalyst-src{font-size:8px;color:var(--tm);margin-top:4px;display:flex;align-items:center;gap:4px}
+.sd-score{display:flex;align-items:center;gap:12px;margin-top:6px}
+.sd-score-gauge{position:relative;width:56px;height:56px;flex-shrink:0}
+.sd-score-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sd-score-num{font-family:var(--m);font-size:18px;font-weight:700}
+.sd-score-unit{font-size:7px;color:var(--tm)}
+.sd-score-factors{flex:1;display:flex;flex-direction:column;gap:3px}
+.sd-score-factor{display:flex;align-items:center;gap:6px;font-size:10px}
+.sd-score-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.sd-score-fl{color:var(--ts);flex:1}
+.sd-score-fv{font-family:var(--m);font-size:10px}
+.sd-analysis{background:var(--sf2);border-radius:6px;padding:10px;margin-top:6px;font-size:10px;color:var(--ts);line-height:1.6}
+.sd-analysis strong{color:var(--tp);font-weight:500}
+.sd-analysis-obj{font-size:10px;color:var(--ts);line-height:1.6;margin-top:4px}
+.sd-valuation{margin-top:6px}
+.sd-val-bar{height:24px;background:var(--sf3);border-radius:4px;position:relative;margin:8px 0;overflow:hidden;display:flex}
+.sd-val-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600}
+.sd-val-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--tm);font-family:var(--m)}
+.sd-val-marker{position:absolute;top:-2px;width:2px;height:28px;background:var(--tp);border-radius:1px}
+.sd-risk{background:var(--rbg);border-radius:6px;padding:10px;margin-top:6px;font-size:10px;color:var(--ts);line-height:1.6;border-left:2px solid var(--r)}
+.sd-risk strong{color:var(--r);font-weight:600}
+.sd-exec{background:var(--sf2);border-radius:6px;padding:10px;margin-top:6px;font-size:10px;color:var(--ts);line-height:1.7}
+.sd-exec-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--bd)}
+.sd-exec-row:last-child{border:none}
+.sd-exec-k{color:var(--tm)}.sd-exec-v{font-family:var(--m);color:var(--tp)}
+.sd-cta{width:100%;padding:10px;border-radius:8px;border:none;background:#00B8B8;color:#000;font-size:12px;font-weight:600;font-family:var(--f);cursor:pointer;transition:opacity .15s;display:none}
+.sd-cta:hover{opacity:.85}
+
+.tl-div{display:flex;align-items:center;gap:8px;padding:6px 0}
+.tl-div-l{flex:1;height:1px;background:var(--td)}.tl-div-t{font-size:9px;color:var(--tm)}
+
+/* ============== WIDGET LIST CARDS (new, bigger, with real content) ============== */
+.wg-hd-row{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
+.wg-hd{font-size:12px;font-weight:600;color:var(--tp)}
+.wg-hd-s{font-size:10px;color:var(--tm)}
+
+.wg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.wg{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px;transition:all .15s;display:flex;flex-direction:column;min-height:200px}
+.wg:hover{border-color:var(--bda)}
+.wg-top{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.wg-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.wg-title{font-size:12px;font-weight:600;color:var(--tp)}
+.wg-summary{font-size:10px;color:var(--tm);margin-left:auto;font-family:var(--m)}
+.wg-more-btn{margin-left:auto;padding:3px 9px;border-radius:10px;background:transparent;border:1px solid var(--bd);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;transition:all .12s}
+.wg-more-btn:hover{border-color:#00B8B8;color:#00B8B8}
+
+.wg-list{display:flex;flex-direction:column;gap:0;flex:1}
+.wg-row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:11px;cursor:pointer;border-bottom:1px solid var(--bd);transition:all .12s}
+.wg-row:last-child{border:none}
+.wg-row:hover{background:var(--sf2);margin:0 -8px;padding:7px 8px;border-radius:4px;border-color:transparent}
+.wg-row-tk{font-weight:600;width:56px;flex-shrink:0;font-size:11px}
+.wg-row-nm{font-size:9px;color:var(--tm);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wg-row-pr{font-family:var(--m);font-size:10px;width:60px;text-align:right;color:var(--tp);flex-shrink:0}
+.wg-row-chg{font-family:var(--m);font-size:10px;width:60px;text-align:right;flex-shrink:0}
+
+/* Special: Market widget - indices with spark */
+.wg-index-row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:11px;cursor:pointer;border-bottom:1px solid var(--bd)}
+.wg-index-row:last-child{border:none}
+.wg-index-row:hover{background:var(--sf2);margin:0 -8px;padding:7px 8px;border-radius:4px;border-color:transparent}
+.wg-index-icon-bar{width:3px;height:14px;border-radius:1px;flex-shrink:0}
+.wg-index-nm{font-weight:500;width:70px;font-size:10px;flex-shrink:0}
+.wg-index-val{font-family:var(--m);font-size:10px;flex:1;color:var(--tp)}
+.wg-index-chg{font-family:var(--m);font-size:10px;width:68px;text-align:right;flex-shrink:0}
+
+/* Special: P&L widget with mini chart */
+.wg-pnl-hero{display:flex;align-items:center;gap:10px;padding:10px 0}
+.wg-pnl-v{font-family:var(--m);font-size:24px;font-weight:700}
+.wg-pnl-s{font-family:var(--m);font-size:11px}
+.wg-pnl-chart{flex:1;height:36px}
+.wg-pnl-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--bd)}
+.wg-pnl-stat-l{font-size:8px;color:var(--tm);text-transform:uppercase;letter-spacing:.5px}
+.wg-pnl-stat-v{font-family:var(--m);font-size:11px;font-weight:600;margin-top:2px}
+
+/* DYNAMIC (unchanged from v15) */
+.dyn-header{padding:12px 18px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);margin-bottom:10px;background:linear-gradient(to bottom,rgba(110,231,183,.03),transparent)}
+.dyn-header.hide{display:none}
+.dyn-back{padding:5px 12px;border-radius:14px;border:1px solid var(--bd);background:var(--sf);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;display:flex;align-items:center;gap:3px}
+.dyn-back:hover{border-color:var(--bda);color:var(--tp)}
+.dyn-badge{padding:2px 8px;border-radius:3px;background:rgba(0,240,196,.06);color:#00F0C4;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;gap:4px}
+.dyn-badge-dot{width:5px;height:5px;border-radius:50%;background:#00F0C4;animation:pulse 1.5s infinite}
+.dyn-title{font-size:13px;font-weight:600;color:var(--tp)}
+.dyn-sub{font-size:10px;color:var(--tm);margin-top:2px}
+.dyn-grid{display:grid;gap:10px;padding:0 18px 14px}
+.dyn-grid.risk{grid-template-columns:1fr 1fr;grid-template-areas:"overview risk-score" "allocation concentration" "holdings holdings" "orders strategies"}
+.dyn-grid.compare{grid-template-columns:1fr 1fr;grid-template-areas:"a b" "ai ai" "actions actions"}
+.dyn-grid.tradeplan{grid-template-columns:2fr 1fr;grid-template-areas:"plan summary" "reasoning reasoning" "actions actions"}
+.dyn-grid.research{grid-template-columns:1fr 1fr;gap:10px}
+.dyn-grid.attribution{grid-template-columns:1fr 1fr;gap:10px}
+.dp-panel{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;min-width:0}
+.dp-panel-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.dp-panel-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px}
+.dp-panel-t{font-size:11px;font-weight:600}
+.dp-panel-s{margin-left:auto;font-size:9px;color:var(--tm)}
+.area-overview{grid-area:overview}.area-risk-score{grid-area:risk-score}.area-allocation{grid-area:allocation}.area-concentration{grid-area:concentration}.area-holdings{grid-area:holdings}.area-orders{grid-area:orders}.area-strategies{grid-area:strategies}.area-a{grid-area:a}.area-b{grid-area:b}.area-ai{grid-area:ai}.area-actions{grid-area:actions}.area-plan{grid-area:plan}.area-summary{grid-area:summary}.area-reasoning{grid-area:reasoning}
+
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi-l{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--tm)}
+.kpi-v{font-family:var(--m);font-size:18px;font-weight:700;margin-top:2px}
+.kpi-s{font-family:var(--m);font-size:9px;margin-top:1px}
+.bar-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:10px}
+.bar-tk{font-weight:600;width:46px;flex-shrink:0;cursor:pointer;transition:color .12s}
+.bar-tk:hover{color:var(--b)}
+.bar-track{flex:1;height:6px;background:var(--sf2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease-out}
+.bar-pct{font-family:var(--m);font-size:9px;color:var(--ts);width:40px;text-align:right;flex-shrink:0}
+.risk-score{display:flex;align-items:center;gap:12px}
+.risk-gauge{width:80px;height:80px;position:relative;flex-shrink:0}
+.risk-gauge-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.risk-gauge-val{font-family:var(--m);font-size:20px;font-weight:700}
+.risk-gauge-lbl{font-size:8px;color:var(--tm);margin-top:1px}
+.risk-factors{flex:1;display:flex;flex-direction:column;gap:5px}
+.risk-factor{display:flex;align-items:center;gap:6px;font-size:10px}
+.risk-factor-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.risk-factor-l{color:var(--ts);flex:1}
+.risk-factor-v{font-family:var(--m);font-size:10px;color:var(--tp)}
+.tbl-dense{width:100%;border-collapse:collapse}
+.tbl-dense th{text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);padding:6px 6px;border-bottom:1px solid var(--bd);font-weight:500}
+.tbl-dense td{padding:7px 6px;border-bottom:1px solid var(--bd);font-size:10px;cursor:pointer}
+.tbl-dense tr:hover td{background:var(--sf2)}
+.tbl-dense .tk{font-weight:600}.tbl-dense .mn{font-family:var(--m)}
+.pill{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.pill.r{background:var(--rbg);color:var(--r)}.pill.o{background:var(--obg);color:var(--o)}.pill.g{background:rgba(0,184,184,.1);color:#00B8B8}
+.inline-list{display:flex;flex-direction:column;gap:6px}
+.inline-item{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;background:var(--sf2);border-radius:5px;border-left:2px solid var(--bd);font-size:10px}
+.inline-item.run{border-left-color:var(--o)}.inline-item.ok{border-left-color:var(--g)}.inline-item.warn{border-left-color:var(--r)}
+.inline-item-b{flex:1}
+.inline-item-t{font-size:10px;font-weight:500;color:var(--tp)}
+.inline-item-s{font-size:9px;color:var(--tm);margin-top:2px;line-height:1.4}
+.ai-para{font-size:11px;line-height:1.7;color:var(--ts);margin-bottom:6px}
+.ai-para strong{color:var(--tp);font-weight:600}
+.ai-bul{display:flex;gap:6px;font-size:10px;line-height:1.6;padding:3px 0;color:var(--ts)}
+.ai-bul-d{color:var(--g);flex-shrink:0;margin-top:4px}
+.ai-bul strong{color:var(--tp);font-weight:500}
+.action-bar{display:flex;gap:6px;flex-wrap:wrap}
+.action-btn{padding:7px 14px;border-radius:16px;border:1px solid var(--bd);background:var(--sf2);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;transition:all .12s}
+.action-btn:hover{border-color:var(--bda);color:var(--tp)}
+.action-btn.primary{border-color:#00B8B8;background:rgba(0,184,184,.1);color:#00B8B8}
+.cmp-row{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px dashed var(--bd)}
+.cmp-row:last-child{border:none}
+.cmp-l{color:var(--tm)}.cmp-v{font-family:var(--m);color:var(--tp)}
+.cmp-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer}
+.cmp-title:hover{color:var(--b)}
+.cmp-chg{font-family:var(--m);font-size:10px;margin-left:auto}
+
+.dt-tk{font-size:17px;font-weight:700}.dt-nm{font-size:11px;color:var(--ts)}
+.dt-pr{font-family:var(--m);font-size:22px;font-weight:700;margin:4px 0}
+.dt-ch{font-family:var(--m);font-size:11px}
+.dt-ctx{background:var(--sf2);border-radius:6px;padding:8px 10px;margin:10px 0;border-left:2px solid #00B8B8}
+.dt-ctx-l{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:var(--tm);margin-bottom:2px}.dt-ctx-t{font-size:10px;color:var(--ts);line-height:1.5}
+.dt-chart{width:100%;height:100px;background:var(--sf2);border-radius:6px;margin:8px 0;overflow:hidden}
+.dt-chart canvas{width:100%;height:100%}
+.dt-sec{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin:10px 0 6px}
+.dt-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.dt-stat{background:var(--sf2);border-radius:5px;padding:6px 8px}
+.dt-stat-l{font-size:8px;color:var(--tm)}.dt-stat-v{font-family:var(--m);font-size:11px;font-weight:600;margin-top:1px}
+.dt-actions{display:flex;gap:6px;margin-top:8px}
+.dt-act{flex:1;padding:7px;border-radius:5px;border:1px solid var(--bd);background:var(--sf2);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;text-align:center}
+.dt-act.primary{border-color:#00B8B8;background:rgba(0,184,184,.1);color:#00B8B8}
+
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fadeInUp .35s ease both}
+.fi-d1{animation-delay:.04s}.fi-d2{animation-delay:.08s}.fi-d3{animation-delay:.12s}.fi-d4{animation-delay:.16s}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOP NAV -->
+<div class="tn">
+  <div class="tn-logo"><div class="tn-logo-mark"><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div></div><div class="tn-logo-text"><div class="tn-logo-subtitle">HONG KONG</div><div class="tn-logo-title">LONGBRIDGE</div></div></div>
+  <div class="tn-indices" id="tnIndices"></div>
+  <div class="tn-sp"></div>
+  <div class="tn-menu">
+    <div class="tn-mi">平台特色<span class="tn-mi-caret">⌄</span></div>
+    <div class="tn-mi">费用</div>
+    <div class="tn-mi">下载</div>
+    <div class="tn-mi">账户类型<span class="tn-mi-caret">⌄</span></div>
+    <div class="tn-mi">帮助</div>
+    <div class="tn-mi">关于<span class="tn-mi-caret">⌄</span></div>
+  </div>
+  <div class="tn-icons">
+    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0118 0v6"/></svg></div>
+    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20"/></svg></div>
+    <div class="tn-avatar">C</div>
+  </div>
+</div>
+
+<div class="bd">
+  <!-- ICON NAV -->
+  <div class="in">
+    <div class="ni on" data-v="home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>首页</span><span class="ni-b" id="badge">4</span></div>
+    <div class="ni-s"></div>
+    <div class="ni" data-v="watchlist" onclick="go('watchlist')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>自选</span></div>
+    <div class="ni" data-v="portfolio" onclick="go('portfolio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><span>资产</span></div>
+    <div class="ni" data-v="news" onclick="go('news')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2"/></svg><span>资讯</span></div>
+    <div class="ni-s"></div>
+    <div class="ni" data-v="market" onclick="go('market')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>市场</span></div>
+    <div class="ni" data-v="community" onclick="go('community')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>社区</span></div>
+    <div class="ni" data-v="trade" onclick="go('trade')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>交易</span></div>
+  </div>
+
+  <div class="fr">
+    <div class="mr">
+      <!-- 1. MAIN BROWSE -->
+      <div class="mc" id="mc">
+        <div class="dyn-header hide" id="dynHeader">
+          <button class="dyn-back" onclick="exitDynamic()">← 返回</button>
+          <div><div class="dyn-title" id="dynTitle"></div><div class="dyn-sub" id="dynSub"></div></div>
+          <div style="margin-left:auto"><span class="dyn-badge"><span class="dyn-badge-dot"></span>实时布局</span></div>
+        </div>
+        <div class="vw on" id="v-home"></div>
+        <div class="vw" id="v-watchlist"></div>
+        <div class="vw" id="v-portfolio"></div>
+        <div class="vw" id="v-news"></div>
+        <div class="vw" id="v-market"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">市场</p></div>
+        <div class="vw" id="v-community"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">社区</p></div>
+        <div class="vw" id="v-trade"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">交易</p></div>
+        <div class="vw" id="v-dyn-risk"></div>
+        <div class="vw" id="v-dyn-compare"></div>
+        <div class="vw" id="v-dyn-tradeplan"></div>
+        <div class="vw" id="v-dyn-research"></div>
+        <div class="vw" id="v-dyn-attribution"></div>
+      </div>
+
+      <!-- 2. DETAIL (between main and AI workbench) -->
+      <div class="dp" id="dp">
+        <div class="dp-close" id="dpHeader">
+          <button class="dp-back-btn" id="dpBack" onclick="dpGoBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回</button>
+          <button class="dp-close-btn" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="dp-inner" id="dpInner"></div>
+        <div class="dp-footer" id="dpFooter"></div>
+      </div>
+
+      <!-- 3. AI 工作台 (renamed from 感知敞口) -->
+      <div class="aw" id="aw">
+        <div class="aw-hd"><div class="aw-hd-icon">AI</div><span class="aw-hd-t">AI 工作台</span><span class="aw-hd-s" id="awCount">6 项</span></div>
+        <div class="aw-body" id="awBody"></div>
+      </div>
+
+      <!-- 4. CHAT -->
+      <div class="ch">
+        <div class="ch-hd"><div class="ch-logo">AI</div><span class="ch-brand">LongbridgeAI</span><span class="ch-tag" id="chtag">首页</span></div>
+        <div class="ch-msgs" id="chm"></div>
+      </div>
+    </div>
+
+    <div class="gi">
+      <div class="hint-tip" id="hintTip"><span class="hint-tip-dot"></span>布局已按意图实时重组 · 继续输入可细化 · Enter 发送给 AI</div>
+      <div class="gi-tries" id="giTries">
+        <button class="gi-try" onclick="tryIntent('分析我的持仓风险')">试：分析我的持仓风险</button>
+        <button class="gi-try" onclick="tryIntent('对比 NVDA 和 AMD')">试：对比 NVDA 和 AMD</button>
+        <button class="gi-try" onclick="tryIntent('帮我建一个 NVDA Trade Plan')">试：建 NVDA Trade Plan</button>
+        <button class="gi-try" onclick="tryIntent('NVDA 能追吗')">试：NVDA 能追吗</button>
+        <button class="gi-try" onclick="tryIntent('今天为什么跌了')">试：今天为什么跌了</button>
+      </div>
+      <div class="gi-box" id="giBox">
+        <span class="gi-live-dot"></span>
+        <input placeholder="试试：分析持仓风险 / NVDA 能追吗 / 对比 NVDA 和 AMD / 建 Trade Plan / 今天为什么跌了" id="gin" onfocus="showTries()" onblur="hideTries()">
+        <span class="gi-hint">已接入持仓·自选·行情·策略</span>
+        <button class="gi-send" onclick="sendG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+<script>
+function spark(dir,w=26,h=14){
+  const pts=dir==='down'?[[0,3],[6,6],[12,4],[18,8],[24,11]]:[[0,11],[6,8],[12,10],[18,5],[24,2]];
+  const color=dir==='down'?'#FF3A75':'#00ADA2';
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0]+','+p[1]).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 26 14"><path d="${d}" stroke="${color}" stroke-width="1.2" fill="none"/></svg>`;
+}
+
+let sc='active',cv='home',dynamic=false,previousView='home',currentDynViewId=null;
+
+const awState={
+  active:{
+    tasks:[
+      {status:'run',title:'组合风险周报生成中',desc:'每周一 9:00 · 自动汇总',kv:[['进度','72%']],progress:72,actions:['查看','中断']},
+      {status:'ok',title:'科技股异动扫描',desc:'每日 8:00 / 14:00',kv:[['最近','09:03'],['命中','2 条']],actions:['日志','暂停']},
+      {status:'ok',title:'组合 Beta 监控',desc:'实时 · 阈值 >1.5',kv:[['Beta','1.42']],actions:['查看','调参']}
+    ],
+    strategies:[
+      {status:'run',title:'NVDA 看涨期权策略',desc:'AI 评估最优行权价',kv:[['评估','68%']],progress:68,actions:['查看','暂停']},
+      {status:'ok',title:'AAPL 止损监控',desc:'已运行 42 天',kv:[['预警','$195'],['当前','$198.32']],actions:['查看','调整']}
+    ],
+    orders:[{status:'ok',title:'TSLA 限价买单',desc:'委托中 · 3 天 · GTC',kv:[['限价','$235'],['数量','20 股']],actions:['查看','撤单']}]
+  },
+  calm:{
+    tasks:[
+      {status:'ok',title:'组合 Beta 监控',desc:'实时',kv:[['Beta','1.38']],actions:['查看','调参']},
+      {status:'ok',title:'科技股异动扫描',desc:'每日',kv:[['今日','0 条']],actions:['日志','暂停']}
+    ],
+    strategies:[{status:'ok',title:'AAPL 止损监控',desc:'已运行 42 天',kv:[['预警','$195']],actions:['查看','调整']}],
+    orders:[{status:'ok',title:'TSLA 限价买单',desc:'委托中',kv:[['限价','$235']],actions:['查看','撤单']}]
+  },
+  down:{
+    tasks:[
+      {status:'run',title:'AAPL 止损位计算',desc:'紧急分析',kv:[['进度','45%']],progress:45,actions:['查看','中断']},
+      {status:'warn',title:'组合 Beta 越线告警',desc:'连续 2 次超阈值',kv:[['Beta','1.58'],['阈值','1.50']],actions:['查看','调参']},
+      {status:'ok',title:'科技股异动扫描',desc:'高命中',kv:[['今日','3 条']],actions:['日志','暂停']}
+    ],
+    strategies:[
+      {status:'warn',title:'AAPL 止损触发',desc:'已跌破预警线',kv:[['预警','$200'],['当前','$198']],actions:['执行','延后']},
+      {status:'paused',title:'NVDA 看涨期权',desc:'系统性下跌暂停',kv:[['状态','已暂停']],actions:['查看','恢复']}
+    ],
+    orders:[{status:'ok',title:'TSLA 限价买单',desc:'委托中',kv:[['限价','$235']],actions:['查看','撤单']}]
+  }
+};
+
+const S={
+  active:{
+    indices:[{name:'恒生...',val:'26020.750',chg:'-373.51',pct:'-1.42%',dir:'down'},{name:'国企...',val:'8782.740',chg:'-122.37',pct:'-1.37%',dir:'down'}],
+    mktIdx:[
+      {name:'恒生指数',val:'26020.75',chg:'-1.42%',dir:'down',color:'var(--r)'},
+      {name:'国企指数',val:'8782.74',chg:'-1.37%',dir:'down',color:'var(--r)'},
+      {name:'纳斯达克',val:'17,428',chg:'+1.20%',dir:'up',color:'var(--g)'},
+      {name:'标普 500',val:'5,291',chg:'+0.85%',dir:'up',color:'var(--g)'}
+    ],
+    chips:[{t:'Trade Plan',n:'NVDA 期权',c:'urg'},{t:'Signal 研究',n:'TSM 扩产',c:'urg'}],
+    pf:{v:'$48,327',ch:'+$1,247',pct:'+2.65%',p:true},
+    top:[{t:'NVDA',v:'+3.08%',p:true},{t:'AAPL',v:'-0.82%',p:false},{t:'GOOG',v:'+1.24%',p:true}],
+    nc:4,lv:'2 小时前',
+    ur:[
+      {tag:'Signal',c:'signal',tk:'AMZN',tx:'AI Revolution Core Beneficiary, Growth Story Just Beginning',rl:'Lynch-like Growth Strategy · 32 mins ago',tm:'32 分钟前',sig:true},
+      {tag:'异动',c:'anomaly',tk:'NVDA',tx:'NVDA 突破 30 日高点 $140',rl:'持有 <strong>18%</strong>',tm:'48 分钟前'},
+      {tag:'催化',c:'catalyst',tk:'TSM',tx:'TSM 宣布 3nm 产能扩张',rl:'NVDA/AMD 均为客户',tm:'1 小时前'},
+      {tag:'资讯',c:'news',tk:'宏观',tx:'美联储偏鸽信号',rl:'科技持仓 <strong>64%</strong>',tm:'1.5 小时前'}
+    ],
+    rd:[{tag:'系统',c:'system',tk:'BABA',tx:'BABA Q1 财报 · 下周五',rl:'自选 BABA',tm:'09:15'}],
+    ai:{msg:'2 小时内 <b>4 件新变化</b>。NVDA 突破 30 日高点。',sugs:['分析我的持仓风险','对比 NVDA 和 AMD']},
+    pnlToday:'+$1,247',pnlWeek:'+$2,100',pnlMonth:'+$5,400'
+  },
+  calm:{
+    indices:[{name:'恒生...',val:'26394.260',chg:'+45.20',pct:'+0.17%',dir:'up'},{name:'国企...',val:'8905.110',chg:'+12.30',pct:'+0.14%',dir:'up'}],
+    mktIdx:[
+      {name:'恒生指数',val:'26394.26',chg:'+0.17%',dir:'up',color:'var(--g)'},
+      {name:'国企指数',val:'8905.11',chg:'+0.14%',dir:'up',color:'var(--g)'},
+      {name:'纳斯达克',val:'17,540',chg:'+0.20%',dir:'up',color:'var(--g)'},
+      {name:'标普 500',val:'5,321',chg:'+0.12%',dir:'up',color:'var(--g)'}
+    ],
+    chips:[],
+    pf:{v:'$47,892',ch:'+$82',pct:'+0.17%',p:true},
+    top:[{t:'NVDA',v:'+0.32%',p:true},{t:'AAPL',v:'-0.11%',p:false},{t:'GOOG',v:'+0.08%',p:true}],
+    nc:1,lv:'4 小时前',calm:true,
+    ur:[{tag:'系统',c:'system',tk:'AAPL',tx:'AAPL 财报：下周四',rl:'持有 <strong>14%</strong>',tm:'2 小时前'}],
+    rd:[],
+    ai:{msg:'4 小时无重大变化。',sugs:['AAPL 财报怎么准备？','分析我的持仓风险']},
+    pnlToday:'+$82',pnlWeek:'+$350',pnlMonth:'+$4,200'
+  },
+  down:{
+    indices:[{name:'恒生...',val:'25492.110',chg:'-901.93',pct:'-3.42%',dir:'down'},{name:'国企...',val:'8512.630',chg:'-392.45',pct:'-4.41%',dir:'down'}],
+    mktIdx:[
+      {name:'恒生指数',val:'25492.11',chg:'-3.42%',dir:'down',color:'var(--r)'},
+      {name:'国企指数',val:'8512.63',chg:'-4.41%',dir:'down',color:'var(--r)'},
+      {name:'纳斯达克',val:'16,820',chg:'-2.80%',dir:'down',color:'var(--r)'},
+      {name:'标普 500',val:'5,180',chg:'-1.95%',dir:'down',color:'var(--r)'}
+    ],
+    chips:[{t:'Trade Plan',n:'AAPL 止损',c:'urg'}],
+    pf:{v:'$46,510',ch:'-$1,300',pct:'-2.72%',p:false},
+    top:[{t:'NVDA',v:'-3.41%',p:false},{t:'AAPL',v:'-2.10%',p:false},{t:'GOOG',v:'-1.88%',p:false}],
+    nc:3,lv:'昨晚',
+    ur:[
+      {tag:'Signal',c:'signal',tk:'AAPL',tx:'Quality Strong, Valuation Rich — Wait for a Better Entry',rl:'Buffett Value Strategy · 29 mins ago',tm:'29 分钟前',sig:true},
+      {tag:'异动',c:'anomaly',tk:'NVDA',tx:'NVDA 跳空低开 -3.4%',rl:'持有 <strong>18%</strong>',tm:'开盘'},
+      {tag:'资讯',c:'news',tk:'宏观',tx:'美债收益率急升',rl:'科技 <strong>64%</strong>',tm:'盘前'}
+    ],
+    rd:[{tag:'催化',c:'catalyst',tk:'GOOG',tx:'GOOG 目标价下调 $165',rl:'距目标价 4%',tm:'昨天'}],
+    ai:{msg:'今天 <b>-2.72%</b>。',sugs:['分析我的持仓风险','执行 AAPL 止损']},
+    pnlToday:'-$1,300',pnlWeek:'-$450',pnlMonth:'+$2,100'
+  }
+};
+
+const knownTickers=['NVDA','AAPL','GOOG','META','TSM','AMD','MSFT','BRK.B','BABA','TSLA','AMZN'];
+const watchlistData=[
+  {tk:'NVDA',nm:'NVIDIA',pr:'142.68',chg:'+3.08%',dir:'up'},
+  {tk:'AAPL',nm:'Apple',pr:'198.32',chg:'-0.82%',dir:'down'},
+  {tk:'GOOG',nm:'Alphabet',pr:'172.00',chg:'+1.24%',dir:'up'},
+  {tk:'TSM',nm:'TSMC',pr:'178.90',chg:'+3.11%',dir:'up'},
+  {tk:'AMD',nm:'AMD',pr:'167.44',chg:'+2.91%',dir:'up'},
+  {tk:'META',nm:'Meta',pr:'512.40',chg:'+2.75%',dir:'up'}
+];
+const portfolioData=[
+  {tk:'NVDA',nm:'60 股',pr:'$142.68',pnl:'+$850',dir:'up'},
+  {tk:'AAPL',nm:'35 股',pr:'$198.32',pnl:'+$459',dir:'up'},
+  {tk:'META',nm:'10 股',pr:'$512.40',pnl:'+$324',dir:'up'},
+  {tk:'MSFT',nm:'15 股',pr:'$425.00',pnl:'+$225',dir:'up'},
+  {tk:'GOOG',nm:'25 股',pr:'$172.00',pnl:'+$100',dir:'up'}
+];
+const holdings=[
+  {tk:'NVDA',nm:'NVIDIA',shares:60,cost:128.50,price:142.68,pct:18.0,sector:'AI 芯片',beta:1.72,risk:'o'},
+  {tk:'AAPL',nm:'Apple',shares:35,cost:185.20,price:198.32,pct:14.0,sector:'消费电子',beta:1.22,risk:'r'},
+  {tk:'GOOG',nm:'Alphabet',shares:25,cost:168.00,price:172.00,pct:13.0,sector:'互联网',beta:1.05,risk:'g'},
+  {tk:'META',nm:'Meta',shares:10,cost:480.00,price:512.40,pct:11.0,sector:'互联网',beta:1.32,risk:'g'},
+  {tk:'TSM',nm:'TSMC',shares:30,cost:175.00,price:178.90,pct:8.0,sector:'AI 芯片',beta:1.45,risk:'o'},
+  {tk:'AMD',nm:'AMD',shares:8,cost:160.00,price:167.44,pct:12.0,sector:'AI 芯片',beta:1.88,risk:'o'},
+  {tk:'MSFT',nm:'Microsoft',shares:15,cost:410.00,price:425.00,pct:14.0,sector:'软件',beta:0.92,risk:'g'},
+  {tk:'BRK.B',nm:'Berkshire',shares:20,cost:380.00,price:398.00,pct:10.0,sector:'金融',beta:0.88,risk:'g'}
+];
+const ddb={
+  NVDA:{tk:'NVDA',nm:'NVIDIA Corporation',pr:'142.68',ch:'+4.27',pct:'+3.08%',p:true,op:'139.20',hi:'143.51',lo:'138.90',vol:'82.3M',pe:'68.2',cap:'$3.51T'},
+  AAPL:{tk:'AAPL',nm:'Apple Inc.',pr:'198.32',ch:'-4.68',pct:'-2.31%',p:false,op:'202.10',hi:'202.85',lo:'197.60',vol:'54.1M',pe:'31.4',cap:'$3.04T'},
+  TSM:{tk:'TSM',nm:'Taiwan Semiconductor',pr:'178.90',ch:'+5.40',pct:'+3.11%',p:true,op:'174.20',hi:'179.80',lo:'173.50',vol:'18.2M',pe:'24.8',cap:'$927B'},
+  GOOG:{tk:'GOOG',nm:'Alphabet',pr:'172.00',ch:'+2.10',pct:'+1.24%',p:true,op:'170.50',hi:'172.80',lo:'170.10',vol:'21.5M',pe:'25.2',cap:'$2.15T'},
+  AMD:{tk:'AMD',nm:'AMD',pr:'167.44',ch:'+4.74',pct:'+2.91%',p:true,op:'163.80',hi:'168.20',lo:'163.10',vol:'32.1M',pe:'42.6',cap:'$271B'},
+  META:{tk:'META',nm:'Meta Platforms',pr:'512.40',ch:'+13.70',pct:'+2.75%',p:true,op:'499.80',hi:'514.00',lo:'498.50',vol:'28.7M',pe:'28.4',cap:'$1.31T'},
+  MSFT:{tk:'MSFT',nm:'Microsoft',pr:'425.00',ch:'+2.80',pct:'+0.66%',p:true,op:'422.50',hi:'426.10',lo:'421.80',vol:'24.5M',pe:'36.2',cap:'$3.16T'},
+  'BRK.B':{tk:'BRK.B',nm:'Berkshire Hathaway',pr:'398.00',ch:'+1.20',pct:'+0.30%',p:true,op:'397.00',hi:'399.50',lo:'396.80',vol:'4.2M',pe:'10.8',cap:'$857B'},
+  BABA:{tk:'BABA',nm:'Alibaba',pr:'88.91',ch:'+0.40',pct:'+0.45%',p:true,op:'88.50',hi:'89.20',lo:'88.30',vol:'15.8M',pe:'14.2',cap:'$218B'},
+  TSLA:{tk:'TSLA',nm:'Tesla',pr:'241.15',ch:'+3.90',pct:'+1.63%',p:true,op:'238.00',hi:'242.50',lo:'237.20',vol:'67.4M',pe:'68.4',cap:'$768B'}
+};
+
+/* Signal 详情数据 */
+const signalDB={
+  AMZN:{tk:'AMZN.US',nm:'Amazon',logo:'A',pr:'188.42',verdict:'bullish',range:'$188→$220',
+    headline:'AI Revolution Core Beneficiary, Growth Story Just Beginning',
+    desc:'Amazon has released its Q4 2025 earnings results. AWS revenue grew 19% YoY, driven by AI workload migration.',
+    strategy:'Lynch-like Growth Strategy',time:'32 mins ago',
+    detail:{targetVal:'$188 - $220',priceVsTarget:'+$32 / +17.0%',fit:87,fitLabel:'Strong bullish',
+      catalyst:'AWS Cloud AI Revenue Acceleration',catalystDesc:'AWS cloud AI services revenue grew 42% YoY, beating expectations of 30%.',catalystSrc:'SEC & 3 sources',
+      factors:[{n:'Revenue growth >25%',v:'✓',c:'g'},{n:'PEG ratio <1.5',v:'1.2',c:'g'},{n:'Market leader',v:'✓',c:'g'},{n:'Institutional buy',v:'N/A',c:'tm'}],
+      objective:'High-growth companies at reasonable prices with strong moats and expanding markets.',
+      process:'Lynch Growth Strategy evaluates revenue acceleration, PEG ratio, competitive position, and market expansion.',
+      valLow:'$170',valBase:'$195',valHigh:'$225',valCurrent:'$188',
+      risk:'Growth deceleration risk if AI spending slows. AWS faces Azure/GCP competition. Antitrust regulatory risk.',
+      exec:[['Entry','Current price near fair value low'],['Rules','Buy on pullback below $185'],['Horizon','6-12 months'],['Position','4-6% of portfolio']]}
+  },
+  AAPL:{tk:'AAPL.US',nm:'Apple Inc',logo:'',pr:'198.32',verdict:'bearish',range:'$170→$235',
+    headline:'Quality Strong, Valuation Rich — Wait for a Better Entry',
+    desc:'Apple has durable competitive advantages. Latest earnings show ROE improved from 17% to 19%, services margin hit 71%.',
+    strategy:'Buffett Value Strategy',time:'29 mins ago',
+    detail:{targetVal:'$170 - $235',priceVsTarget:'$206 +$200 / -24.8%',fit:83,fitLabel:'Strong bearish',
+      catalyst:'AAPL Earnings: iPhone Sales & Services Revenue Grow Strongly',catalystDesc:'Services hit $30B, margin expanded to 71%. Services now 26% of total revenue.',catalystSrc:'SEC & 5 sources',
+      factors:[{n:'Economic moat',v:'Wide',c:'g'},{n:'ROE >15%',v:'19%',c:'g'},{n:'D/E ratio <0.5',v:'1.8',c:'r'},{n:'FCF yield >4%',v:'3.2%',c:'o'}],
+      objective:'High-quality companies at reasonable prices, held long-term.',
+      process:'Current price $206 vs DCF fair value $170–$235. Stock 33% above base $205. Wait for pullback below $200.',
+      valLow:'$170',valBase:'$205',valHigh:'$235',valCurrent:'$206',
+      risk:'Premium valuation with D/E 1.8 above threshold. iPhone China slowdown. EU DMA antitrust risk.',
+      exec:[['Entry','Wait for pullback below $200'],['Rules','Buy on 10-20% below fair value'],['Horizon','10+ years'],['Position','3-5% of portfolio']]}
+  }
+};
+
+function go(v){
+  exitDynamic();cv=v;
+  document.querySelectorAll('.ni').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.querySelectorAll('.vw').forEach(el=>el.classList.toggle('on',el.id==='v-'+v));
+  document.getElementById('chtag').textContent={home:'首页',watchlist:'自选',portfolio:'资产',news:'资讯',market:'市场',community:'社区',trade:'交易'}[v]||'';
+}
+function setS(s){sc=s;document.querySelectorAll('.demo-b').forEach(b=>b.classList.remove('on'));event.target.classList.add('on');closeDetail();exitDynamic();go('home');renderAll()}
+
+function renderIndices(){
+  const s=S[sc],el=document.getElementById('tnIndices');let h='';
+  s.indices.forEach(idx=>h+=`<div class="tn-index ${idx.dir==='up'?'up':''}"><div class="tn-index-icon"></div><span class="tn-index-name">${idx.name}</span><span class="tn-index-value">${idx.val}</span><span class="tn-index-arrow">${idx.dir==='up'?'▲':'▼'}</span>${spark(idx.dir)}<span class="tn-index-change">${idx.chg} ${idx.pct}</span></div>`);
+  el.innerHTML=h;
+}
+
+/* AI 工作台 */
+function renderAW(){
+  const p=awState[sc];
+  const total=p.tasks.length+p.strategies.length+p.orders.length;
+  document.getElementById('awCount').textContent=total+' 项';
+  let h='';
+  // Inject homepage chips as urgent cards at top
+  const s=S[sc];
+  if(s.chips&&s.chips.length){
+    h+=`<div class="aw-sec">需关注 <span class="aw-sec-count">${s.chips.length}</span></div>`;
+    s.chips.forEach(c=>{
+      h+=`<div class="aw-card warn"><div class="aw-card-h"><span class="aw-card-status warn">待处理</span></div>`;
+      h+=`<div class="aw-card-title">${c.t} · ${c.n}</div>`;
+      h+=`<div class="aw-card-desc">需要您关注</div>`;
+      h+=`<div class="aw-card-actions"><button class="aw-act-btn primary">查看</button><button class="aw-act-btn">稍后</button></div></div>`;
+    });
+  }
+  // Dynamic cards (from Build Trade Plan etc)
+  if(typeof dynamicAWCards!=='undefined'&&dynamicAWCards.length){
+    h+=`<div class="aw-sec">动态任务 <span class="aw-sec-count">${dynamicAWCards.length}</span></div>`;
+    dynamicAWCards.forEach(t=>h+=awCardH(t));
+  }
+  if(p.tasks.length){h+=`<div class="aw-sec">AI 长期任务 <span class="aw-sec-count">${p.tasks.length}</span></div>`;p.tasks.forEach(t=>h+=awCardH(t))}
+  if(p.strategies.length){h+=`<div class="aw-sec">活跃策略 <span class="aw-sec-count">${p.strategies.length}</span></div>`;p.strategies.forEach(s=>h+=awCardH(s))}
+  if(p.orders.length){h+=`<div class="aw-sec">长期订单 <span class="aw-sec-count">${p.orders.length}</span></div>`;p.orders.forEach(o=>h+=awCardH(o))}
+  // Update count
+  const totalCount=p.tasks.length+p.strategies.length+p.orders.length+(s.chips?s.chips.length:0)+(typeof dynamicAWCards!=='undefined'?dynamicAWCards.length:0);
+  document.getElementById('awCount').textContent=totalCount+' 项';
+  document.getElementById('awBody').innerHTML=h;
+}
+function awCardH(item){
+  const statusMap={run:'运行中',ok:'正常',warn:'预警',paused:'已暂停'};
+  const uid='aw-'+Math.random().toString(36).substr(2,6);
+  let h=`<div class="aw-card ${item.status}" onclick="toggleAwDetail('${uid}')"><div class="aw-card-h"><span class="aw-card-status ${item.status}">${statusMap[item.status]}</span><span style="margin-left:auto;font-size:8px;color:var(--tm);transition:transform .2s" id="${uid}-arrow">▾</span></div>`;
+  h+=`<div class="aw-card-title">${item.title}</div>`;
+  h+=`<div class="aw-card-desc">${item.desc}</div>`;
+  h+=`<div class="aw-card-meta">`;
+  if(item.kv) item.kv.forEach(([k,v])=>h+=`<div class="aw-card-kv"><span class="aw-card-k">${k}</span><span class="aw-card-v">${v}</span></div>`);
+  h+=`</div>`;
+  if(item.progress!==undefined)h+=`<div class="aw-card-progress"><div class="aw-card-progress-bar" style="width:${item.progress}%"></div></div>`;
+  // Expandable detail
+  h+=`<div class="aw-card-detail" id="${uid}" style="max-height:0;overflow:hidden;transition:max-height .25s ease;margin-top:0">`;
+  h+=`<div style="padding-top:6px;border-top:1px solid var(--bd);margin-top:6px">`;
+  if(item.status==='run'&&item.progress!==undefined){
+    h+=`<div style="font-size:9px;color:var(--ts);line-height:1.5;margin-bottom:4px">任务正在执行中，预计完成进度 <strong style="color:var(--tp)">${item.progress}%</strong>。</div>`;
+  }
+  if(item.status==='warn'){
+    h+=`<div style="font-size:9px;color:var(--r);line-height:1.5;margin-bottom:4px">⚠ 需要您关注并处理此项。</div>`;
+  }
+  if(item.status==='ok'){
+    h+=`<div style="font-size:9px;color:var(--ts);line-height:1.5;margin-bottom:4px">运行正常，无需操作。</div>`;
+  }
+  if(item.kv&&item.kv.length){
+    h+=`<div style="display:flex;flex-direction:column;gap:2px;margin-bottom:4px">`;
+    item.kv.forEach(([k,v])=>h+=`<div style="display:flex;justify-content:space-between;font-size:9px"><span style="color:var(--tm)">${k}</span><span style="font-family:var(--m);color:var(--tp)">${v}</span></div>`);
+    h+=`</div>`;
+  }
+  if(item.actions){h+=`<div class="aw-card-actions" style="display:flex">`;item.actions.forEach((a,i)=>h+=`<button class="aw-act-btn ${i===0?'primary':''}" onclick="event.stopPropagation()">${a}</button>`);h+=`</div>`}
+  h+=`</div></div>`;
+  h+=`</div>`;return h;
+}
+function toggleAwDetail(uid){
+  const el=document.getElementById(uid);
+  const arrow=document.getElementById(uid+'-arrow');
+  if(!el)return;
+  if(el.style.maxHeight==='0px'||el.style.maxHeight===''){
+    el.style.maxHeight=el.scrollHeight+40+'px';
+    if(arrow)arrow.style.transform='rotate(180deg)';
+  }else{
+    el.style.maxHeight='0px';
+    if(arrow)arrow.style.transform='rotate(0deg)';
+  }
+}
+
+/* DETAIL */
+function openDetail(tk,evTx){
+  const d=ddb[tk];if(!d)return;
+  const dp=document.getElementById('dp');
+  document.getElementById('dpInner').innerHTML=`
+    <div class="dt-tk">${d.tk}</div><div class="dt-nm">${d.nm}</div>
+    <div class="dt-pr">$${d.pr}</div><div class="dt-ch ${d.p?'positive':'negative'}">${d.ch} (${d.pct})</div>
+    ${evTx?`<div class="dt-ctx"><div class="dt-ctx-l">触发事件</div><div class="dt-ctx-t">${evTx}</div></div>`:''}
+    <div class="dt-chart"><canvas id="dc"></canvas></div>
+    <div class="dt-sec">关键数据</div>
+    <div class="dt-stats">
+      <div class="dt-stat"><div class="dt-stat-l">开盘</div><div class="dt-stat-v">$${d.op}</div></div>
+      <div class="dt-stat"><div class="dt-stat-l">最高</div><div class="dt-stat-v">$${d.hi}</div></div>
+      <div class="dt-stat"><div class="dt-stat-l">最低</div><div class="dt-stat-v">$${d.lo}</div></div>
+      <div class="dt-stat"><div class="dt-stat-l">成交量</div><div class="dt-stat-v">${d.vol}</div></div>
+      <div class="dt-stat"><div class="dt-stat-l">P/E</div><div class="dt-stat-v">${d.pe}</div></div>
+      <div class="dt-stat"><div class="dt-stat-l">市值</div><div class="dt-stat-v">${d.cap}</div></div>
+    </div>
+    <div class="dt-actions" style="display:none"></div>
+  `;
+  document.getElementById('dpFooter').innerHTML=`<div class="dt-actions"><button class="dt-act primary" onclick="buildTradePlan('${d.tk}')">交易</button></div>`;
+  document.getElementById('dpBack').classList.remove('show');
+  dp.classList.add('open');
+  document.getElementById('aw').classList.add('compact');
+  setTimeout(()=>{
+    const c=document.getElementById('dc');if(!c)return;
+    const ctx=c.getContext('2d'),w=c.width=c.parentElement.clientWidth,h=c.height=c.parentElement.clientHeight;
+    const pts=[];let y=h*.5;
+    for(let x=0;x<w;x+=2){y+=(Math.random()-(d.p?.42:.58))*3;y=Math.max(h*.1,Math.min(h*.9,y));pts.push({x,y})}
+    const rgb=d.p?'0,212,161':'255,77,106';
+    const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,`rgba(${rgb},.12)`);g.addColorStop(1,`rgba(${rgb},0)`);
+    ctx.beginPath();ctx.moveTo(0,h);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(w,h);ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=`rgba(${rgb},.7)`;ctx.lineWidth=1.5;ctx.stroke();
+  },350);
+}
+function closeDetail(){document.getElementById('dp').classList.remove('open');document.getElementById('aw').classList.remove('compact');dpHistory=[];document.getElementById('dpBack').classList.remove('show');document.getElementById('dpFooter').innerHTML=''}
+
+let dpHistory=[];
+function dpGoBack(){
+  if(dpHistory.length>0){
+    const prev=dpHistory.pop();
+    prev();
+    if(dpHistory.length===0) document.getElementById('dpBack').classList.remove('show');
+  }
+}
+
+/* Build Trade Plan → add card to AI workbench */
+let dynamicAWCards=[];
+function buildTradePlan(tk){
+  const d=ddb[tk];if(!d)return;
+  dynamicAWCards.push({status:'run',title:tk+' Trade Plan 生成中',desc:'AI 正在评估最优策略...',kv:[['标的',tk],['现价','$'+d.pr]],progress:35,actions:['查看','中断']});
+  renderAW();
+  // Animate progress
+  let prog=35;
+  const iv=setInterval(()=>{
+    prog+=Math.random()*8;
+    if(prog>=100){
+      clearInterval(iv);
+      const card=dynamicAWCards.find(c=>c.title===tk+' Trade Plan 生成中');
+      if(card){card.status='ok';card.title=tk+' Trade Plan 就绪';card.desc='Long Call · 草案已生成';card.progress=undefined;card.actions=['查看','下单'];}
+      renderAW();
+      // Add chat message
+      const el=document.getElementById('chm');
+      el.innerHTML+=`<div class="ch-m bot fi"><div class="ch-ctx"><span class="ch-ctx-d"></span>Trade Plan 完成</div><div class="ch-bub"><b>${tk}</b> Trade Plan 已生成并放入 AI 工作台。点击查看详情。</div></div>`;
+      el.scrollTop=el.scrollHeight;
+    }else{
+      const card=dynamicAWCards.find(c=>c.title===tk+' Trade Plan 生成中');
+      if(card)card.progress=Math.min(95,Math.round(prog));
+      renderAW();
+    }
+  },600);
+  // Close detail
+  closeDetail();
+  // Chat feedback
+  const el=document.getElementById('chm');
+  el.innerHTML+=`<div class="ch-m bot fi"><div class="ch-ctx"><span class="ch-ctx-d"></span>AI 执行中</div><div class="ch-bub">正在为 <b>${tk}</b> 生成 Trade Plan，已放入 AI 工作台...</div></div>`;
+  el.scrollTop=el.scrollHeight;
+}
+
+function openSignalDetail(tk){
+  const s=signalDB[tk];if(!s)return;const d=s.detail;
+  const dp=document.getElementById('dp');
+  const vb=s.verdict==='bullish',vc=vb?'var(--g)':'var(--r)',vbg=vb?'var(--gbg)':'var(--rbg)';
+  // Valuation bar percentages
+  const lo=parseInt(d.valLow.replace('$','')),hi=parseInt(d.valHigh.replace('$','')),bs=parseInt(d.valBase.replace('$','')),cu=parseInt(d.valCurrent.replace('$',''));
+  const range=hi-lo,conW=Math.round((bs-lo)/range*100),baseW=Math.round((hi-bs)/range*100);
+  const markerPct=Math.round((cu-lo)/range*100);
+
+  let h=`<div class="sd-back" onclick="closeDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</div>`;
+  h+=`<div class="sd-head"><div class="sd-head-tk"><div class="sd-head-logo">${s.logo||s.tk.charAt(0)}</div><span class="sd-head-code">${s.tk} ${s.nm}</span></div>`;
+  h+=`<div class="sd-headline">${s.headline}</div>`;
+  h+=`<div class="sd-meta">${s.strategy} · ${s.time}</div></div>`;
+
+  // Final verdict
+  h+=`<div class="sd-section"><div class="sd-section-t">Final verdict</div><div class="sd-verdict-grid">`;
+  h+=`<div class="sd-verdict-item"><div class="sd-verdict-l">Target valuation</div><div class="sd-verdict-v">${d.targetVal}</div></div>`;
+  h+=`<div class="sd-verdict-item"><div class="sd-verdict-l">Price vs. target</div><div class="sd-verdict-v sm">${d.priceVsTarget}</div></div>`;
+  h+=`<div class="sd-verdict-item"><div class="sd-verdict-l">Strategy fit</div><div class="sd-verdict-v" style="color:${vc}">${d.fit}/100</div></div>`;
+  h+=`<div class="sd-verdict-item"><div class="sd-verdict-l">Key catalyst</div><div class="sd-verdict-v sm" style="color:var(--ts)">${d.catalyst.split(':')[0]}</div></div>`;
+  h+=`</div></div>`;
+
+  // Related catalysts
+  h+=`<div class="sd-section"><div class="sd-section-t">Related catalysts</div>`;
+  h+=`<div class="sd-catalyst"><div class="sd-catalyst-t">${d.catalyst}</div><div class="sd-catalyst-desc">${d.catalystDesc}</div><div class="sd-catalyst-src">${d.catalystSrc}</div></div></div>`;
+
+  // Strategy fit score
+  h+=`<div class="sd-section"><div class="sd-section-t">Strategy fit score</div><div class="sd-score">`;
+  h+=`<div class="sd-score-gauge"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="var(--sf3)" stroke-width="4"/><circle cx="28" cy="28" r="24" fill="none" stroke="${vc}" stroke-width="4" stroke-dasharray="${d.fit*1.508} 200" stroke-linecap="round" transform="rotate(-90 28 28)"/></svg><div class="sd-score-val"><div class="sd-score-num">${d.fit}</div><div class="sd-score-unit">/100</div></div></div>`;
+  h+=`<div class="sd-score-factors">`;
+  d.factors.forEach(f=>{
+    const fc=f.c==='g'?'var(--g)':f.c==='r'?'var(--r)':f.c==='o'?'var(--o)':'var(--tm)';
+    h+=`<div class="sd-score-factor"><div class="sd-score-dot" style="background:${fc}"></div><span class="sd-score-fl">${f.n}</span><span class="sd-score-fv" style="color:${fc}">${f.v}</span></div>`;
+  });
+  h+=`</div></div></div>`;
+
+  // Analysis
+  h+=`<div class="sd-section"><div class="sd-section-t">Analysis process</div>`;
+  h+=`<div class="sd-analysis"><strong>Objective</strong><div class="sd-analysis-obj">${d.objective}</div></div>`;
+  h+=`<div class="sd-analysis" style="margin-top:4px"><strong>Process</strong><div class="sd-analysis-obj">${d.process}</div></div></div>`;
+
+  // Valuation range
+  h+=`<div class="sd-section"><div class="sd-section-t">Valuation range</div><div class="sd-valuation">`;
+  h+=`<div class="sd-val-bar"><div class="sd-val-seg" style="width:${conW}%;background:var(--rbg);color:var(--r)">Conservative</div><div class="sd-val-seg" style="width:${baseW}%;background:var(--gbg);color:var(--g)">Optimistic</div><div class="sd-val-marker" style="left:${markerPct}%"></div></div>`;
+  h+=`<div class="sd-val-labels"><span>${d.valLow}</span><span>Base ${d.valBase}</span><span>${d.valHigh}</span></div>`;
+  h+=`</div></div>`;
+
+  // Risk
+  h+=`<div class="sd-section"><div class="sd-section-t">Risk warning</div>`;
+  h+=`<div class="sd-risk"><strong>Risk</strong>  ${d.risk}</div></div>`;
+
+  // Execution rules
+  h+=`<div class="sd-section"><div class="sd-section-t">Execution rules</div><div class="sd-exec">`;
+  d.exec.forEach(([k,v])=>h+=`<div class="sd-exec-row"><span class="sd-exec-k">${k}</span><span class="sd-exec-v">${v}</span></div>`);
+  h+=`</div></div>`;
+
+  // CTA moved to footer
+  h+=``;
+
+  document.getElementById('dpInner').innerHTML=h;
+  document.getElementById('dpFooter').innerHTML=`<button style="width:100%;padding:10px;border-radius:8px;border:none;background:#00B8B8;color:#000;font-size:12px;font-weight:600;font-family:var(--f);cursor:pointer" onclick="buildTradePlan('${tk}')">新建策略</button>`;
+  dp.classList.add('open');
+  document.getElementById('aw').classList.add('compact');
+}
+
+function drawSignalCharts(){
+  Object.keys(signalDB).forEach(tk=>{
+    const c=document.getElementById('sigc-'+tk);if(!c)return;
+    const ctx=c.getContext('2d'),w=c.width=c.parentElement.clientWidth,ht=c.height=c.parentElement.clientHeight;
+    const s=signalDB[tk],bullish=s.verdict==='bullish';
+    const pts=[];let y=ht*.5;
+    for(let x=0;x<w;x+=2){y+=(Math.random()-(bullish?.42:.58))*2;y=Math.max(ht*.15,Math.min(ht*.85,y));pts.push({x,y})}
+    const rgb=bullish?'0,173,162':'255,58,117';
+    const g=ctx.createLinearGradient(0,0,0,ht);g.addColorStop(0,`rgba(${rgb},.1)`);g.addColorStop(1,`rgba(${rgb},0)`);
+    ctx.beginPath();ctx.moveTo(0,ht);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(w,ht);ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=`rgba(${rgb},.7)`;ctx.lineWidth=1.5;ctx.stroke();
+    // End dot
+    const last=pts[pts.length-1];
+    ctx.beginPath();ctx.arc(last.x,last.y,3,0,Math.PI*2);ctx.fillStyle=`rgba(${rgb},1)`;ctx.fill();
+    ctx.beginPath();ctx.arc(last.x,last.y,5,0,Math.PI*2);ctx.fillStyle=`rgba(${rgb},.2)`;ctx.fill();
+  });
+}
+
+function markEventRead(el){el.classList.remove('ur');el.classList.add('rd')}
+function clickTickerPill(ev,tk,evTx){ev.stopPropagation();openDetail(tk,evTx)}
+
+/* DYNAMIC (same logic as v15) */
+function showTries(){document.getElementById('giTries').classList.add('show')}
+function hideTries(){setTimeout(()=>document.getElementById('giTries').classList.remove('show'),150)}
+function tryIntent(text){const inp=document.getElementById('gin');inp.value=text;handleLiveInput(text);inp.focus()}
+function classifyIntent(text){const t=text.toLowerCase();if(/(对比|比较|\bvs\b|哪个好|应该选)/.test(t))return 'dyn-compare';if(/(trade\s*plan|建单|交易计划|建.*计划|止损|期权|加仓方案|建仓)/.test(t))return 'dyn-tradeplan';if(/(为什么跌|为什么亏|亏损来自|归因|影响多大|怎么回事)/.test(t))return 'dyn-attribution';if(/(能追|能买|怎么样|什么情况|基本面|技术面|财报)/.test(t)&&/(nvda|aapl|goog|tsm|amd|meta|msft|amzn|tsla|baba)/i.test(t))return 'dyn-research';if(/(风险|持仓|我的资产|我的仓位|组合)/.test(t))return 'dyn-risk';return null}
+function handleLiveInput(text){
+  const box=document.getElementById('giBox');const tip=document.getElementById('hintTip');
+  if(!text.trim()){box.classList.remove('live-morph');tip.classList.remove('show');if(dynamic)exitDynamic();return}
+  const viewId=classifyIntent(text);
+  if(!viewId){box.classList.remove('live-morph');tip.classList.remove('show');return}
+  box.classList.add('live-morph');tip.classList.add('show');
+  document.getElementById('chtag').classList.add('live');document.getElementById('chtag').textContent='意图识别中';
+  if(!dynamic){previousView=cv;enterDynamic(viewId,text);currentDynViewId=viewId;}
+  else if(viewId!==currentDynViewId){document.querySelectorAll('.vw').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+viewId).classList.add('on');renderDynamicView(viewId);currentDynViewId=viewId;document.getElementById('dynTitle').textContent=text;document.getElementById('mc').scrollTop=0}
+  else{document.getElementById('dynTitle').textContent=text}
+}
+function sendG(){
+  const inp=document.getElementById('gin'),t=inp.value.trim();if(!t)return;inp.value='';
+  document.getElementById('giBox').classList.remove('live-morph');document.getElementById('hintTip').classList.remove('show');
+  const el=document.getElementById('chm');
+  el.innerHTML+=`<div class="ch-m user fi"><div class="ch-bub">${t}</div></div>`;
+  const viewId=currentDynViewId||classifyIntent(t)||'dyn-risk';
+  const responses={'dyn-risk':'持仓风险布局已展示。科技股集中度 64% 是主要问题。','dyn-compare':'NVDA 和 AMD 对比已展示。','dyn-tradeplan':'策略草案已生成。','dyn-research':'标的深度研究已展示。结合基本面和技术面给出了综合评级。','dyn-attribution':'今日盈亏归因已展示。系统性因素占主导。'};
+  setTimeout(()=>{
+    el.innerHTML+=`<div class="ch-m bot fi"><div class="ch-ctx"><span class="ch-ctx-d"></span>已生成完整分析</div><div class="ch-bub">${responses[viewId]||'已响应。'}</div></div>`;
+    el.scrollTop=el.scrollHeight;
+    document.getElementById('chtag').classList.remove('live');document.getElementById('chtag').textContent='分析完成';
+  },400);
+  el.scrollTop=el.scrollHeight;
+}
+function enterDynamic(viewId,intent){
+  dynamic=true;
+  document.querySelectorAll('.vw').forEach(el=>el.classList.remove('on'));
+  document.getElementById('v-'+viewId).classList.add('on');
+  document.getElementById('dynHeader').classList.remove('hide');
+  document.getElementById('dynTitle').textContent=intent;
+  document.getElementById('dynSub').textContent='实时跟随输入重组 · 清空输入框可退出';
+  renderDynamicView(viewId);
+  document.getElementById('mc').scrollTop=0;
+}
+function renderDynamicView(viewId){if(viewId==='dyn-risk')renderDynRisk();else if(viewId==='dyn-compare')renderDynCompare();else if(viewId==='dyn-tradeplan')renderDynTradePlan();else if(viewId==='dyn-research')renderDynResearch();else if(viewId==='dyn-attribution')renderDynAttribution()}
+function exitDynamic(){
+  if(!dynamic)return;
+  dynamic=false;currentDynViewId=null;
+  document.getElementById('dynHeader').classList.add('hide');
+  document.querySelectorAll('.vw').forEach(el=>el.classList.remove('on'));
+  document.getElementById('v-'+previousView).classList.add('on');
+  document.getElementById('chtag').classList.remove('live');
+  document.getElementById('chtag').textContent={home:'首页',watchlist:'自选',portfolio:'资产',news:'资讯'}[previousView]||'首页';
+  cv=previousView;
+  document.querySelectorAll('.ni').forEach(b=>b.classList.toggle('on',b.dataset.v===cv));
+  document.getElementById('giBox').classList.remove('live-morph');
+  document.getElementById('hintTip').classList.remove('show');
+}
+
+/* DYN RISK (same as v15) */
+function renderDynRisk(){
+  const s=S[sc];const sectors={};holdings.forEach(h=>{sectors[h.sector]=(sectors[h.sector]||0)+h.pct});
+  const sectorArr=Object.entries(sectors).sort((a,b)=>b[1]-a[1]);
+  const colors=['var(--r)','var(--o)','var(--b)','var(--p)','var(--g)'];
+  let h=`<div class="dyn-grid risk">`;
+  h+=`<div class="dp-panel area-overview fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--pbg);color:var(--p)">💼</div><div class="dp-panel-t">持仓总览</div><span class="dp-panel-s">实时</span></div>
+    <div class="kpi">
+      <div><div class="kpi-l">总资产</div><div class="kpi-v">${s.pf.v}</div><div class="kpi-s ${s.pf.p?'positive':'negative'}">${s.pf.ch}</div></div>
+      <div><div class="kpi-l">持仓数</div><div class="kpi-v">${holdings.length}</div><div class="kpi-s" style="color:var(--tm)">5 行业</div></div>
+      <div><div class="kpi-l">今日波动</div><div class="kpi-v ${s.pf.p?'positive':'negative'}">${s.pf.pct}</div><div class="kpi-s" style="color:var(--tm)">vs SPY</div></div>
+    </div>
+  </div>`;
+  h+=`<div class="dp-panel area-risk-score fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--rbg);color:var(--r)">⚠</div><div class="dp-panel-t">风险评分</div><span class="dp-panel-s">AI 综合</span></div>
+    <div class="risk-score">${riskGauge(72)}<div class="risk-factors">
+      <div class="risk-factor"><span class="risk-factor-dot" style="background:var(--r)"></span><span class="risk-factor-l">集中度</span><span class="risk-factor-v">高</span></div>
+      <div class="risk-factor"><span class="risk-factor-dot" style="background:var(--o)"></span><span class="risk-factor-l">Beta</span><span class="risk-factor-v">1.42</span></div>
+      <div class="risk-factor"><span class="risk-factor-dot" style="background:var(--o)"></span><span class="risk-factor-l">相关性</span><span class="risk-factor-v">0.72</span></div>
+      <div class="risk-factor"><span class="risk-factor-dot" style="background:var(--g)"></span><span class="risk-factor-l">流动性</span><span class="risk-factor-v">充足</span></div>
+    </div></div>
+  </div>`;
+  h+=`<div class="dp-panel area-allocation fi fi-d2"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--bbg);color:var(--b)">📊</div><div class="dp-panel-t">行业分布</div></div><div class="bar-list">`;
+  sectorArr.forEach(([k,v],i)=>h+=`<div class="bar-row"><span class="bar-tk" style="width:60px">${k}</span><div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${colors[i%colors.length]}"></div></div><span class="bar-pct">${v.toFixed(1)}%</span></div>`);
+  h+=`</div></div>`;
+  h+=`<div class="dp-panel area-concentration fi fi-d2"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--obg);color:var(--o)">⚡</div><div class="dp-panel-t">集中度 · Top 5</div><span class="dp-panel-s">点击查看详情</span></div><div class="bar-list">`;
+  holdings.slice().sort((a,b)=>b.pct-a.pct).slice(0,5).forEach(h2=>{
+    const color=h2.pct>15?'var(--r)':h2.pct>12?'var(--o)':'var(--g)';
+    h+=`<div class="bar-row"><span class="bar-tk" onclick="openDetail('${h2.tk}','')">${h2.tk}</span><div class="bar-track"><div class="bar-fill" style="width:${h2.pct*4}%;background:${color}"></div></div><span class="bar-pct">${h2.pct.toFixed(1)}%</span></div>`;
+  });
+  h+=`</div></div>`;
+  h+=`<div class="dp-panel area-holdings fi fi-d3"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--gbg);color:var(--g)">📋</div><div class="dp-panel-t">持仓明细</div><span class="dp-panel-s">${holdings.length} 支 · 点击行查看详情</span></div>
+    <table class="tbl-dense"><thead><tr><th>标的</th><th>行业</th><th>权重</th><th>Beta</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏</th><th>风险</th></tr></thead><tbody>`;
+  holdings.slice().sort((a,b)=>b.pct-a.pct).forEach(h2=>{
+    const pnl=((h2.price-h2.cost)*h2.shares).toFixed(0);const pnlP=pnl>=0;const rMap={r:'高',o:'中',g:'低'};
+    h+=`<tr onclick="openDetail('${h2.tk}','')"><td class="tk">${h2.tk}</td><td style="color:var(--ts)">${h2.sector}</td><td class="mn">${h2.pct.toFixed(1)}%</td><td class="mn">${h2.beta}</td><td class="mn">${h2.shares}</td><td class="mn">$${h2.cost.toFixed(2)}</td><td class="mn">$${h2.price.toFixed(2)}</td><td class="mn ${pnlP?'positive':'negative'}">${pnlP?'+':''}$${pnl}</td><td><span class="pill ${h2.risk}">${rMap[h2.risk]}</span></td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  h+=`<div class="dp-panel area-orders fi fi-d4"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--cbg);color:var(--c)">📎</div><div class="dp-panel-t">相关订单</div></div>
+    <div class="inline-list">
+      <div class="inline-item ok"><div class="inline-item-b"><div class="inline-item-t">TSLA 限价买单 $235 · 20 股</div><div class="inline-item-s">未成交 · 如成交将 +4% 消费仓位</div></div></div>
+      ${sc==='down'?`<div class="inline-item warn"><div class="inline-item-b"><div class="inline-item-t">AAPL 止损单未创建</div><div class="inline-item-s">预警线已触及</div></div></div>`:''}
+    </div>
+  </div>`;
+  h+=`<div class="dp-panel area-strategies fi fi-d4"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">🧠</div><div class="dp-panel-t">相关策略</div></div>
+    <div class="inline-list">
+      <div class="inline-item ok"><div class="inline-item-b"><div class="inline-item-t">AAPL 止损监控</div><div class="inline-item-s">预警线 $195，当前 $198.32</div></div></div>
+      ${sc==='active'?`<div class="inline-item run"><div class="inline-item-b"><div class="inline-item-t">NVDA 看涨期权评估</div><div class="inline-item-s">AI 评估中 · 68%</div></div></div>`:''}
+      ${sc==='down'?`<div class="inline-item" style="border-left-color:var(--tm);opacity:.7"><div class="inline-item-b"><div class="inline-item-t">NVDA 看涨期权（暂停）</div><div class="inline-item-s">系统性下跌触发</div></div></div>`:''}
+    </div>
+  </div>`;
+  h+=`</div>`;
+  h+=`<div style="padding:0 18px 14px"><div class="dp-panel fi fi-d4" style="margin-bottom:10px"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">AI</div><div class="dp-panel-t">AI 总结</div></div>
+    <div class="ai-para"><strong>核心风险：科技股集中度过高。</strong>AI 芯片链合计 <strong>38%</strong>。</div>
+    <div class="ai-bul"><span class="ai-bul-d">●</span><span><strong>NVDA 18%</strong>· 最大单一持仓</span></div>
+    <div class="ai-bul"><span class="ai-bul-d">●</span><span><strong>AAPL 14%</strong>${sc==='down'?'· 已跌破 $200 预警线':'· 下周四财报'}</span></div>
+    <div class="ai-bul"><span class="ai-bul-d">●</span><span><strong>Beta 1.42</strong>· 高于 SPY 42%</span></div>
+  </div>
+  <div class="action-bar">
+    <button class="action-btn primary" onclick="tryIntent('生成再平衡方案')">生成再平衡方案</button>
+    <button class="action-btn" onclick="tryIntent('对比 NVDA 和 AMD')">对比 NVDA/AMD</button>
+    ${sc==='down'?`<button class="action-btn primary">立即建 AAPL 止损单</button>`:''}
+    <button class="action-btn">导出报告</button>
+  </div></div>`;
+  document.getElementById('v-dyn-risk').innerHTML=h;
+}
+function riskGauge(score){const r=32,cx=40,cy=40,angle=Math.PI*(score/100);const ex=cx-r*Math.cos(angle),ey=cy-r*Math.sin(angle);const color=score>70?'var(--r)':score>50?'var(--o)':'var(--g)';return `<div class="risk-gauge"><svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="32" fill="none" stroke="var(--sf2)" stroke-width="6"/><path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/></svg><div class="risk-gauge-text"><div class="risk-gauge-val">${score}</div><div class="risk-gauge-lbl">偏高</div></div></div>`}
+function renderDynCompare(){
+  let h=`<div class="dyn-grid compare">`;
+  h+=`<div class="dp-panel area-a fi fi-d1"><div class="cmp-title" onclick="openDetail('NVDA','')">NVDA<span class="cmp-chg positive">+3.08%</span></div>
+    <div class="cmp-row"><span class="cmp-l">现价</span><span class="cmp-v">$142.68</span></div>
+    <div class="cmp-row"><span class="cmp-l">市值</span><span class="cmp-v">$3.51T</span></div>
+    <div class="cmp-row"><span class="cmp-l">P/E</span><span class="cmp-v">68.2</span></div>
+    <div class="cmp-row"><span class="cmp-l">营收增速</span><span class="cmp-v positive">+94%</span></div>
+    <div class="cmp-row"><span class="cmp-l">毛利率</span><span class="cmp-v">76%</span></div>
+    <div class="cmp-row"><span class="cmp-l">你持有</span><span class="cmp-v positive">18%</span></div>
+  </div>`;
+  h+=`<div class="dp-panel area-b fi fi-d1"><div class="cmp-title" onclick="openDetail('AMD','')">AMD<span class="cmp-chg positive">+2.91%</span></div>
+    <div class="cmp-row"><span class="cmp-l">现价</span><span class="cmp-v">$167.44</span></div>
+    <div class="cmp-row"><span class="cmp-l">市值</span><span class="cmp-v">$271B</span></div>
+    <div class="cmp-row"><span class="cmp-l">P/E</span><span class="cmp-v">42.6</span></div>
+    <div class="cmp-row"><span class="cmp-l">营收增速</span><span class="cmp-v positive">+18%</span></div>
+    <div class="cmp-row"><span class="cmp-l">毛利率</span><span class="cmp-v">52%</span></div>
+    <div class="cmp-row"><span class="cmp-l">你持有</span><span class="cmp-v" style="color:var(--tm)">自选</span></div>
+  </div>`;
+  h+=`<div class="dp-panel area-ai fi fi-d2"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">AI</div><div class="dp-panel-t">AI 观点</div></div>
+    <div class="ai-para">NVDA 在数据中心 AI 芯片占绝对领导地位。AMD MI400 追平 H200 后，差距在收窄。</div>
+    <div class="ai-para">对你（已持 NVDA <strong>18%</strong>）：增加 AMD 敞口可分散集中度。</div>
+  </div>`;
+  h+=`<div class="area-actions fi fi-d2"><div class="action-bar"><button class="action-btn primary">加 AMD 到自选</button><button class="action-btn" onclick="tryIntent('帮我建一个 AMD Trade Plan')">建 AMD Trade Plan</button></div></div>`;
+  h+=`</div>`;
+  document.getElementById('v-dyn-compare').innerHTML=h;
+}
+function renderDynTradePlan(){
+  let h=`<div class="dyn-grid tradeplan">`;
+  h+=`<div class="dp-panel area-plan fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--obg);color:var(--o)">📋</div><div class="dp-panel-t">NVDA 看涨期权 · 草案</div></div>
+    <div class="kpi"><div><div class="kpi-l">策略</div><div class="kpi-v" style="font-size:13px">Long Call</div></div><div><div class="kpi-l">行权价</div><div class="kpi-v">$145</div></div><div><div class="kpi-l">到期</div><div class="kpi-v" style="font-size:13px">05.16</div></div></div>
+  </div>`;
+  h+=`<div class="dp-panel area-summary fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-t">收益结构</div></div>
+    <div class="cmp-row"><span class="cmp-l">期权金</span><span class="cmp-v">$850</span></div>
+    <div class="cmp-row"><span class="cmp-l">盈亏平衡</span><span class="cmp-v">$147.50</span></div>
+    <div class="cmp-row"><span class="cmp-l">最大亏损</span><span class="cmp-v negative">-$850</span></div>
+    <div class="cmp-row"><span class="cmp-l">占组合</span><span class="cmp-v">1.8%</span></div>
+    <div class="cmp-row"><span class="cmp-l">IRR</span><span class="cmp-v positive">42%</span></div>
+  </div>`;
+  h+=`<div class="dp-panel area-reasoning fi fi-d2"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">AI</div><div class="dp-panel-t">AI 推理</div></div>
+    <div class="ai-para">NVDA 突破 30 日高点，<strong>技术面确认向上</strong>。结合 TSM 扩产和美联储偏鸽，30 天内上探 $150-155 概率偏高。</div>
+    <div class="ai-para">建议用<strong>期权而非加仓现货</strong>：你已持有 NVDA 18%，加仓会推高集中度到 22%+。</div>
+  </div>`;
+  h+=`<div class="area-actions fi fi-d3"><div class="action-bar"><button class="action-btn primary">下单这个 Plan</button><button class="action-btn">调整参数</button></div></div>`;
+  h+=`</div>`;
+  document.getElementById('v-dyn-tradeplan').innerHTML=h;
+}
+
+function renderDynResearch(){
+  const tk='NVDA',d=ddb[tk];
+  const held=holdings.find(h2=>h2.tk===tk);
+  let h=`<div class="dyn-grid research">`;
+  h+=`<div class="dp-panel fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--gbg);color:var(--g)">📈</div><div class="dp-panel-t">${d.tk} · ${d.nm}</div><span class="dp-panel-s ${d.p?'positive':'negative'}">${d.pct}</span></div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px"><span style="font-family:var(--m);font-size:22px;font-weight:700">$${d.pr}</span><span class="${d.p?'positive':'negative'}" style="font-family:var(--m);font-size:11px">${d.ch}</span></div>
+    <div class="dt-chart"><canvas id="rc1"></canvas></div>
+  </div>`;
+  h+=`<div class="dp-panel fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">AI</div><div class="dp-panel-t">AI 评级</div></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="pill g" style="font-size:10px;padding:3px 10px">追涨</span><span style="font-size:10px;color:var(--ts)">Strong Bullish · 87/100</span></div>
+    <div class="ai-para">技术面突破 30 日高点确认上升趋势。TSM 扩产催化 + 美联储偏鸽构成双重利好。建议操作位 <strong>$138-142</strong>。</div>
+  </div>`;
+  h+=`<div class="dp-panel fi fi-d2"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--bbg);color:var(--b)">📊</div><div class="dp-panel-t">基本面摘要</div></div>
+    <div class="cmp-row"><span class="cmp-l">P/E</span><span class="cmp-v">${d.pe}</span></div>
+    <div class="cmp-row"><span class="cmp-l">市值</span><span class="cmp-v">${d.cap}</span></div>
+    <div class="cmp-row"><span class="cmp-l">营收增速</span><span class="cmp-v positive">+94% YoY</span></div>
+    <div class="cmp-row"><span class="cmp-l">毛利率</span><span class="cmp-v">76.2%</span></div>
+    <div class="cmp-row"><span class="cmp-l">自由现金流</span><span class="cmp-v">$18.5B</span></div>
+  </div>`;
+  h+=`<div class="dp-panel fi fi-d2"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--pbg);color:var(--p)">📉</div><div class="dp-panel-t">技术面摘要</div></div>
+    <div class="cmp-row"><span class="cmp-l">支撑位</span><span class="cmp-v">$134.50</span></div>
+    <div class="cmp-row"><span class="cmp-l">阻力位</span><span class="cmp-v">$148.00</span></div>
+    <div class="cmp-row"><span class="cmp-l">均线状态</span><span class="cmp-v positive">MA20↑ MA60↑</span></div>
+    <div class="cmp-row"><span class="cmp-l">RSI (14)</span><span class="cmp-v" style="color:var(--o)">68.4</span></div>
+    <div class="cmp-row"><span class="cmp-l">成交量</span><span class="cmp-v positive">放量突破</span></div>
+  </div>`;
+  h+=`<div class="dp-panel fi fi-d3" style="grid-column:1/-1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--obg);color:var(--o)">⚡</div><div class="dp-panel-t">相关事件</div><span class="dp-panel-s">来自时间线</span></div>
+    <div class="inline-list">
+      <div class="inline-item run"><div class="inline-item-b"><div class="inline-item-t">NVDA 突破 30 日高点 $140</div><div class="inline-item-s">异动 · 12 分钟前 · 持有 18%</div></div></div>
+      <div class="inline-item ok"><div class="inline-item-b"><div class="inline-item-t">TSM 宣布 3nm 产能扩张</div><div class="inline-item-s">催化 · 48 分钟前 · NVDA 为核心客户</div></div></div>
+      <div class="inline-item ok"><div class="inline-item-b"><div class="inline-item-t">美联储偏鸽信号</div><div class="inline-item-s">宏观 · 1 小时前 · 科技股利好</div></div></div>
+    </div>
+  </div>`;
+  h+=`<div class="dp-panel fi fi-d3"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--gbg);color:var(--g)">💼</div><div class="dp-panel-t">你的持仓</div></div>`;
+  if(held){
+    const pnl=((held.price-held.cost)*held.shares).toFixed(0);
+    h+=`<div class="cmp-row"><span class="cmp-l">持仓数</span><span class="cmp-v">${held.shares} 股</span></div>
+    <div class="cmp-row"><span class="cmp-l">成本</span><span class="cmp-v">$${held.cost.toFixed(2)}</span></div>
+    <div class="cmp-row"><span class="cmp-l">盈亏</span><span class="cmp-v positive">+$${pnl}</span></div>
+    <div class="cmp-row"><span class="cmp-l">占比</span><span class="cmp-v">${held.pct}%</span></div>`;
+  }else{h+=`<div style="font-size:10px;color:var(--tm);padding:8px 0">未持有 · 已在自选中</div>`}
+  h+=`</div>`;
+  h+=`<div class="dp-panel fi fi-d3"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">🧠</div><div class="dp-panel-t">相关策略</div></div>
+    <div class="inline-list">
+      <div class="inline-item run"><div class="inline-item-b"><div class="inline-item-t">NVDA 看涨期权策略</div><div class="inline-item-s">AI 评估中 · 进度 68%</div></div></div>
+    </div>
+  </div>`;
+  h+=`</div>`;
+  h+=`<div style="padding:0 18px 14px"><div class="dp-panel fi fi-d4" style="margin-bottom:10px"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">AI</div><div class="dp-panel-t">AI 深度分析</div></div>
+    <div class="ai-para"><strong>综合评级：追涨（87/100）。</strong>数据中心 AI 芯片市占率 >85%，Blackwell 架构出货超预期。</div>
+    <div class="ai-para">营收增速 94% YoY 远超行业均值。毛利率 76% 反映定价权。但 P/E 68x 意味着已充分定价短期增长，需要关注估值回调风险。</div>
+    <div class="ai-para">你已持有 <strong>18%</strong>（组合最大持仓）。建议用期权替代现货加仓，控制集中度。</div>
+  </div>
+  <div class="action-bar">
+    <button class="action-btn primary" onclick="tryIntent('帮我建一个 NVDA Trade Plan')">建 Trade Plan</button>
+    <button class="action-btn" onclick="tryIntent('对比 NVDA 和 AMD')">和 AMD 对比</button>
+    <button class="action-btn">设价格提醒</button>
+    <button class="action-btn">查看回测</button>
+  </div></div>`;
+  document.getElementById('v-dyn-research').innerHTML=h;
+  setTimeout(()=>{
+    const c=document.getElementById('rc1');if(!c)return;
+    const ctx=c.getContext('2d'),w=c.width=c.parentElement.clientWidth,ht=c.height=c.parentElement.clientHeight;
+    const pts=[];let y=ht*.5;for(let x=0;x<w;x+=2){y+=(Math.random()-.42)*2.5;y=Math.max(ht*.1,Math.min(ht*.9,y));pts.push({x,y})}
+    const g=ctx.createLinearGradient(0,0,0,ht);g.addColorStop(0,'rgba(0,173,162,.12)');g.addColorStop(1,'rgba(0,173,162,0)');
+    ctx.beginPath();ctx.moveTo(0,ht);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(w,ht);ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle='rgba(0,173,162,.7)';ctx.lineWidth=1.5;ctx.stroke();
+  },350);
+}
+
+function renderDynAttribution(){
+  const s=S[sc];
+  const losses=[
+    {tk:'NVDA',chg:'-3.41%',loss:'-$614',pct:'47%',weight:'18%'},
+    {tk:'AAPL',chg:'-2.10%',loss:'-$286',pct:'22%',weight:'14%'},
+    {tk:'GOOG',chg:'-1.88%',loss:'-$94',pct:'7%',weight:'13%'},
+    {tk:'META',chg:'-1.62%',loss:'-$83',pct:'6%',weight:'11%'},
+    {tk:'TSM',chg:'-2.80%',loss:'-$75',pct:'6%',weight:'8%'},
+    {tk:'AMD',chg:'-3.20%',loss:'-$64',pct:'5%',weight:'12%'},
+    {tk:'MSFT',chg:'-0.70%',loss:'-$45',pct:'3%',weight:'14%'},
+    {tk:'BRK.B',chg:'-0.30%',loss:'-$24',pct:'2%',weight:'10%'}
+  ];
+  let h=`<div class="dyn-grid attribution">`;
+  h+=`<div class="dp-panel fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--rbg);color:var(--r)">📉</div><div class="dp-panel-t">今日盈亏归因</div><span class="dp-panel-s negative">${s.pnlToday}</span></div>
+    <div class="bar-list" style="margin-top:6px">`;
+  losses.forEach(l=>{
+    const barW=parseInt(l.pct);
+    h+=`<div class="bar-row"><span class="bar-tk" onclick="openDetail('${l.tk}','')">${l.tk}</span><div class="bar-track"><div class="bar-fill" style="width:${barW*2.5}%;background:var(--r)"></div></div><span class="bar-pct negative">${l.loss}</span></div>`;
+  });
+  h+=`</div></div>`;
+  h+=`<div class="dp-panel fi fi-d1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--obg);color:var(--o)">🌍</div><div class="dp-panel-t">宏观驱动因素</div></div>
+    <div class="inline-list">
+      <div class="inline-item warn"><div class="inline-item-b"><div class="inline-item-t">美债 10Y 收益率急升至 4.82%</div><div class="inline-item-s">创年内新高 · 科技股承压主因</div></div></div>
+      <div class="inline-item run"><div class="inline-item-b"><div class="inline-item-t">美元指数 DXY 走强 +0.8%</div><div class="inline-item-s">新兴市场资金回流美债</div></div></div>
+      <div class="inline-item ok"><div class="inline-item-b"><div class="inline-item-t">CPI 数据高于预期 3.5%</div><div class="inline-item-s">降息预期推迟至 Q4</div></div></div>
+    </div>
+  </div>`;
+  h+=`<div class="dp-panel fi fi-d2" style="grid-column:1/-1"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--rbg);color:var(--r)">📋</div><div class="dp-panel-t">受影响持仓</div><span class="dp-panel-s">按亏损金额排序 · 点击行查看详情</span></div>
+    <table class="tbl-dense"><thead><tr><th>标的</th><th>今日跌幅</th><th>亏损金额</th><th>占总亏损</th><th>持仓权重</th></tr></thead><tbody>`;
+  losses.forEach(l=>{
+    h+=`<tr onclick="openDetail('${l.tk}','')"><td class="tk">${l.tk}</td><td class="mn negative">${l.chg}</td><td class="mn negative">${l.loss}</td><td class="mn">${l.pct}</td><td class="mn">${l.weight}</td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  h+=`</div>`;
+  h+=`<div style="padding:0 18px 14px"><div class="dp-panel fi fi-d3" style="margin-bottom:10px"><div class="dp-panel-hd"><div class="dp-panel-icon" style="background:var(--aibg);color:var(--ai)">AI</div><div class="dp-panel-t">AI 归因分析</div></div>
+    <div class="ai-para"><strong>系统性因素贡献约 62%。</strong>美债收益率急升 + CPI 超预期导致全市场科技股承压。你的组合 Beta 1.42，跌幅略大于大盘。</div>
+    <div class="ai-para"><strong>个股因素贡献约 38%。</strong>NVDA 和 AMD 因为高 Beta（1.72 / 1.88）放大了跌幅。AAPL 跌破 $200 心理关口触发止损盘。</div>
+    <div class="ai-para">历史类似场景（美债急升 >20bp）：平均回撤 <strong>3-5%</strong>，恢复周期 <strong>5-8 个交易日</strong>。当前跌幅在正常范围内。</div>
+  </div>
+  <div class="action-bar">
+    <button class="action-btn primary" onclick="tryIntent('分析我的持仓风险')">分析持仓风险</button>
+    <button class="action-btn" onclick="tryIntent('AAPL 止损怎么设')">建 AAPL 止损 Plan</button>
+    <button class="action-btn">哪些仓位应该减</button>
+    <button class="action-btn">下跌是短期的吗</button>
+  </div></div>`;
+  document.getElementById('v-dyn-attribution').innerHTML=h;
+}
+
+function renderAll(){renderIndices();renderAW();renderHome();renderChat()}
+
+function renderHome(){
+  const s=S[sc];let h='';
+  // AI Workbench inline (ABOVE hero)
+  const awP=awState[sc];
+  const allAWCards=[];
+  if(s.chips&&s.chips.length) s.chips.forEach(c=>allAWCards.push({status:'warn',title:c.t+' · '+c.n,desc:'需要您关注',actions:['查看','稍后']}));
+  if(typeof dynamicAWCards!=='undefined') dynamicAWCards.forEach(c=>allAWCards.push(c));
+  awP.tasks.forEach(c=>allAWCards.push(c));
+  awP.strategies.forEach(c=>allAWCards.push(c));
+  awP.orders.forEach(c=>allAWCards.push(c));
+  if(allAWCards.length){
+    h+=`<div class="aw-inline"><div class="aw-inline-hd"><div class="aw-inline-icon">AI</div><span class="aw-inline-t">进行中的任务</span><span class="aw-inline-count">${allAWCards.length} 项</span></div><div class="aw-inline-grid">`;
+    allAWCards.forEach(item=>h+=awCardH(item));
+    h+=`</div></div>`;
+  }
+  // Hero
+  if(s.pf){
+    h+=`<div class="hm-hero">
+      <div class="hm-hero-left">
+        <div class="hm-hero-top"><span class="hm-hero-curr">总资产 (CNH) ▾</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px"><span class="hm-hero-total">183,440.88</span><span class="hm-hero-eye">👁️</span></div>
+        <div class="hm-hero-stats" style="margin-bottom:4px">
+          <div><div class="hm-hero-stat-l">当日盈亏</div><div class="hm-hero-stat-v positive">+562.83</div></div>
+          <div><div class="hm-hero-stat-l">持仓市值</div><div class="hm-hero-stat-v">180,950.48</div></div>
+          <div><div class="hm-hero-stat-l">持仓总盈亏</div><div class="hm-hero-stat-v positive">+43,396.96</div></div>
+        </div>
+        <div class="hm-hero-safety"><span class="hm-hero-safety-icon">🛡️</span><span>安全</span><span class="hm-hero-safety-link">融资状态 ›</span></div>
+      </div>
+      <div class="hm-hero-right" style="display:flex;flex-direction:column;justify-content:center">
+        <div class="hm-pnl-label" style="margin-bottom:4px">收益率趋势 · 本年</div>
+        <div style="display:flex;align-items:stretch;gap:12px;flex:1;min-height:0">
+          <div style="flex-shrink:0;display:flex;flex-direction:column;justify-content:center">
+            <div class="hm-pnl-val positive" style="font-size:16px;margin-bottom:2px">+257.95</div>
+            <div class="hm-pnl-rate positive" style="font-size:11px">0.14%</div>
+            <div class="hm-pnl-bench" style="margin-top:6px"><span class="hm-pnl-bench-dot"></span><span>跑输 · 道琼斯</span><span class="negative" style="font-family:var(--m);font-size:9px">-2.83%</span></div>
+          </div>
+          <div style="flex:1;min-width:0"><canvas id="pnlTrendChart" style="width:100%;height:100%"></canvas></div>
+        </div>
+      </div>
+    </div>`;
+  }
+  // Timeline
+  h+=`<div class="tl-hd"><span class="tl-t">变化事件</span>${s.nc?`<span class="tl-c">${s.nc} 条新变化 · 点击蓝色 ticker 查看详情</span>`:''}</div>`;
+  document.getElementById('badge').textContent=s.nc||'';document.getElementById('badge').style.display=s.nc?'flex':'none';
+  // Sort: signals first (big cards), then normal events
+  const sigEvents=s.ur.filter(e=>e.sig);
+  const normalUr=s.ur.filter(e=>!e.sig);
+  h+=`<div class="tl-grid">`;
+  // Render signals first (they span 3 rows), then normal events fill right column
+  sigEvents.forEach(e=>h+=evH(e,'ur'));
+  normalUr.forEach(e=>h+=evH(e,'ur'));
+  if(s.calm)h+=`<div style="padding:10px 12px;margin:4px 0;border-radius:8px;background:rgba(0,184,184,.08);border:1px solid rgba(0,184,184,.12);font-size:11px;color:#00B8B8;grid-column:1/-1">过去 ${s.lv} 内无重大变化</div>`;
+  if(s.lv)h+=`<div class="tl-div"><div class="tl-div-l"></div><span class="tl-div-t">上次访问 · ${s.lv}</span></div>`;
+  s.rd.forEach(e=>h+=evH(e,'rd'));
+  h+=`</div>`;
+
+  // === NEW: Widget List Cards (bigger, with real content) ===
+  h+=`<div class="wg-hd-row"><span class="wg-hd">快速入口</span><span class="wg-hd-s">点击卡片行查看详情</span></div>`;
+  h+=`<div class="wg-grid">`;
+
+  // Watchlist card with actual list
+  h+=`<div class="wg"><div class="wg-top"><div class="wg-icon" style="background:var(--gbg);color:var(--g)">★</div><div class="wg-title">Watchlist</div><button class="wg-more-btn" onclick="go('watchlist')">查看全部 →</button></div><div class="wg-list">`;
+  watchlistData.slice(0,5).forEach(item=>{
+    const chgCls=item.dir==='up'?'positive':'negative';
+    h+=`<div class="wg-row" onclick="openDetail('${item.tk}','')"><span class="wg-row-tk">${item.tk}</span><span class="wg-row-nm">${item.nm}</span><span class="wg-row-pr">$${item.pr}</span><span class="wg-row-chg ${chgCls}">${item.chg}</span></div>`;
+  });
+  h+=`</div></div>`;
+
+  // Portfolio card with actual holdings
+  h+=`<div class="wg"><div class="wg-top"><div class="wg-icon" style="background:var(--pbg);color:var(--p)">💼</div><div class="wg-title">Portfolio</div><button class="wg-more-btn" onclick="go('portfolio')">查看全部 →</button></div><div class="wg-list">`;
+  portfolioData.slice(0,5).forEach(item=>{
+    const chgCls=item.dir==='up'?'positive':'negative';
+    h+=`<div class="wg-row" onclick="openDetail('${item.tk}','')"><span class="wg-row-tk">${item.tk}</span><span class="wg-row-nm">${item.nm}</span><span class="wg-row-pr">${item.pr}</span><span class="wg-row-chg ${chgCls}">${item.pnl}</span></div>`;
+  });
+  h+=`</div></div>`;
+
+  // Market card with indices
+  h+=`<div class="wg"><div class="wg-top"><div class="wg-icon" style="background:var(--bbg);color:var(--b)">📊</div><div class="wg-title">Market</div><button class="wg-more-btn" onclick="go('market')">进入市场 →</button></div><div class="wg-list">`;
+  s.mktIdx.forEach(idx=>{
+    const chgCls=idx.dir==='up'?'positive':'negative';
+    h+=`<div class="wg-index-row"><span class="wg-index-icon-bar" style="background:${idx.color}"></span><span class="wg-index-nm">${idx.name}</span><span class="wg-index-val">${idx.val}</span>${spark(idx.dir,20,10)}<span class="wg-index-chg ${chgCls}">${idx.chg}</span></div>`;
+  });
+  h+=`</div></div>`;
+
+  // P&L card with today's performance + stats
+  h+=`<div class="wg"><div class="wg-top"><div class="wg-icon" style="background:${s.pf&&s.pf.p?'var(--gbg)':'var(--rbg)'};color:${s.pf&&s.pf.p?'var(--g)':'var(--r)'}">📈</div><div class="wg-title">Profit & Loss</div><span class="wg-summary ${s.pf&&s.pf.p?'positive':'negative'}">今日 ${s.pf?s.pf.pct:'--'}</span></div>`;
+  h+=`<div class="wg-pnl-hero">
+    <div><div class="kpi-l">今日盈亏</div><div class="wg-pnl-v ${s.pf&&s.pf.p?'positive':'negative'}">${s.pnlToday}</div></div>
+    <canvas class="wg-pnl-chart" id="pnlChart"></canvas>
+  </div>`;
+  h+=`<div class="wg-pnl-stats">
+    <div><div class="wg-pnl-stat-l">本周</div><div class="wg-pnl-stat-v ${s.pnlWeek.startsWith('+')?'positive':'negative'}">${s.pnlWeek}</div></div>
+    <div><div class="wg-pnl-stat-l">本月</div><div class="wg-pnl-stat-v ${s.pnlMonth.startsWith('+')?'positive':'negative'}">${s.pnlMonth}</div></div>
+    <div><div class="wg-pnl-stat-l">总收益率</div><div class="wg-pnl-stat-v positive">+12.4%</div></div>
+  </div>`;
+  h+=`</div>`;
+
+  h+=`</div>`;
+
+  document.getElementById('v-home').innerHTML=h;
+
+  // Draw P&L chart
+  setTimeout(()=>{
+    const c=document.getElementById('pnlChart');if(!c)return;
+    const ctx=c.getContext('2d'),w=c.width=c.parentElement.clientWidth,h=c.height=c.parentElement.clientHeight;
+    const pos=s.pf.p;const pts=[];let y=h*.5;
+    for(let x=0;x<w;x+=2){y+=(Math.random()-(pos?.42:.58))*2.5;y=Math.max(h*.1,Math.min(h*.9,y));pts.push({x,y})}
+    const rgb=pos?'0,173,162':'255,58,117';
+    const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,`rgba(${rgb},.15)`);g.addColorStop(1,`rgba(${rgb},0)`);
+    ctx.beginPath();ctx.moveTo(0,h);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(w,h);ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=`rgba(${rgb},.8)`;ctx.lineWidth=1.5;ctx.stroke();
+  },100);
+  setTimeout(drawSignalCharts,150);
+  setTimeout(drawPnlTrendChart,200);
+}
+
+function drawPnlTrendChart(){
+  const c=document.getElementById('pnlTrendChart');if(!c)return;
+  const ctx=c.getContext('2d'),w=c.width=c.parentElement.clientWidth,h=c.height=c.parentElement.clientHeight||60;
+  // User line (yellow/gold)
+  const pts1=[];let y1=h*.5;
+  for(let x=0;x<w;x+=2){y1+=(Math.random()-.48)*3;y1=Math.max(h*.05,Math.min(h*.95,y1));pts1.push({x,y:y1})}
+  // Benchmark line (teal)
+  const pts2=[];let y2=h*.45;
+  for(let x=0;x<w;x+=2){y2+=(Math.random()-.47)*2.5;y2=Math.max(h*.05,Math.min(h*.95,y2));pts2.push({x,y:y2})}
+  // Zero line
+  const zeroY=h*.5;
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(0,zeroY);ctx.lineTo(w,zeroY);ctx.stroke();ctx.setLineDash([]);
+  // Teal fill (benchmark area)
+  const g2=ctx.createLinearGradient(0,0,0,h);g2.addColorStop(0,'rgba(0,184,184,.12)');g2.addColorStop(1,'rgba(0,184,184,0)');
+  ctx.beginPath();ctx.moveTo(0,h);pts2.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(w,h);ctx.fillStyle=g2;ctx.fill();
+  // Teal line
+  ctx.beginPath();pts2.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle='rgba(0,184,184,.6)';ctx.lineWidth=1.2;ctx.stroke();
+  // Gold line
+  ctx.beginPath();pts1.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle='rgba(255,180,50,.9)';ctx.lineWidth=1.5;ctx.stroke();
+}
+
+function evH(e,st){
+  const cls=st==='ur'?'ur':'rd';
+  // Signal rich card
+  if(e.sig&&signalDB[e.tk]){
+    const s=signalDB[e.tk];
+    return `<div class="sig ${cls}" onclick="openSignalDetail('${e.tk}')">
+      <div class="sig-top">
+        <div class="sig-logo">${s.logo||s.tk.charAt(0)}</div>
+        <div class="sig-info"><div class="sig-tk">${s.tk}</div><div class="sig-nm">${s.nm}</div></div>
+        <div class="sig-fav">♥</div>
+      </div>
+      <div class="sig-chart"><canvas id="sigc-${e.tk}"></canvas></div>
+      <div class="sig-verdict ${s.verdict}">${s.verdict==='bullish'?'Bullish':s.verdict==='bearish'?'Bearish':'Neutral'} · ${s.range}</div>
+      <div class="sig-title">${s.headline}</div>
+      <div class="sig-desc">${s.desc}</div>
+      <div class="sig-footer"><span class="sig-strategy">${s.strategy}</span><span>${s.time}</span></div>
+    </div>`;
+  }
+  // Normal event card
+  const isKnown=knownTickers.includes(e.tk);
+  const tkClass=isKnown?'sc-tk tk-link':'sc-tk';
+  const tkAttr=isKnown?`onclick="clickTickerPill(event,'${e.tk}','${e.tx.replace(/'/g,"\\'")}')"`:'';
+  return `<div class="sc ${cls}" onclick="markEventRead(this)"><div class="sc-top"><span class="sc-tag ${e.c}">${e.tag}</span><span class="${tkClass}" ${tkAttr}>${e.tk}${isKnown?' →':''}</span><span class="sc-tm">${e.tm}</span></div><div class="sc-tx">${e.tx}</div><div class="sc-rl">${e.rl}</div></div>`;
+}
+
+function renderChat(){
+  const s=S[sc],el=document.getElementById('chm');let h='';
+  if(s.ai.msg)h+=`<div class="ch-m bot"><div class="ch-ctx"><span class="ch-ctx-d"></span>基于持仓和事件</div><div class="ch-bub">${s.ai.msg}</div></div>`;
+  if(s.ai.sugs){h+=`<div class="ch-sugs">`;s.ai.sugs.forEach(t=>h+=`<button class="ch-sug" onclick="clickSug(this)">${t}</button>`);h+=`</div>`}
+  el.innerHTML=h;el.scrollTop=el.scrollHeight;
+}
+function clickSug(b){tryIntent(b.textContent)}
+
+document.getElementById('gin').addEventListener('input',e=>handleLiveInput(e.target.value));
+document.getElementById('gin').addEventListener('keydown',e=>{if(e.key==='Enter')sendG()});
+
+renderAll();
+</script>
+</body>
+</html>

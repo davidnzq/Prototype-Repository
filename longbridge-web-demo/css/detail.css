@@ -1,5 +1,6 @@
 /* ============================================================
    detail.css — 详情列内容:普通标的详情(.dt-*) + Signal 详情(.sd-*)
+   v18: sd-back 默认隐藏(改用面板头部 back/close),sd-cta 默认 hidden(改用 dp-footer)
    ============================================================ */
 
 /* 普通标的详情 */
@@ -7,7 +8,7 @@
 .dt-nm{font-size:11px;color:var(--ts)}
 .dt-pr{font-family:var(--m);font-size:22px;font-weight:700;margin:4px 0}
 .dt-ch{font-family:var(--m);font-size:11px}
-.dt-ctx{background:var(--sf2);border-radius:6px;padding:8px 10px;margin:10px 0;border-left:2px solid var(--g)}
+.dt-ctx{background:var(--sf2);border-radius:6px;padding:8px 10px;margin:10px 0;border-left:2px solid #00B8B8}
 .dt-ctx-l{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:var(--tm);margin-bottom:2px}
 .dt-ctx-t{font-size:10px;color:var(--ts);line-height:1.5}
 .dt-chart{width:100%;height:100px;background:var(--sf2);border-radius:6px;margin:8px 0;overflow:hidden}
@@ -19,10 +20,10 @@
 .dt-stat-v{font-family:var(--m);font-size:11px;font-weight:600;margin-top:1px}
 .dt-actions{display:flex;gap:6px;margin-top:8px}
 .dt-act{flex:1;padding:7px;border-radius:5px;border:1px solid var(--bd);background:var(--sf2);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;text-align:center}
-.dt-act.primary{border-color:var(--g);background:var(--gbg);color:var(--g)}
+.dt-act.primary{border-color:#00B8B8;background:rgba(0,184,184,.1);color:#00B8B8}
 
 /* Signal 详情 */
-.sd-back{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ts);cursor:pointer;margin-bottom:10px}
+.sd-back{display:none}
 .sd-back:hover{color:var(--tp)}
 .sd-back svg{width:14px;height:14px}
 .sd-head{margin-bottom:12px}
@@ -68,5 +69,5 @@
 .sd-exec-row:last-child{border:none}
 .sd-exec-k{color:var(--tm)}
 .sd-exec-v{font-family:var(--m);color:var(--tp)}
-.sd-cta{width:100%;padding:10px;border-radius:8px;border:none;background:var(--g);color:#000;font-size:12px;font-weight:600;font-family:var(--f);cursor:pointer;margin-top:14px;transition:opacity .15s}
+.sd-cta{width:100%;padding:10px;border-radius:8px;border:none;background:#00B8B8;color:#000;font-size:12px;font-weight:600;font-family:var(--f);cursor:pointer;transition:opacity .15s;display:none}
 .sd-cta:hover{opacity:.85}

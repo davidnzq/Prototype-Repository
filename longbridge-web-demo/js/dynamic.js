@@ -1,6 +1,7 @@
 /* ============================================================
    dynamic.js — 5 类动态视图(风险审视/对比决策/策略构建/标的研究/归因诊断)
                 + 进入/退出 + 风险仪表盘
+   v18: renderDynResearch 的画布渐变色与 v18 设计色(#00ADA2)对齐
    依赖: data.js (S, holdings, ddb)
    依赖: home.js、detail.js(inline onclick 会用到)
    ============================================================ */
@@ -250,13 +251,13 @@ function renderDynResearch() {
       pts.push({x, y});
     }
     const g = ctx.createLinearGradient(0, 0, 0, ht);
-    g.addColorStop(0, 'rgba(0,212,161,.12)'); g.addColorStop(1, 'rgba(0,212,161,0)');
+    g.addColorStop(0, 'rgba(0,173,162,.12)'); g.addColorStop(1, 'rgba(0,173,162,0)');
     ctx.beginPath(); ctx.moveTo(0, ht);
     pts.forEach(p => ctx.lineTo(p.x, p.y));
     ctx.lineTo(w, ht); ctx.fillStyle = g; ctx.fill();
     ctx.beginPath();
     pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-    ctx.strokeStyle = 'rgba(0,212,161,.7)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = 'rgba(0,173,162,.7)'; ctx.lineWidth = 1.5; ctx.stroke();
   }, 350);
 }
 

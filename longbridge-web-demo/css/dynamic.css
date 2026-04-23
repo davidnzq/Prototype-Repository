@@ -1,13 +1,14 @@
 /* ============================================================
-   dynamic.css — 5 种动态视图布局 + 内部组件(面板/KPI/柱条/表格/行内项/动作/风险仪表)
+   dynamic.css — 5 类动态视图布局 + 内部组件
+   v18: 颜色/半径/渐变改为设计系统常量
    ============================================================ */
 
 .dyn-header{padding:12px 18px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);margin-bottom:10px;background:linear-gradient(to bottom,rgba(110,231,183,.03),transparent)}
 .dyn-header.hide{display:none}
 .dyn-back{padding:5px 12px;border-radius:14px;border:1px solid var(--bd);background:var(--sf);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;display:flex;align-items:center;gap:3px}
 .dyn-back:hover{border-color:var(--bda);color:var(--tp)}
-.dyn-badge{padding:2px 8px;border-radius:3px;background:var(--aibg);color:var(--ai);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;gap:4px}
-.dyn-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--ai);animation:pulse 1.5s infinite}
+.dyn-badge{padding:2px 8px;border-radius:3px;background:rgba(0,240,196,.06);color:#00F0C4;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;gap:4px}
+.dyn-badge-dot{width:5px;height:5px;border-radius:50%;background:#00F0C4;animation:pulse 1.5s infinite}
 .dyn-title{font-size:13px;font-weight:600;color:var(--tp)}
 .dyn-sub{font-size:10px;color:var(--tm);margin-top:2px}
 
@@ -16,8 +17,15 @@
 .dyn-grid.risk{grid-template-columns:1fr 1fr;grid-template-areas:"overview risk-score" "allocation concentration" "holdings holdings" "orders strategies"}
 .dyn-grid.compare{grid-template-columns:1fr 1fr;grid-template-areas:"a b" "ai ai" "actions actions"}
 .dyn-grid.tradeplan{grid-template-columns:2fr 1fr;grid-template-areas:"plan summary" "reasoning reasoning" "actions actions"}
-.dyn-grid.research{grid-template-columns:1fr 1fr}
-.dyn-grid.attribution{grid-template-columns:1fr 1fr}
+.dyn-grid.research{grid-template-columns:1fr 1fr;gap:10px}
+.dyn-grid.attribution{grid-template-columns:1fr 1fr;gap:10px}
+
+.dp-panel{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;min-width:0}
+.dp-panel-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.dp-panel-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px}
+.dp-panel-t{font-size:11px;font-weight:600}
+.dp-panel-s{margin-left:auto;font-size:9px;color:var(--tm)}
+
 .area-overview{grid-area:overview}
 .area-risk-score{grid-area:risk-score}
 .area-allocation{grid-area:allocation}
@@ -32,13 +40,6 @@
 .area-plan{grid-area:plan}
 .area-summary{grid-area:summary}
 .area-reasoning{grid-area:reasoning}
-
-/* 通用面板 */
-.dp-panel{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;min-width:0}
-.dp-panel-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.dp-panel-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px}
-.dp-panel-t{font-size:11px;font-weight:600}
-.dp-panel-s{margin-left:auto;font-size:9px;color:var(--tm)}
 
 /* KPI */
 .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -79,7 +80,7 @@
 .pill{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
 .pill.r{background:var(--rbg);color:var(--r)}
 .pill.o{background:var(--obg);color:var(--o)}
-.pill.g{background:var(--gbg);color:var(--g)}
+.pill.g{background:rgba(0,184,184,.1);color:#00B8B8}
 
 /* 行内列表 */
 .inline-list{display:flex;flex-direction:column;gap:6px}
@@ -102,7 +103,7 @@
 .action-bar{display:flex;gap:6px;flex-wrap:wrap}
 .action-btn{padding:7px 14px;border-radius:16px;border:1px solid var(--bd);background:var(--sf2);color:var(--ts);font-size:10px;font-family:var(--f);cursor:pointer;transition:all .12s}
 .action-btn:hover{border-color:var(--bda);color:var(--tp)}
-.action-btn.primary{border-color:var(--g);background:var(--gbg);color:var(--g)}
+.action-btn.primary{border-color:#00B8B8;background:rgba(0,184,184,.1);color:#00B8B8}
 
 /* 对比行 */
 .cmp-row{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px dashed var(--bd)}

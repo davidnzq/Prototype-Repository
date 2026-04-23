@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Longbridge Web · v17 · Signal 卡片 + Signal 详情</title>
+<title>Longbridge Web · v18 · Design System Applied</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
@@ -15,7 +15,7 @@
 
 <!-- TOP NAV -->
 <div class="tn">
-  <div class="tn-logo"><div class="tn-logo-mark"><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div></div><div class="tn-logo-text"><div class="tn-logo-subtitle">Hong Kong</div><div class="tn-logo-title">LONGBRIDGE</div></div></div>
+  <div class="tn-logo"><div class="tn-logo-mark"><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div><div class="tn-logo-bar"></div></div><div class="tn-logo-text"><div class="tn-logo-subtitle">HONG KONG</div><div class="tn-logo-title">LONGBRIDGE</div></div></div>
   <div class="tn-indices" id="tnIndices"></div>
   <div class="tn-sp"></div>
   <div class="tn-menu">
@@ -73,8 +73,12 @@
 
       <!-- 2. DETAIL (between main and AI workbench) -->
       <div class="dp" id="dp">
+        <div class="dp-close" id="dpHeader">
+          <button class="dp-back-btn" id="dpBack" onclick="dpGoBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回</button>
+          <button class="dp-close-btn" onclick="closeDetail()">✕</button>
+        </div>
         <div class="dp-inner" id="dpInner"></div>
-        <button class="dp-close" onclick="closeDetail()">✕</button>
+        <div class="dp-footer" id="dpFooter"></div>
       </div>
 
       <!-- 3. AI 工作台 (renamed from 感知敞口) -->
@@ -93,15 +97,15 @@
     <div class="gi">
       <div class="hint-tip" id="hintTip"><span class="hint-tip-dot"></span>布局已按意图实时重组 · 继续输入可细化 · Enter 发送给 AI</div>
       <div class="gi-tries" id="giTries">
-        <button class="gi-try" onclick="tryIntent('分析我的持仓风险')">分析持仓风险</button>
-        <button class="gi-try" onclick="tryIntent('NVDA 能追吗')">NVDA 能追吗</button>
-        <button class="gi-try" onclick="tryIntent('对比 NVDA 和 AMD')">对比 NVDA 和 AMD</button>
-        <button class="gi-try" onclick="tryIntent('帮我建一个 NVDA Trade Plan')">建 Trade Plan</button>
-        <button class="gi-try" onclick="tryIntent('今天为什么跌了')">今天为什么跌了</button>
+        <button class="gi-try" onclick="tryIntent('分析我的持仓风险')">试:分析我的持仓风险</button>
+        <button class="gi-try" onclick="tryIntent('对比 NVDA 和 AMD')">试:对比 NVDA 和 AMD</button>
+        <button class="gi-try" onclick="tryIntent('帮我建一个 NVDA Trade Plan')">试:建 NVDA Trade Plan</button>
+        <button class="gi-try" onclick="tryIntent('NVDA 能追吗')">试:NVDA 能追吗</button>
+        <button class="gi-try" onclick="tryIntent('今天为什么跌了')">试:今天为什么跌了</button>
       </div>
       <div class="gi-box" id="giBox">
         <span class="gi-live-dot"></span>
-        <input placeholder="试试：分析持仓风险 / NVDA 能追吗 / 对比 NVDA 和 AMD / 建 Trade Plan / 今天为什么跌了" id="gin" onfocus="showTries()" onblur="hideTries()">
+        <input placeholder="试试:分析持仓风险 / NVDA 能追吗 / 对比 NVDA 和 AMD / 建 Trade Plan / 今天为什么跌了" id="gin" onfocus="showTries()" onblur="hideTries()">
         <span class="gi-hint">已接入持仓·自选·行情·策略</span>
         <button class="gi-send" onclick="sendG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
       </div>
@@ -109,12 +113,6 @@
   </div>
 </div>
 
-</div>
-
-<div class="demo">
-  <button class="demo-b on" onclick="setS('active')">活跃日</button>
-  <button class="demo-b" onclick="setS('calm')">平静日</button>
-  <button class="demo-b" onclick="setS('down')">下跌日</button>
 </div>
 
 <script src="js/data.js"></script>
