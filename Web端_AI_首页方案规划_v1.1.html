@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Web 端 AI 首页方案规划</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #ffffff;
+    color: #1a1a1a;
+    line-height: 1.7;
+    font-size: 14.5px;
+  }
+  :root {
+    --up: #ff5b3e;
+    --down: #00a05b;
+    --brand: #ff6a35;
+    --ink: #1a1a1a;
+    --ink-2: #4a4a4a;
+    --ink-3: #888888;
+    --line: #e8e6e0;
+    --line-2: #f0eeea;
+    --bg-soft: #f7f5f0;
+    --accent: #2563eb;
+
+    /* Agent 4 色 */
+    --ag-cyan: #06B6D4;
+    --ag-purple: #8B5CF6;
+    --ag-amber: #F59E0B;
+    --ag-rose: #EC4899;
+  }
+
+  /* 顶部 */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    padding: 14px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px;
+  }
+  .topbar .brand { font-weight: 600; }
+  .topbar .meta { color: var(--ink-3); font-size: 12px; }
+
+  /* 容器 */
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 40px; }
+
+  /* 文档头 */
+  .doc-head {
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .doc-head h1 {
+    font-size: 30px; font-weight: 600; line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .doc-head .doc-meta {
+    font-size: 13px; color: var(--ink-3);
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .doc-head .doc-meta span strong { color: var(--ink-2); font-weight: 500; }
+
+  /* 目录 */
+  .toc {
+    background: var(--bg-soft);
+    padding: 18px 22px;
+    border-radius: 6px;
+    margin-top: 22px;
+  }
+  .toc-title {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; margin-bottom: 8px;
+  }
+  .toc ol {
+    margin: 0; padding: 0; list-style: none;
+    columns: 2; column-gap: 28px;
+  }
+  .toc li {
+    margin: 4px 0; font-size: 13px;
+    break-inside: avoid;
+  }
+  .toc a { color: var(--ink-2); text-decoration: none; }
+  .toc a:hover { color: var(--brand); }
+
+  /* 段落 */
+  section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+  section:last-child { border-bottom: none; }
+
+  h2 {
+    font-size: 22px; font-weight: 600;
+    margin-bottom: 14px;
+    letter-spacing: -0.005em;
+  }
+  h2 .num {
+    color: var(--ink-3); font-weight: 500; margin-right: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  h3 {
+    font-size: 16px; font-weight: 600; margin: 24px 0 10px;
+  }
+  h4 {
+    font-size: 14.5px; font-weight: 600; margin: 16px 0 6px;
+  }
+  p { margin-bottom: 12px; color: var(--ink-2); }
+  p strong { color: var(--ink); font-weight: 600; }
+  ul, ol { margin: 8px 0 12px 22px; color: var(--ink-2); }
+  li { margin-bottom: 6px; }
+  li strong { color: var(--ink); font-weight: 600; }
+
+  /* 双栏对比 */
+  .do-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 16px 0 8px;
+  }
+  .do-grid > div {
+    background: white;
+    padding: 16px 18px;
+  }
+  .do-grid h4 {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-3); margin: 0 0 10px;
+  }
+  .do-grid ul {
+    margin: 0 0 0 18px; font-size: 13.5px;
+  }
+  .do-grid li { margin-bottom: 4px; }
+
+  /* 注释/讨论块 */
+  .note {
+    background: var(--bg-soft);
+    border-left: 3px solid var(--ink-3);
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  .note .note-l {
+    font-size: 11px; color: var(--ink-3); font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .note p { margin: 0; color: var(--ink); font-size: 13.5px; }
+
+  .note.compliance { border-left-color: var(--up); background: #fdf7f5; }
+  .note.compliance .note-l { color: var(--up); }
+  .note.dep { border-left-color: var(--accent); background: #f4f7fd; }
+  .note.dep .note-l { color: var(--accent); }
+  .note.principle { border-left-color: var(--brand); background: #fff7f3; }
+  .note.principle .note-l { color: var(--brand); }
+
+  /* 信息表 */
+  .info-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .info-tbl th {
+    background: var(--bg-soft);
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .info-tbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-2);
+    color: var(--ink-2);
+    vertical-align: top;
+  }
+  .info-tbl tr:last-child td { border-bottom: none; }
+  .info-tbl td strong { color: var(--ink); font-weight: 600; }
+  .info-tbl td code {
+    font-family: SFMono-Regular, ui-monospace, Menlo, monospace;
+    font-size: 11.5px;
+    background: var(--bg-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--ink-2);
+  }
+
+  /* tag pill */
+  .pill {
+    display: inline-block;
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    font-weight: 600; letter-spacing: 0.02em;
+  }
+  .pill.cyan { background: #e0f7fa; color: #0097a7; }
+  .pill.purple { background: #f3e8ff; color: #7c3aed; }
+  .pill.amber { background: #fef3c7; color: #b45309; }
+  .pill.rose { background: #fce7f3; color: #be185d; }
+
+  /* demo 容器 */
+  .demo-frame {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 18px 0 8px;
+  }
+  .demo-caption {
+    font-size: 12px; color: var(--ink-3);
+    margin-top: 6px; padding: 0 4px;
+  }
+
+  /* === Demo iframe · 嵌入真实演示原型 longbridge-web-demo === */
+  .demo-frame--bleed {
+    margin-left: 50%;
+    transform: translateX(-50%);
+    width: min(1360px, 96vw);
+    border-radius: 10px;
+    box-shadow: 0 12px 36px rgba(0,0,0,.08);
+    background: #0A0E19;
+    overflow: hidden;
+  }
+  .demo-iframe {
+    display: block;
+    width: 100%;
+    height: 760px;
+    border: 0;
+    background: #0A0E19;
+  }
+  @media (max-width: 1080px) {
+    .demo-iframe { height: 640px; }
+  }
+
+  /* Agent 卡 · 通用 */
+  .ag-card {
+    flex: 1;
+    border-radius: 6px;
+    padding: 14px;
+    display: flex; flex-direction: column;
+    gap: 10px;
+  }
+  .ag-stage {
+    width: 100%; aspect-ratio: 1.6/1;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .ag-name { font-size: 14px; font-weight: 600; }
+  .ag-sub { font-size: 11px; color: var(--ink-3); margin-top: -6px; }
+  .ag-desc {
+    font-size: 11px; line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .ag-steps {
+    display: flex; flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .ag-step {
+    display: flex; gap: 8px;
+    font-size: 11px;
+    color: var(--ink-2);
+    align-items: center;
+  }
+  .ag-step .ag-i {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    flex-shrink: 0;
+  }
+  .ag-step.done .ag-i {
+    background: currentColor;
+  }
+  .ag-step.run { font-weight: 600; }
+  .ag-step.run .ag-i {
+    border-color: currentColor;
+    box-shadow: 0 0 0 3px currentColor;
+    background: white;
+  }
+
+  /* Agent 配色与动效 */
+  .ag-card.cyan { background: rgba(6,182,212,0.04); }
+  .ag-card.cyan .ag-stage { background: rgba(6,182,212,0.08); color: var(--ag-cyan); }
+  .ag-card.cyan .ag-step { color: var(--ag-cyan); }
+  .ag-card.cyan .ag-name { color: var(--ag-cyan); }
+
+  .ag-card.purple { background: rgba(139,92,246,0.04); }
+  .ag-card.purple .ag-stage { background: rgba(139,92,246,0.08); color: var(--ag-purple); }
+  .ag-card.purple .ag-step { color: var(--ag-purple); }
+  .ag-card.purple .ag-name { color: var(--ag-purple); }
+
+  .ag-card.amber { background: rgba(245,158,11,0.04); }
+  .ag-card.amber .ag-stage { background: rgba(245,158,11,0.08); color: var(--ag-amber); }
+  .ag-card.amber .ag-step { color: var(--ag-amber); }
+  .ag-card.amber .ag-name { color: var(--ag-amber); }
+
+  .ag-card.rose { background: rgba(236,72,153,0.04); }
+  .ag-card.rose .ag-stage { background: rgba(236,72,153,0.08); color: var(--ag-rose); }
+  .ag-card.rose .ag-step { color: var(--ag-rose); }
+  .ag-card.rose .ag-name { color: var(--ag-rose); }
+
+  /* Agent 动效 - cyan 旋转 ✦ + 涟漪 */
+  .ag-cyan-spark {
+    width: 36px; height: 36px;
+    color: var(--ag-cyan);
+    animation: agSpin 3.6s linear infinite;
+    z-index: 2;
+  }
+  .ag-cyan-ring {
+    position: absolute; inset: 0;
+    margin: auto; width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--ag-cyan);
+    opacity: 0;
+    animation: agRipple 2.4s ease-out infinite;
+  }
+  .ag-cyan-ring.r2 { animation-delay: .8s; }
+  .ag-cyan-ring.r3 { animation-delay: 1.6s; }
+  @keyframes agSpin { to { transform: rotate(360deg); } }
+  @keyframes agRipple {
+    0% { transform: scale(.4); opacity: .9; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  /* purple 同心环 */
+  .ag-purple-icon {
+    width: 28px; height: 28px;
+    z-index: 2;
+    animation: agBreathe 1.8s ease-in-out infinite;
+  }
+  .ag-purple-ring {
+    position: absolute; inset: 0;
+    margin: auto;
+    border-radius: 50%;
+    border: 1.5px solid var(--ag-purple);
+    opacity: 0;
+    animation: agExpand 2.4s ease-out infinite;
+  }
+  .ag-purple-ring.r1 { width: 28px; height: 28px; animation-delay: 0s; }
+  .ag-purple-ring.r2 { width: 28px; height: 28px; animation-delay: .8s; }
+  .ag-purple-ring.r3 { width: 28px; height: 28px; animation-delay: 1.6s; }
+  @keyframes agExpand {
+    0% { transform: scale(.6); opacity: .85; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+  @keyframes agBreathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.12); opacity: .8; }
+  }
+
+  /* amber 扫描线 + 网格 */
+  .ag-amber-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(245,158,11,0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,158,11,0.18) 1px, transparent 1px);
+    background-size: 12px 12px;
+    opacity: .5;
+  }
+  .ag-amber-scan {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--ag-amber), transparent);
+    animation: agScan 2.6s ease-in-out infinite;
+  }
+  @keyframes agScan {
+    0% { top: 0; }
+    50% { top: calc(100% - 2px); }
+    100% { top: 0; }
+  }
+  .ag-amber-icon {
+    width: 28px; height: 28px;
+    z-index: 2;
+    animation: agBreathe 1.4s ease-in-out infinite;
+  }
+
+  /* rose CCW 弧 */
+  .ag-rose-icon {
+    width: 24px; height: 24px;
+    z-index: 2;
+    animation: agBreathe 1.2s ease-in-out infinite;
+  }
+  .ag-rose-arc {
+    position: absolute; inset: 0;
+    margin: auto;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: var(--ag-rose);
+    animation: agSpinCCW 2.4s linear infinite;
+  }
+  .ag-rose-arc.a1 { width: 38px; height: 38px; }
+  .ag-rose-arc.a2 { width: 50px; height: 50px; border-top-color: rgba(236,72,153,0.6); animation-duration: 3s; }
+  .ag-rose-arc.a3 { width: 62px; height: 62px; border-top-color: rgba(236,72,153,0.35); animation-duration: 3.6s; }
+  @keyframes agSpinCCW { to { transform: rotate(-360deg); } }
+
+  /* Agent 4 卡片 grid */
+  .ag-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0 8px;
+  }
+  .ag-mini {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 12px;
+    display: flex; flex-direction: column;
+    gap: 10px;
+  }
+  .ag-mini .ag-stage {
+    aspect-ratio: 1.4/1;
+  }
+  .ag-mini .ag-name {
+    font-size: 13px;
+  }
+  .ag-mini .ag-sub {
+    font-size: 10.5px; color: var(--ink-3); margin-top: -6px;
+  }
+  .ag-mini .ag-meta {
+    font-size: 10.5px;
+    display: flex; flex-direction: column; gap: 2px;
+    color: var(--ink-2);
+  }
+  .ag-mini .ag-meta .k { color: var(--ink-3); }
+
+  /* 视图切换示意 */
+  .view-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0 8px;
+  }
+  .view-card {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: #fff;
+  }
+  .view-card .vc-h {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .view-card .vc-id {
+    font-family: SFMono-Regular, monospace;
+    font-size: 10.5px;
+    color: var(--ink-3);
+    background: var(--bg-soft);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .view-card .vc-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .view-card .vc-trig {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-bottom: 4px;
+  }
+  .view-card .vc-trig code {
+    font-family: SFMono-Regular, monospace;
+    font-size: 10.5px;
+    color: var(--ink-2);
+    background: var(--bg-soft);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .view-card .vc-d {
+    font-size: 11.5px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    margin: 4px 0;
+  }
+  .view-card .vc-tag {
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-top: 6px;
+  }
+
+  /* 7 段 chat 流示意 */
+  .ch-flow {
+    display: grid;
+    grid-template-columns: 60px 1fr 130px;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 14px 0;
+    font-size: 12.5px;
+  }
+  .ch-flow > div {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line-2);
+    background: #fff;
+  }
+  .ch-flow > div:nth-last-child(-n+3) { border-bottom: none; }
+  .ch-flow .h { background: var(--bg-soft); font-weight: 600; font-size: 11px; color: var(--ink-3); letter-spacing: 0.04em; text-transform: uppercase; }
+  .ch-flow .seg { font-family: SFMono-Regular, monospace; font-size: 11px; color: var(--ag-rose); font-weight: 600; }
+  .ch-flow .desc strong { color: var(--ink); }
+  .ch-flow .timing { color: var(--ink-3); font-size: 10.5px; font-family: SFMono-Regular, monospace; }
+
+  /* journey 列表 */
+  .jn-list {
+    display: flex; flex-direction: column; gap: 14px;
+    margin-top: 12px;
+  }
+  .jn-card {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 16px;
+    background: #fff;
+  }
+  .jn-card .jn-h {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .jn-card .jn-no {
+    font-family: SFMono-Regular, monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .jn-card .jn-t {
+    font-weight: 600; font-size: 14px; color: var(--ink);
+  }
+  .jn-card .jn-tag {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--ink-3);
+    background: var(--bg-soft);
+    padding: 1px 7px;
+    border-radius: 8px;
+  }
+  .jn-card .jn-s {
+    font-size: 12.5px; color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  .jn-card .jn-flow {
+    display: flex; align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 11.5px;
+    color: var(--ink-2);
+    margin-top: 6px;
+  }
+  .jn-card .jn-flow .step {
+    background: var(--bg-soft);
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  .jn-card .jn-flow .step code {
+    font-family: SFMono-Regular, monospace;
+    font-size: 10.5px;
+    color: var(--ag-purple);
+  }
+  .jn-card .jn-flow .arr {
+    color: var(--ink-3);
+    font-size: 12px;
+  }
+
+  /* footer */
+  footer {
+    margin-top: 40px;
+    padding: 24px 0 60px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Web 端 AI 首页方案规划</div>
+  <div class="meta">v1.1 · 内部讨论稿</div>
+</div>
+
+<div class="wrap">
+
+<!-- 文档头 -->
+<div class="doc-head">
+  <h1>Web 端 AI 首页方案规划</h1>
+
+  <div class="toc">
+    <div class="toc-title">目录</div>
+    <ol>
+      <li><a href="#bg">01 · 背景与定位</a></li>
+      <li><a href="#frame">02 · 全局框架</a></li>
+      <li><a href="#input">03 · 意图表达即入口</a></li>
+      <li><a href="#agent">04 · Agent 调度机制</a></li>
+      <li><a href="#views">05 · 6 类动态视图</a></li>
+      <li><a href="#chat">06 · 富 chat 流式回复</a></li>
+      <li><a href="#journey">07 · 5 类用户场景</a></li>
+      <li><a href="#open">08 · 待对齐的问题</a></li>
+      <li><a href="#cost">09 · 工程量与主要风险</a></li>
+    </ol>
+  </div>
+</div>
+
+<!-- 1. 背景 -->
+<section id="bg">
+  <h2><span class="num">01</span>背景与定位</h2>
+
+  <p>当前 Web 仍是「浏览器版客户端」：菜单 / Tab 是入口，AI 能力覆盖在各页面的小气泡入口和侧边栏唤起的阶段。Web 用户在研究 / 决策密度可以远高于 App，但现在 AI 能力应用较弱。本轮规划把 Web 首页升级为 <strong>AI 主导的工作台</strong>。</p>
+
+  <h3>一句话定位</h3>
+  <p>在不离开页面的前提下，让用户通过<strong>「目的表达 → 意图识别 → 伪生成式界面」</strong>完成<strong>扫场 → 研究 → 决策 → 监控 → 复盘</strong>的全闭环。监控由 AI 工作台 #aw 持续承担，不构成独立路径；应急情境从「为什么跌了」类输入触发，归并到归因路径。</p>
+
+  <h3>3 阶段产品形态演进</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:14%;">阶段</th><th style="width:46%;">形态</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>当前 / 本期</strong></td>
+        <td>目的表达 → 意图识别 → <strong>伪</strong>生成式界面</td>
+        <td>主区由 6 类预设动态视图按意图组合，不是模型实时画 UI。本规划落到这一格。</td>
+      </tr>
+      <tr>
+        <td><strong>中期</strong></td>
+        <td>目的表达 → 意图识别 → 生成式界面</td>
+        <td>主区由模型在预设骨架上动态填充，预设视图退化为兜底；生成式组件按上下文实时组合。</td>
+      </tr>
+      <tr>
+        <td><strong>终局</strong></td>
+        <td>目的表达 → <strong>托管</strong> → 结果与中间控制权</td>
+        <td>用户给目标，Agent 自主执行；中间环节按需暴露控制权，结果按需呈现。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3 个产品形态设计</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:22%;">形态</th><th style="width:38%;">含义</th><th>落地体现</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>意图表达是唯一入口</strong></td>
+        <td>入口不是输入框、按钮或菜单，而是「意图表达」——文本、语音、点选、上下文都是载体。输入框只是当前阶段的物理承载。</td>
+        <td>底部输入框承载文本与语音；live morph 在打字阶段就重组主区；菜单 / Tab 不再是主路径。</td>
+      </tr>
+      <tr>
+        <td><strong>伪生成式交互区</strong></td>
+        <td>主区是「按意图组合的预设动态视图」——这是当前阶段对生成式界面的最近近似，并非模型实时画 UI。</td>
+        <td>6 类 dyn-* 视图 + classifyIntent 命中规则；输入 NVDA → 主区 13 行结构化 + chat 7 段富分析。</td>
+      </tr>
+      <tr>
+        <td><strong>Agent 调度机制</strong></td>
+        <td>不同意图调度不同 Agent，每个 Agent 有自己的任务边界与执行步骤——不是助理人格，是任务执行单元。本期是单 Agent 派遣，跨 Agent 接力 / 委托放在后续阶段。</td>
+        <td>4 类 Agent（选股 / 深度 / 大盘 / 持仓风险）独立调度；色 / 动效 / 步骤指示器各自不同，标识当前在执行哪类任务。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note principle">
+    <div class="note-l">规划原则</div>
+    <p>不被 App 形态约束。大屏、长会话、多面板是 Web 的优势，所有结构选择优先服务「在一屏完成多动作」。</p>
+  </div>
+</section>
+
+<!-- 2. 全局框架 -->
+<section id="frame">
+  <h2><span class="num">02</span>全局框架 · 7 区域并存</h2>
+
+  <p>页面分 7 个固定区域，从外到内、从左到右：<strong>顶栏指数条 / 左 nav / 主浏览区 #mc / 详情面板 #dp（含 Agent 面板）/ AI 工作台 #aw / chat 列 #ch / 全局输入框 #gi</strong>。主区切换时 #dp / #aw / #ch 不重置——这是多动作并存的结构基础。</p>
+
+  <h3>Demo · 全景</h3>
+
+  <div class="demo-frame demo-frame--bleed">
+    <iframe
+      class="demo-iframe"
+      src="./longbridge-web-demo/index.html"
+      title="Longbridge Web v18 · 真实演示原型"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+    ></iframe>
+  </div>
+  <p class="demo-caption">↑ 完整可交互的演示原型 v18（<code>longbridge-web-demo/</code>）。意图表达是唯一入口（当前由底部输入框承载），可试：<code>NVDA</code> / <code>分析持仓风险</code> / <code>对比 NVDA 和 AMD</code> / <code>今天为什么跌了</code> / <code>选潜力中概股</code>。打字阶段（live morph）主区与 Agent 面板已重组，Enter 后 chat 流式输出 7 段富回复。</p>
+
+  <h3>各区域职能</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:22%;">区域</th><th style="width:14%;">尺寸</th><th>职能</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>顶栏</strong></td><td>56px 深色</td><td>四市场指数条 + 全局菜单。</td></tr>
+      <tr><td><strong>左 nav</strong></td><td>176px / 52px(动态视图压缩)</td><td>主导航：首页 / 自选 / 资产 / 资讯 / 市场 / 社区 / 交易 + Café / AI 入口。进入动态视图自动 compact。</td></tr>
+      <tr><td><strong>主浏览区 <code>#mc</code></strong></td><td>剩余宽度</td><td>视图容器，承载首页或 6 类动态视图。</td></tr>
+      <tr><td><strong>详情面板 <code>#dp</code></strong></td><td>340px 滑入</td><td>4 类用途：标的详情 / Signal 详情 / Agent 等待面板。仅 ✕ 关闭，无返回。</td></tr>
+      <tr><td><strong>AI 工作台 <code>#aw</code></strong></td><td>208px · 在 #dp 与 #ch 之间</td><td>纵向任务列 + 5 状态色（激活 / 运行 / 正常 / 预警 / 暂停）。</td></tr>
+      <tr><td><strong>chat 列 <code>#ch</code></strong></td><td>360px 可拖拉</td><td>LUI 主战场。富 chat 流 + 思考折叠 + ✦ 后续追问。宽度持久化到 localStorage。</td></tr>
+      <tr><td><strong>全局输入框 <code>#gi</code></strong></td><td>54px 贴底</td><td>意图表达的当前主要载体（文本 / 语音）。空 → live → 发送三态，紫色 dot 脉动。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 3. 输入框 -->
+<section id="input">
+  <h2><span class="num">03</span>意图表达即入口 · live morph 与意图识别</h2>
+
+  <p>「意图表达是唯一入口」落地的关键，是把<strong>主区视图切换 / Agent 面板打开</strong>从「Enter 触发」前移到「打字阶段触发」。每多输入一个字符，主区都可能在重组——这是与「先 Enter 后渲染」最大的体验差异。</p>
+
+  <h3>输入生命周期三态</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:18%;">状态</th><th style="width:18%;">触发</th><th>系统反馈</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>空</strong></td>
+        <td>初始 / 清空</td>
+        <td>主区显示首页（工作台 + 时间线 + Widgets 6 卡）。</td>
+      </tr>
+      <tr>
+        <td><strong>live</strong></td>
+        <td>用户开始输入</td>
+        <td>输入框紫色 dot 脉动；<code>classifyIntent</code> 识别意图；<strong>主区切到对应动态视图</strong>；<strong>Agent 面板 #dp 同步打开</strong>；chat 标签同步（"分析中"→"标的研究 · NVDA"）。</td>
+      </tr>
+      <tr>
+        <td><strong>发送</strong></td>
+        <td>Enter / 点击 ↑</td>
+        <td>主区维持视图；chat 追加用户气泡 + 流式 bot 回复；Agent 面板进入"分析中"。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>意图识别（classifyIntent）映射表</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:42%;">输入特征</th><th style="width:24%;">命中视图</th><th>触发 Agent</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>选股 / 筛选 / 潜力股 / 中概股 / 高股息</code></td>
+        <td><code>dyn-screener</code></td>
+        <td><span class="pill cyan">股票选择 Agent</span></td>
+      </tr>
+      <tr>
+        <td><code>NVDA / AAPL / GOOG / TSM ...</code> ticker</td>
+        <td><code>dyn-research</code></td>
+        <td><span class="pill purple">深度分析 Agent</span></td>
+      </tr>
+      <tr>
+        <td><code>为什么跌 / 归因 / 影响多大 / 怎么回事</code></td>
+        <td><code>dyn-attribution</code></td>
+        <td><span class="pill amber">大盘分析 Agent</span></td>
+      </tr>
+      <tr>
+        <td><code>持仓风险 / 持仓分析 / 风险审视</code></td>
+        <td><code>dyn-risk</code></td>
+        <td><span class="pill rose">持仓风险 Agent</span></td>
+      </tr>
+      <tr>
+        <td><code>对比 X 和 Y</code></td>
+        <td><code>dyn-compare</code></td>
+        <td>（暂无独立 Agent）</td>
+      </tr>
+      <tr>
+        <td><code>Trade Plan / 策略 / 建仓</code></td>
+        <td><code>dyn-tradeplan</code></td>
+        <td>（暂无独立 Agent）</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>未识别意图 → 提示用户可选意图（分析持仓风险 / NVDA 能追吗 / 对比 NVDA 和 AMD / 今天为什么跌了）。</p>
+
+  <div class="note dep">
+    <div class="note-l">关键设计点</div>
+    <p>live 阶段就打开主区与 Agent 面板，把"AI 在工作"这件事<strong>视觉前置</strong>。只在 Enter 后渲染就退化成传统搜索框——这一条决定了整个产品的"AI 主导"观感。</p>
+  </div>
+
+  <h3>Demo · live morph 状态（输入未发送）</h3>
+  <div class="demo-frame demo-frame--bleed">
+    <iframe class="demo-iframe"
+      src="./longbridge-web-demo/index.html?seed=NVDA&amp;mode=live"
+      title="Demo: NVDA 输入到 live 状态"
+      loading="lazy" referrerpolicy="no-referrer"></iframe>
+  </div>
+  <p class="demo-caption">↑ 输入 <code>NVDA</code> 但<strong>未回车</strong>。注意：主区已切到 dyn-research 13 行结构、右侧 <span class="pill purple">深度分析 Agent</span> 同步弹起、底部输入框紫色脉动；chat 列尚未流式输出——这就是「打字阶段就重组」的体感。</p>
+</section>
+
+<!-- 4. Agent 体系 -->
+<section id="agent">
+  <h2><span class="num">04</span>Agent 调度机制 · 4 类任务执行单元</h2>
+
+  <p>Agent 不是助理人格，是<strong>任务执行单元</strong>。不同意图调度不同 Agent，每个 Agent 在 #dp 面板独立展示其任务边界与执行步骤（理解 → 采集 → 整合）。色 / 动效 / 步骤指示器各自不同，目的是<strong>让用户判断当前在执行哪类任务</strong>。<strong>本期是单 Agent 调度</strong>——一次意图触发一类 Agent；跨 Agent 接力 / 委托放在后续阶段。</p>
+
+  <h3>4 类 Agent 总览</h3>
+
+  <div class="ag-grid">
+    <!-- cyan · 股票选择 -->
+    <div class="ag-mini">
+      <div class="ag-card cyan" style="padding:0;background:transparent;gap:0;">
+        <div class="ag-stage">
+          <div class="ag-cyan-ring"></div>
+          <div class="ag-cyan-ring r2"></div>
+          <div class="ag-cyan-ring r3"></div>
+          <svg class="ag-cyan-spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.7 6.6L20 10l-6.3 1.4L12 18l-1.7-6.6L4 10l6.3-1.4z"/></svg>
+        </div>
+        <div class="ag-name">股票选择 Agent</div>
+        <div class="ag-sub">理解意图 → 推荐筛选 → 应用展示</div>
+      </div>
+      <div class="ag-meta">
+        <div><span class="k">触发：</span>选股 / 中概股 / 潜力股</div>
+        <div><span class="k">配套视图：</span><code>dyn-screener</code></div>
+        <div><span class="k">配套 chat：</span>lbaiScreenerChat 6 段</div>
+      </div>
+    </div>
+
+    <!-- purple · 深度分析 -->
+    <div class="ag-mini">
+      <div class="ag-card purple" style="padding:0;background:transparent;gap:0;">
+        <div class="ag-stage">
+          <div class="ag-purple-ring r1"></div>
+          <div class="ag-purple-ring r2"></div>
+          <div class="ag-purple-ring r3"></div>
+          <svg class="ag-purple-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <div class="ag-name">深度分析 Agent</div>
+        <div class="ag-sub">理解输入 → 采集深度 → 整合呈现</div>
+      </div>
+      <div class="ag-meta">
+        <div><span class="k">触发：</span>NVDA / AAPL 等 ticker</div>
+        <div><span class="k">配套视图：</span><code>dyn-research</code></div>
+        <div><span class="k">配套 chat：</span>lbaiChat 7 段</div>
+      </div>
+    </div>
+
+    <!-- amber · 大盘分析 -->
+    <div class="ag-mini">
+      <div class="ag-card amber" style="padding:0;background:transparent;gap:0;">
+        <div class="ag-stage">
+          <div class="ag-amber-bg"></div>
+          <div class="ag-amber-scan"></div>
+          <svg class="ag-amber-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-7"/>
+          </svg>
+        </div>
+        <div class="ag-name">大盘分析 Agent</div>
+        <div class="ag-sub">扫描异动 → 归因驱动 → 分解贡献</div>
+      </div>
+      <div class="ag-meta">
+        <div><span class="k">触发：</span>归因 / 为什么跌</div>
+        <div><span class="k">配套视图：</span><code>dyn-attribution</code></div>
+        <div><span class="k">配套 chat：</span>lbaiAttributionChat 9 段 + 11 来源</div>
+      </div>
+    </div>
+
+    <!-- rose · 持仓风险 -->
+    <div class="ag-mini">
+      <div class="ag-card rose" style="padding:0;background:transparent;gap:0;">
+        <div class="ag-stage">
+          <div class="ag-rose-arc a3"></div>
+          <div class="ag-rose-arc a2"></div>
+          <div class="ag-rose-arc a1"></div>
+          <svg class="ag-rose-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 21s-7-4.5-7-10a4.5 4.5 0 019-1 4.5 4.5 0 019 1c0 5.5-7 10-7 10z"/>
+          </svg>
+        </div>
+        <div class="ag-name">持仓风险 Agent</div>
+        <div class="ag-sub">提取持仓 → 量化敞口 → 推演策略</div>
+      </div>
+      <div class="ag-meta">
+        <div><span class="k">触发：</span>持仓风险 / 风险审视</div>
+        <div><span class="k">配套视图：</span><code>dyn-risk</code></div>
+        <div><span class="k">配套 chat：</span>lbaiRiskChat 7 段</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="demo-caption">每个 Agent 在 live 阶段就出现在 #dp 面板，把"当前在执行什么任务"显式化。Enter 后步骤指示器同步推进（理解 → 采集 → 整合），与 chat 流式输出节奏对齐。</p>
+
+  <div class="do-grid">
+    <div>
+      <h4>这一期做</h4>
+      <ul>
+        <li>4 类 Agent 的任务边界与视觉差异化</li>
+        <li>3 步骤指示器随 chat 节奏推进</li>
+        <li>Agent 面板 live 阶段同步打开</li>
+        <li>主区切换不影响 Agent 面板状态</li>
+      </ul>
+    </div>
+    <div>
+      <h4>这一期不做</h4>
+      <ul>
+        <li>Agent 之间的接力 / 委托（多 Agent 协同）</li>
+        <li>用户自定义 Agent 触发关键词</li>
+        <li>Agent 历史会话的独立存档（暂复用 chat 历史）</li>
+        <li>dyn-compare 的专属 Agent（待补，参见 §05）</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Demo · 持仓风险 Agent 完整流程</h3>
+  <div class="demo-frame demo-frame--bleed">
+    <iframe class="demo-iframe"
+      src="./longbridge-web-demo/index.html?seed=分析持仓风险&amp;mode=enter"
+      title="Demo: rose 持仓风险 Agent + dyn-risk + lbaiRiskChat 7 段"
+      loading="lazy" referrerpolicy="no-referrer"></iframe>
+  </div>
+  <p class="demo-caption">↑ 输入「分析持仓风险」并自动回车。<span class="pill rose">持仓风险 Agent</span> 弹起 → 主区切到 dyn-risk 持仓风险视图 → chat 流式输出 lbaiRiskChat 7 段（含 ✦ 建议策略 CTA）。Agent 步骤指示器与 chat 节奏对齐——「理解 → 采集 → 整合」。</p>
+</section>
+
+<!-- 5. 6 类视图 -->
+<section id="views">
+  <h2><span class="num">05</span>6 类动态视图 · 输入决定看什么</h2>
+
+  <p>意图识别命中后，主区从首页切到对应的动态视图。每个视图是一组针对该场景密度最高的<strong>结构化模块</strong>——不再是「打开标的详情页找数据」，而是「输入意图，主区直接组合好数据」。</p>
+
+  <div class="view-grid">
+    <div class="view-card">
+      <div class="vc-h">
+        <span class="vc-name">dyn-risk</span>
+        <span class="pill rose">持仓风险</span>
+      </div>
+      <div class="vc-id">持仓风险</div>
+      <div class="vc-trig">触发：<code>持仓风险</code> / <code>风险审视</code></div>
+      <div class="vc-d">CSS Grid 4 行 8 模块：持仓总览 + 风险评分 · 行业分布 + 集中度 Top 5 · 持仓明细 · 相关订单 + 策略 · AI 总结 + 动作。</div>
+      <div class="vc-tag">配套 chat：lbaiRiskChat 7 段 + ✦ 建议策略 CTA → 3 张策略卡。</div>
+    </div>
+
+    <div class="view-card">
+      <div class="vc-h">
+        <span class="vc-name">dyn-research</span>
+        <span class="pill purple">深度分析</span>
+      </div>
+      <div class="vc-id">标的研究</div>
+      <div class="vc-trig">触发：<code>NVDA / AAPL / TSM ...</code></div>
+      <div class="vc-d">CSS Grid 13 行：行情头 + 公司百科 + 营收构成 + 财务评分 + 估值 4 卡 + 同行业对比 + 估值因子 + 业绩预期 + 日程公告。</div>
+      <div class="vc-tag">配套 chat：lbaiChat 7 段 + 6 ✦ 跟进（4 深度问题 + 同类型/上下游）。</div>
+    </div>
+
+    <div class="view-card">
+      <div class="vc-h">
+        <span class="vc-name">dyn-screener</span>
+        <span class="pill cyan">股票选择</span>
+      </div>
+      <div class="vc-id">智能选股</div>
+      <div class="vc-trig">触发：<code>选股</code> / <code>潜力股</code> / <code>中概股</code></div>
+      <div class="vc-d">两段式：空态（条件可手选 + 全市场 13 万表格）→ 应用态（5 条件 + 14 行筛选结果）。<code>screenerMode</code> 控制 default / similar-X / chain-X 三种。</div>
+      <div class="vc-tag">配套 chat：lbaiScreenerChat 6 段 + ✦ 在选股器中查看 CTA。</div>
+    </div>
+
+    <div class="view-card">
+      <div class="vc-h">
+        <span class="vc-name">dyn-attribution</span>
+        <span class="pill amber">大盘分析</span>
+      </div>
+      <div class="vc-id">归因诊断</div>
+      <div class="vc-trig">触发：<code>为什么跌 / 归因</code></div>
+      <div class="vc-d">市场频道视角 7 行：市场切换 4 pill + 三大指数卡 + 板块表现 11 行 + 今日关键事件 9 条 + 跌幅榜 + 主力资金 + 财报周日历。</div>
+      <div class="vc-tag">配套 chat：lbaiAttributionChat 9 段 + 11 个 .ch-cite 来源 + 4 ✦。</div>
+    </div>
+
+    <div class="view-card">
+      <div class="vc-h">
+        <span class="vc-name">dyn-tradeplan</span>
+        <span class="pill" style="background:#f5f3ee;color:var(--ink-3);">通用</span>
+      </div>
+      <div class="vc-id">策略构建</div>
+      <div class="vc-trig">触发：<code>Trade Plan / 策略 / 建仓</code></div>
+      <div class="vc-d">参数化 Trade Plan 编辑：行权价 / 数量 / 期权 / 止损止盈，右列 6 数字实时重算（0.4s 闪烁）。</div>
+      <div class="vc-tag">配套 chat：通用 4 段。Move forward → 工作台激活态。</div>
+    </div>
+
+    <div class="view-card">
+      <div class="vc-h">
+        <span class="vc-name">dyn-compare</span>
+        <span class="pill" style="background:#f5f3ee;color:var(--ink-3);">待补 Agent</span>
+      </div>
+      <div class="vc-id">对比决策</div>
+      <div class="vc-trig">触发：<code>对比 X 和 Y</code></div>
+      <div class="vc-d">Factor Grades 高亮表 7 行 vs 对比 + 优势 chip。NVDA 领先 / AMD 估值占优 等结构化判断。</div>
+      <div class="vc-tag">本质是股票 PK 的衍生，专属 Agent 暂未实现；chat 走通用 4 段，可直接跳 dyn-tradeplan。</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <div class="note-l">视图与 Agent 的关系</div>
+    <p>主区视图 = 「看的东西」（界面），Agent = 「做的事」（任务）。同一视图（如 dyn-research）从不同入口被打开，只要意图属于「深度分析」，调度的都是同一个 Agent —— 任务身份稳定，不随入口变。dyn-compare 是<strong>股票 PK 的衍生场景</strong>，专属 Agent 待补；dyn-tradeplan 是结构化编辑，不需要独立 Agent。</p>
+  </div>
+</section>
+
+<!-- 6. 富 chat 流 -->
+<section id="chat">
+  <h2><span class="num">06</span>富 chat 流式回复 · 7 段结构</h2>
+
+  <p>所有 AI 回答按以下结构流式输出，每段独立 <code>.ch-m bot</code> 气泡，带级联浮现动效（<code>chCascadeIn .55s</code>）。富气泡内部的卡片 / bullet / accordion 再做 80ms 步长 stagger。</p>
+
+  <div class="ch-flow">
+    <div class="h">段位</div>
+    <div class="h">内容</div>
+    <div class="h">参考节奏</div>
+
+    <div class="seg">①</div>
+    <div class="desc"><strong>topic chip</strong>：顶角彩色识别 chip（如「分析持仓风险」rose）</div>
+    <div class="timing">200 ms</div>
+
+    <div class="seg">②</div>
+    <div class="desc"><strong>思考折叠节</strong>：任务列表 + 关键数据检索（tool chips）</div>
+    <div class="timing">400 ms</div>
+
+    <div class="seg">③</div>
+    <div class="desc"><strong>§ 一</strong> 整体引子（选股分析 / 持仓分布）</div>
+    <div class="timing">800 ms</div>
+
+    <div class="seg">④</div>
+    <div class="desc"><strong>§ 二</strong> 核心数据卡（前 N 名股 / 风险卡）</div>
+    <div class="timing">1000 ms</div>
+
+    <div class="seg">⑤</div>
+    <div class="desc"><strong>§ 三</strong> 维度拆解（条件 / 组合风险）</div>
+    <div class="timing">800 ms</div>
+
+    <div class="seg">⑥</div>
+    <div class="desc"><strong>§ 四（可选）</strong> 摘要表 + 免责 + 关注点 bullet</div>
+    <div class="timing">800 ms</div>
+
+    <div class="seg">⑦</div>
+    <div class="desc"><strong>CTA + 反馈</strong>：复制 / 赞 / 踩 / 重生成 + 主 CTA + ✦ 后续追问</div>
+    <div class="timing">500 ms</div>
+  </div>
+
+  <p>不同视图的差异主要在 ③④⑤⑥ 内容，框架（①②⑦）统一。这意味着用户在四个主路径下能形成一致的"读 chat"节奏感。</p>
+
+  <h3>视图专属 chat 函数</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:24%;">视图</th><th style="width:30%;">chat 函数</th><th>核心 CTA</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>dyn-research</td>
+        <td><code>lbaiChat</code> 7 段</td>
+        <td>6 ✦ 跟进（4 深度问题 + 2 nav：同类型 / 上下游）</td>
+      </tr>
+      <tr>
+        <td>dyn-screener</td>
+        <td><code>lbaiScreenerChat</code> 6 段</td>
+        <td>✦ 在选股器中查看（applyScreenerFromChat）</td>
+      </tr>
+      <tr>
+        <td>dyn-risk</td>
+        <td><code>lbaiRiskChat</code> 7 段</td>
+        <td>✦ 建议策略 → suggestRiskStrategy 3 张策略卡</td>
+      </tr>
+      <tr>
+        <td>dyn-attribution</td>
+        <td><code>lbaiAttributionChat</code> 9 段</td>
+        <td>4 ✦ 跟进（含"看持仓影响"跳 dyn-risk）</td>
+      </tr>
+      <tr>
+        <td>dyn-compare / dyn-tradeplan</td>
+        <td>通用 4 段</td>
+        <td>跳转或 Move forward</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note compliance">
+    <div class="note-l">合规边界（贯穿所有视图）</div>
+    <p>AI 的角色是"<strong>呈现数据 + 识别形态 + 推演场景</strong>"，不是"给建议"。lbaiAttributionChat 的来源 chip 系统（11 个 inline <code>.ch-cite</code>）就是为这一边界服务——所有判断都可追溯到具体来源，AI 只做归因不做预测。文案、UI、免责说明都按这个边界设计。</p>
+  </div>
+
+  <h3>Demo · lbaiAttributionChat 9 段流式 + 11 来源</h3>
+  <div class="demo-frame demo-frame--bleed">
+    <iframe class="demo-iframe"
+      src="./longbridge-web-demo/index.html?seed=今天为什么跌了&amp;mode=enter"
+      title="Demo: lbaiAttributionChat 9 段 + 11 ch-cite"
+      loading="lazy" referrerpolicy="no-referrer"></iframe>
+  </div>
+  <p class="demo-caption">↑ 输入「今天为什么跌了」并自动回车。<span class="pill amber">大盘分析 Agent</span> 弹起 → 主区切到 dyn-attribution 市场频道视角 → chat 流式输出 9 段；每段判断都带 inline <code>.ch-cite</code> 来源（路透 / Bloomberg / 公司公告等），合规边界落到具体气泡。</p>
+</section>
+
+<!-- 7. Journey -->
+<section id="journey">
+  <h2><span class="num">07</span>5 类用户场景 · 主路径验证</h2>
+
+  <p>用 5 个典型 Persona 来验证整套结构是否成立。每条路径都覆盖<strong>意图输入 → 主区切换 → Agent 工作 → chat 输出 → 后续追问</strong>的完整闭环。</p>
+
+  <div class="jn-list">
+
+    <div class="jn-card">
+      <div class="jn-h">
+        <span class="jn-no">J1</span>
+        <span class="jn-t">5 分钟早晨扫场</span>
+        <span class="jn-tag">扫场 · 30 秒</span>
+      </div>
+      <div class="jn-s">开盘前喝咖啡，只想知道：AI 帮我盯了什么、发生了什么、组合状况。<strong>不打算做任何输入</strong>。</div>
+      <div class="jn-flow">
+        <span class="step">打开页面</span>
+        <span class="arr">→</span>
+        <span class="step">看顶栏指数</span>
+        <span class="arr">→</span>
+        <span class="step">扫工作台 5 任务</span>
+        <span class="arr">→</span>
+        <span class="step">扫时间线 4 变化</span>
+        <span class="arr">→</span>
+        <span class="step">关闭</span>
+      </div>
+    </div>
+
+    <div class="jn-card">
+      <div class="jn-h">
+        <span class="jn-no">J2</span>
+        <span class="jn-t">Signal 跟单 → 下单</span>
+        <span class="jn-tag">决策（跟单）· 核心主路径</span>
+      </div>
+      <div class="jn-s">看到时间线 AMZN Bullish Signal，决定深入并可能下单。<strong>关键是：从看 Signal → 下单 → 工作台监控全在一页完成</strong>。</div>
+      <div class="jn-flow">
+        <span class="step">点 AMZN Signal</span>
+        <span class="arr">→</span>
+        <span class="step">看 Final verdict 87/100</span>
+        <span class="arr">→</span>
+        <span class="step">点 Draft trade plan</span>
+        <span class="arr">→</span>
+        <span class="step">chat 流式 7 步</span>
+        <span class="arr">→</span>
+        <span class="step">✦ Move forward</span>
+        <span class="arr">→</span>
+        <span class="step">工作台亮绿激活</span>
+      </div>
+    </div>
+
+    <div class="jn-card">
+      <div class="jn-h">
+        <span class="jn-no">J3</span>
+        <span class="jn-t">持仓诊断 → 再平衡</span>
+        <span class="jn-tag">持仓审视（重平衡）· 跨视图</span>
+      </div>
+      <div class="jn-s">最近涨幅好但心里不踏实。<strong>3 个动态视图（dyn-risk → dyn-compare → dyn-tradeplan）无缝切换</strong>是这条路径的核心考验。</div>
+      <div class="jn-flow">
+        <span class="step">输入 <code>分析持仓风险</code></span>
+        <span class="arr">→</span>
+        <span class="step">live 主区切 dyn-risk</span>
+        <span class="arr">→</span>
+        <span class="step"><span class="pill rose">持仓风险 Agent</span> 弹出</span>
+        <span class="arr">→</span>
+        <span class="step">Enter · lbaiRiskChat 7 段</span>
+        <span class="arr">→</span>
+        <span class="step">✦ 建议策略 · 3 卡</span>
+        <span class="arr">→</span>
+        <span class="step">输入 <code>对比 NVDA 和 AMD</code></span>
+        <span class="arr">→</span>
+        <span class="step">dyn-compare</span>
+        <span class="arr">→</span>
+        <span class="step">建 Trade Plan</span>
+      </div>
+    </div>
+
+    <div class="jn-card">
+      <div class="jn-h">
+        <span class="jn-no">J4</span>
+        <span class="jn-t">标的研究 NVDA</span>
+        <span class="jn-tag">研究 · 长停留</span>
+      </div>
+      <div class="jn-s">想知道 NVDA 估值贵不贵、技术面怎样。<strong>主区结构化数据 + chat 叙述性分析并存</strong>是这条路径的主体验。</div>
+      <div class="jn-flow">
+        <span class="step">输入 <code>NVDA</code></span>
+        <span class="arr">→</span>
+        <span class="step">live 主区切 dyn-research 13 行</span>
+        <span class="arr">→</span>
+        <span class="step"><span class="pill purple">深度分析 Agent</span> 弹出</span>
+        <span class="arr">→</span>
+        <span class="step">Enter · lbaiChat 7 段</span>
+        <span class="arr">→</span>
+        <span class="step">点 ✦ 同类型股票</span>
+        <span class="arr">→</span>
+        <span class="step">主区切 dyn-screener</span>
+      </div>
+    </div>
+
+    <div class="jn-card">
+      <div class="jn-h">
+        <span class="jn-no">J5</span>
+        <span class="jn-t">跌市归因 → 紧急止损</span>
+        <span class="jn-tag">应急 · 跨维度</span>
+      </div>
+      <div class="jn-s">开盘后持仓全红，组合 -2.7%，用户慌了。<strong>市场维度 → 持仓维度 → 策略</strong>三层递进。</div>
+      <div class="jn-flow">
+        <span class="step">输入 <code>今天为什么跌了</code></span>
+        <span class="arr">→</span>
+        <span class="step">live 主区切 dyn-attribution</span>
+        <span class="arr">→</span>
+        <span class="step"><span class="pill amber">大盘 Agent</span> 弹出</span>
+        <span class="arr">→</span>
+        <span class="step">Enter · lbaiAttributionChat 9 段</span>
+        <span class="arr">→</span>
+        <span class="step">点 ✦ 看持仓影响</span>
+        <span class="arr">→</span>
+        <span class="step">切 dyn-risk + <span class="pill rose">持仓风险 Agent</span></span>
+        <span class="arr">→</span>
+        <span class="step">建议策略（3 卡之一）</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <div class="note-l">主路径满足度</div>
+    <p>4 大主路径（早晨扫场 / Signal 跟单 / 持仓审视 / 标的研究）的主要叙事在原型中可完整演示；跌市归因升级到市场频道视角后也已可演示。辅助场景（资讯阅读 / 直接下单 / 语音输入）以占位为主，本次汇报暂不展开。</p>
+  </div>
+</section>
+
+<!-- 8. 待对齐 -->
+<section id="open">
+  <h2><span class="num">08</span>待对齐的问题</h2>
+
+  <p>下列问题需要在工程拆解前与相关方对齐。每一项都会显著影响产品形态或工程投入。</p>
+
+  <ol>
+    <li><strong>意图识别的兜底策略。</strong>关键词命中是确定性方案，但用户提问形式千差万别（如「这只票还能拿吗」）。是否引入 LLM 意图分类？引入后对响应延迟与命中率的预期？建议先用关键词覆盖 80% 主路径，LLM 兜底剩余 20%，并设置降级链路。</li>
+    <li><strong>动态视图的覆盖优先级。</strong>6 类视图工程量不一致。建议按"用户场景渗透率 × 实现复杂度"打分：dyn-research / dyn-risk / dyn-attribution 优先；dyn-screener / dyn-tradeplan 次之；dyn-compare 最后。需与数据团队对齐 nvdaDetail 等结构化数据的真实接入节奏。</li>
+    <li><strong>Agent 命名与边界。</strong>当前 4 类 Agent 用功能性命名（"持仓风险 Agent" 等），强调任务边界而非助理身份。其中"持仓风险 Agent"在 v1.0 文档中曾命名为"复盘分析 Agent"，本版改为贴合实际功能（demo 端代码同步将在下次迭代落地）。是否进一步语义化（如"风险代理人"等术语）会影响品牌调性，需与设计、品牌团队对齐。</li>
+    <li><strong>chat 富气泡的合规与法务。</strong>lbaiAttributionChat 的 11 个 .ch-cite 来源是合规设计的关键。需与法务确认：①来源标注的最低标准；②"形态识别 / 场景推演"与"投资建议"的边界文案；③免责说明在每段气泡的呈现位置。</li>
+    <li><strong>工作台与现有持仓 / 订单系统的对齐。</strong>AI 工作台 5 状态（激活 / 运行 / 正常 / 预警 / 暂停）涉及订单生命周期。需与交易系统团队对齐：状态切换的事件源、Move forward 创建任务的实际执行链路、监控触发条件的可配置范围。</li>
+    <li><strong>chat 列宽度持久化的跨设备策略。</strong>当前 localStorage 只在本地保存。是否需要云端同步用户偏好（chat 宽度 / 默认展开状态 / Agent 偏好）？这会与 App 端长期账号体系打通需求挂钩。</li>
+    <li><strong>分阶段上线节奏。</strong>建议拆分为：阶段一只做"意图入口 + 主区动态切换 + 通用 chat"（核心叙事跑通）；阶段二补"4 类 Agent 任务边界 + 富 chat 7 段"；阶段三补"AI 工作台 + Move forward 闭环"。三阶段是否各自独立可上线，需与工程负责人对齐。</li>
+  </ol>
+</section>
+
+<!-- 9. 工程量与风险 -->
+<section id="cost">
+  <h2><span class="num">09</span>工程量与主要风险</h2>
+
+  <p>本节给出工程拆分骨架与风险盘点。具体人月数字与技术选型由工程团队对齐后填充——这里只列<strong>结构与等级</strong>，便于决策者快速判断投入与风险。</p>
+
+  <h3>分阶段工程拆分</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:14%;">阶段</th><th style="width:38%;">范围</th><th>核心交付物</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>阶段一</strong></td>
+        <td>意图入口 + 主区动态切换 + 通用 chat</td>
+        <td>底部输入 + classifyIntent + 6 类 dyn-* 视图骨架 + 通用 4 段 chat 流。核心叙事跑通。</td>
+      </tr>
+      <tr>
+        <td><strong>阶段二</strong></td>
+        <td>4 类 Agent 任务边界 + 富 chat 流</td>
+        <td>#dp 面板 4 类 Agent + lbaiChat / lbaiRiskChat / lbaiAttributionChat / lbaiScreenerChat 富气泡 + 11 来源标注。</td>
+      </tr>
+      <tr>
+        <td><strong>阶段三</strong></td>
+        <td>AI 工作台 + Move forward 闭环</td>
+        <td>#aw 5 状态机 + Move forward 创建任务 + 工作台 ↔ 订单系统对接。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>主要技术风险</h3>
+  <table class="info-tbl">
+    <thead>
+      <tr><th style="width:32%;">风险</th><th style="width:10%;">等级</th><th>缓解</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>意图识别召回率不达标</strong></td>
+        <td>高</td>
+        <td>关键词覆盖 80% 主路径 + LLM 兜底剩余 20%；灰度上线监控召回率 / 误召率，按命中率回流改 regex / 重训。</td>
+      </tr>
+      <tr>
+        <td><strong>合规盘点未一次性覆盖</strong></td>
+        <td>高</td>
+        <td>lbaiAttributionChat 11 个 <code>.ch-cite</code> 是基线；其他视图（dyn-research / dyn-risk）的来源标注尚未对齐——需法务一次性审 + 文案模板化。</td>
+      </tr>
+      <tr>
+        <td><strong>Move forward 端到端链路</strong></td>
+        <td>高</td>
+        <td>涉及订单系统、风控、用户权限——跨部门协调成本高。阶段三启动前必须先做接口对齐，否则 Move forward 只能停留在 demo 态。</td>
+      </tr>
+      <tr>
+        <td><strong>Agent 调度延迟（live morph 卡顿）</strong></td>
+        <td>中</td>
+        <td>live 阶段仅做关键词匹配，不调远程；Enter 后才调 LLM / 数据 API。前端层做防抖（≥150ms）。</td>
+      </tr>
+      <tr>
+        <td><strong>chat 7 段流式在弱网下体验</strong></td>
+        <td>中</td>
+        <td>段间断点重试 + 局部 fallback（已渲染段不回卷）；首段 200ms 失败可降级为非流式整段输出。</td>
+      </tr>
+      <tr>
+        <td><strong>跨视图状态一致性</strong></td>
+        <td>中</td>
+        <td>主区切换不重置 #dp / #aw / #ch 是结构铁律——需在路由层做幂等保证，避免 Agent 面板被新意图误覆盖。</td>
+      </tr>
+      <tr>
+        <td><strong>浏览器兼容性</strong></td>
+        <td>低</td>
+        <td>主流 Chromium / Safari 覆盖；CSS Grid + transition 已成熟。IE / 老 Edge 不在范围。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note dep">
+    <div class="note-l">建议</div>
+    <p>3 项「高」风险（意图识别召回 / 合规盘点 / Move forward 链路）需在阶段一启动前完成跨团队对齐；否则后续阶段会被这 3 项卡住，不是工程量问题而是依赖问题。</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Web 端 AI 首页方案规划 · v1.1 · 内部讨论稿<br/>
+    本文档为内部讨论稿，仅作规划对齐使用，所有数据均为示意。
+  </div>
+</footer>
+
+</body>
+</html>

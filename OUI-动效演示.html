@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>OUI · 伪生成式交互动效</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(circle at 50% 30%,#11151E 0%,#06080D 80%);
+    color:#fff;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei","DM Sans",sans-serif;
+    min-height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:32px 16px;
+  }
+  .stage{
+    width:100%;max-width:760px;
+    background:#14171F;
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+  }
+  .topbar{
+    height:36px;background:rgba(255,255,255,0.02);
+    display:flex;align-items:center;gap:14px;
+    padding:0 16px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .topbar-dots{display:flex;gap:6px}
+  .topbar-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.12)}
+  .topbar-title{
+    font-size:11px;color:rgba(255,255,255,0.5);
+    letter-spacing:0.5px;font-weight:500;
+    margin-left:auto;
+  }
+  .viewport{
+    height:380px;position:relative;
+    overflow:hidden;background:#0E1219;
+  }
+  .scene{
+    position:absolute;inset:0;
+    padding:18px 20px;
+    opacity:0;transform:translateY(8px);
+    transition:opacity .45s ease,transform .45s ease;
+    pointer-events:none;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .scene.on{opacity:1;transform:translateY(0)}
+  .panel-title{
+    font-size:10px;color:rgba(255,255,255,0.4);
+    text-transform:uppercase;letter-spacing:0.8px;
+    font-weight:600;
+  }
+  .aw-row{display:flex;gap:10px}
+  .aw-task{
+    flex:1;background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:8px;padding:10px 12px;
+    border-left:2px solid var(--accent,#8B5CF6);
+    min-width:0;
+  }
+  .aw-task-name{font-size:11px;font-weight:600;margin-bottom:4px}
+  .aw-task-status{font-size:10px;color:rgba(255,255,255,0.4);font-family:monospace}
+  .timeline{
+    flex:1;background:rgba(255,255,255,0.02);
+    border-radius:8px;padding:14px 16px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .tl-row{display:flex;gap:10px;align-items:flex-start}
+  .tl-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+  .tl-content{flex:1}
+  .tl-title{font-size:11.5px;color:rgba(255,255,255,0.85)}
+  .tl-time{font-size:10px;color:rgba(255,255,255,0.4);font-family:monospace}
+  .ticker-head{display:flex;align-items:baseline;gap:12px}
+  .ticker-symbol{font-size:24px;font-weight:700}
+  .ticker-price{font-size:18px;font-weight:600;color:#00ADA2;font-family:monospace}
+  .ticker-change{font-size:12px;color:#00ADA2;font-family:monospace}
+  .chart-area{
+    height:108px;background:rgba(0,173,162,0.04);
+    border-radius:6px;overflow:hidden;
+  }
+  .factor-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .factor-card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:6px;padding:8px 10px;
+  }
+  .factor-label{
+    font-size:9px;color:rgba(255,255,255,0.4);
+    text-transform:uppercase;letter-spacing:0.5px;
+  }
+  .factor-value{font-size:14px;font-weight:600;margin-top:2px;font-family:monospace}
+  .risk-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .risk-card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:8px;padding:12px;
+  }
+  .risk-card.high{border-left:2px solid #EF4444}
+  .risk-card.med{border-left:2px solid #F59E0B}
+  .risk-card.low{border-left:2px solid #00ADA2}
+  .risk-label{font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:4px}
+  .risk-value{font-size:15px;font-weight:700;font-family:monospace}
+  .risk-bars{
+    flex:1;background:rgba(255,255,255,0.02);
+    border-radius:8px;padding:14px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .bar-row{display:flex;align-items:center;gap:12px;font-size:11px}
+  .bar-name{width:60px;color:rgba(255,255,255,0.85)}
+  .bar-track{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+  .bar-pct{width:42px;text-align:right;font-family:monospace;color:rgba(255,255,255,0.5)}
+  .index-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .idx-card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:8px;padding:10px 12px;
+  }
+  .idx-name{font-size:10px;color:rgba(255,255,255,0.5)}
+  .idx-value{font-size:14px;font-weight:700;font-family:monospace;margin-top:2px}
+  .idx-change{font-size:11px;color:#EF4444;font-family:monospace}
+  .sectors{
+    flex:1;background:rgba(255,255,255,0.02);
+    border-radius:8px;padding:14px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start;
+  }
+  .sec-card{
+    padding:10px 12px;border-radius:6px;
+    font-size:10.5px;font-weight:500;
+    display:flex;justify-content:space-between;
+  }
+  .sec-card .sec-pct{font-family:monospace}
+  .sec-card.up{background:rgba(0,173,162,0.12);color:#5EEAD4}
+  .sec-card.down{background:rgba(239,68,68,0.12);color:#FCA5A5}
+  /* Agent panel */
+  .agent-panel{
+    position:absolute;top:18px;right:20px;
+    width:118px;
+    background:rgba(20,23,31,0.95);
+    border:1px solid var(--ag-color,rgba(139,92,246,0.5));
+    border-radius:8px;padding:10px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    opacity:0;transform:translateY(-4px);
+    transition:opacity .4s ease,transform .4s ease;
+  }
+  .agent-panel.show{opacity:1;transform:translateY(0)}
+  .ag-stage{
+    width:46px;height:46px;
+    border-radius:50%;
+    margin:0 auto 8px;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ag-ring{
+    position:absolute;inset:0;border-radius:50%;
+    border:1.5px solid var(--ag-color);
+    opacity:0;
+    animation:agExpand 2.4s ease-out infinite;
+  }
+  .ag-ring.r2{animation-delay:.8s}
+  .ag-ring.r3{animation-delay:1.6s}
+  @keyframes agExpand{
+    0%{transform:scale(.5);opacity:.85}
+    100%{transform:scale(1.6);opacity:0}
+  }
+  .ag-dot{
+    width:14px;height:14px;border-radius:50%;
+    background:var(--ag-color);
+    box-shadow:0 0 12px var(--ag-color);
+    animation:agBreathe 1.4s ease-in-out infinite;
+    z-index:2;
+  }
+  @keyframes agBreathe{
+    0%,100%{transform:scale(1);opacity:.95}
+    50%{transform:scale(1.18);opacity:.7}
+  }
+  .ag-name{font-size:10px;font-weight:600;color:var(--ag-color);margin-bottom:3px}
+  .ag-step{font-size:9px;color:rgba(255,255,255,0.4);font-family:monospace}
+  /* Input bar */
+  .input-bar{
+    height:54px;
+    border-top:1px solid rgba(255,255,255,0.05);
+    background:rgba(255,255,255,0.01);
+    display:flex;align-items:center;
+    padding:0 16px;gap:10px;
+  }
+  .input-pulse{
+    width:8px;height:8px;border-radius:50%;
+    background:#8B5CF6;
+    animation:pulse 1.4s ease-in-out infinite;
+    transition:opacity .3s;opacity:0;
+  }
+  .input-pulse.live{opacity:1}
+  @keyframes pulse{
+    0%,100%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.6);opacity:.4}
+  }
+  .input-text{
+    flex:1;font-size:13px;
+    font-family:-apple-system,"PingFang SC",monospace;
+    color:rgba(255,255,255,0.85);
+    letter-spacing:0.3px;
+    min-width:0;overflow:hidden;
+    white-space:nowrap;text-overflow:ellipsis;
+  }
+  .input-cursor{
+    display:inline-block;width:2px;height:14px;
+    background:#8B5CF6;margin-left:2px;
+    vertical-align:text-bottom;
+    animation:blink .8s infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  .input-hint{
+    font-size:11px;color:rgba(255,255,255,0.3);
+    flex-shrink:0;
+    transition:color .3s;
+  }
+  .input-hint.live{color:#8B5CF6}
+  .input-mic,.input-send{
+    width:28px;height:28px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .input-mic{
+    background:rgba(255,255,255,0.05);
+    color:rgba(255,255,255,0.4);
+    font-size:12px;
+  }
+  .input-send{
+    background:#8B5CF6;color:#fff;
+    font-size:13px;font-weight:700;
+  }
+  .caption{
+    text-align:center;margin-top:18px;
+    font-size:12px;color:rgba(255,255,255,0.35);
+    letter-spacing:0.4px;
+  }
+  .caption strong{color:rgba(255,255,255,0.7);font-weight:500}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <div class="topbar-dots">
+      <div class="topbar-dot"></div>
+      <div class="topbar-dot"></div>
+      <div class="topbar-dot"></div>
+    </div>
+    <div class="topbar-title">OUI · 意图驱动的伪生成式交互</div>
+  </div>
+  <div class="viewport">
+
+    <div class="scene on" data-scene="default">
+      <div class="aw-row">
+        <div class="aw-task" style="--accent:#00ADA2"><div class="aw-task-name">NVDA 监控</div><div class="aw-task-status">运行中 · ±2%</div></div>
+        <div class="aw-task" style="--accent:#00ADA2"><div class="aw-task-name">组合再平衡</div><div class="aw-task-status">运行中 · 周一</div></div>
+        <div class="aw-task" style="--accent:#EF4444"><div class="aw-task-name">TSLA 止损</div><div class="aw-task-status">预警 · &lt; $195</div></div>
+        <div class="aw-task" style="--accent:#06B6D4"><div class="aw-task-name">财报日历</div><div class="aw-task-status">本周 4 巨头</div></div>
+      </div>
+      <div class="timeline">
+        <div class="panel-title">变化事件 · 5 条新</div>
+        <div class="tl-row"><div class="tl-dot" style="background:#3B82F6"></div><div class="tl-content"><div class="tl-time">14:32</div><div class="tl-title">AMZN 触发 Bullish Signal · 评分 87/100</div></div></div>
+        <div class="tl-row"><div class="tl-dot" style="background:#EF4444"></div><div class="tl-content"><div class="tl-time">14:18</div><div class="tl-title">NVDA 跌破 50 日均线 · 持仓 18% 受影响</div></div></div>
+        <div class="tl-row"><div class="tl-dot" style="background:#00ADA2"></div><div class="tl-content"><div class="tl-time">13:55</div><div class="tl-title">XLE 能源 +1.82% 领涨 · 油价上行</div></div></div>
+      </div>
+    </div>
+
+    <div class="scene" data-scene="research">
+      <div class="ticker-head">
+        <div class="ticker-symbol">NVDA</div>
+        <div class="ticker-price">$478.32</div>
+        <div class="ticker-change">+2.84%</div>
+      </div>
+      <div class="chart-area">
+        <svg viewBox="0 0 600 108" preserveAspectRatio="none" style="width:100%;height:100%">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#00ADA2" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#00ADA2" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 80 L60 70 L120 75 L180 55 L240 60 L300 50 L360 38 L420 32 L480 24 L540 26 L600 18 L600 108 L0 108 Z" fill="url(#g1)"/>
+          <path d="M0 80 L60 70 L120 75 L180 55 L240 60 L300 50 L360 38 L420 32 L480 24 L540 26 L600 18" stroke="#00ADA2" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="factor-row">
+        <div class="factor-card"><div class="factor-label">P/E</div><div class="factor-value">62.4</div></div>
+        <div class="factor-card"><div class="factor-label">营收增速</div><div class="factor-value">+265%</div></div>
+        <div class="factor-card"><div class="factor-label">毛利率</div><div class="factor-value">75.0%</div></div>
+        <div class="factor-card"><div class="factor-label">RSI</div><div class="factor-value">68.2</div></div>
+      </div>
+      <div class="agent-panel" style="--ag-color:#8B5CF6">
+        <div class="ag-stage"><div class="ag-ring"></div><div class="ag-ring r2"></div><div class="ag-ring r3"></div><div class="ag-dot"></div></div>
+        <div class="ag-name">深度分析 Agent</div>
+        <div class="ag-step">采集深度…</div>
+      </div>
+    </div>
+
+    <div class="scene" data-scene="risk">
+      <div class="risk-summary">
+        <div class="risk-card high"><div class="risk-label">集中度</div><div class="risk-value">82 / 高</div></div>
+        <div class="risk-card med"><div class="risk-label">Beta</div><div class="risk-value">1.32 / 中</div></div>
+        <div class="risk-card low"><div class="risk-label">流动性</div><div class="risk-value">A / 低</div></div>
+      </div>
+      <div class="risk-bars">
+        <div class="panel-title">持仓敞口</div>
+        <div class="bar-row"><div class="bar-name">NVDA</div><div class="bar-track"><div class="bar-fill" style="width:34%;background:#EF4444"></div></div><div class="bar-pct">34%</div></div>
+        <div class="bar-row"><div class="bar-name">AAPL</div><div class="bar-track"><div class="bar-fill" style="width:22%;background:#F59E0B"></div></div><div class="bar-pct">22%</div></div>
+        <div class="bar-row"><div class="bar-name">BRK.B</div><div class="bar-track"><div class="bar-fill" style="width:18%;background:#00ADA2"></div></div><div class="bar-pct">18%</div></div>
+        <div class="bar-row"><div class="bar-name">MSFT</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:#00ADA2"></div></div><div class="bar-pct">14%</div></div>
+        <div class="bar-row"><div class="bar-name">其他</div><div class="bar-track"><div class="bar-fill" style="width:12%;background:rgba(255,255,255,0.2)"></div></div><div class="bar-pct">12%</div></div>
+      </div>
+      <div class="agent-panel" style="--ag-color:#EC4899">
+        <div class="ag-stage"><div class="ag-ring"></div><div class="ag-ring r2"></div><div class="ag-ring r3"></div><div class="ag-dot"></div></div>
+        <div class="ag-name">持仓风险 Agent</div>
+        <div class="ag-step">量化敞口…</div>
+      </div>
+    </div>
+
+    <div class="scene" data-scene="attribution">
+      <div class="index-row">
+        <div class="idx-card"><div class="idx-name">DJI</div><div class="idx-value">42,318</div><div class="idx-change">-0.43%</div></div>
+        <div class="idx-card"><div class="idx-name">NDX</div><div class="idx-value">18,245</div><div class="idx-change">-1.09%</div></div>
+        <div class="idx-card"><div class="idx-name">SPX</div><div class="idx-value">5,648</div><div class="idx-change">-0.72%</div></div>
+      </div>
+      <div class="sectors">
+        <div class="sec-card down"><span>科技</span><span class="sec-pct">-2.1%</span></div>
+        <div class="sec-card down"><span>半导体</span><span class="sec-pct">-3.4%</span></div>
+        <div class="sec-card up"><span>能源</span><span class="sec-pct">+1.8%</span></div>
+        <div class="sec-card up"><span>公用</span><span class="sec-pct">+0.6%</span></div>
+        <div class="sec-card down"><span>消费</span><span class="sec-pct">-0.9%</span></div>
+        <div class="sec-card down"><span>金融</span><span class="sec-pct">-0.4%</span></div>
+        <div class="sec-card up"><span>医疗</span><span class="sec-pct">+0.3%</span></div>
+        <div class="sec-card down"><span>地产</span><span class="sec-pct">-1.2%</span></div>
+      </div>
+      <div class="agent-panel" style="--ag-color:#F59E0B">
+        <div class="ag-stage"><div class="ag-ring"></div><div class="ag-ring r2"></div><div class="ag-ring r3"></div><div class="ag-dot"></div></div>
+        <div class="ag-name">大盘分析 Agent</div>
+        <div class="ag-step">归因驱动…</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="input-bar">
+    <div class="input-pulse" id="pulse"></div>
+    <div class="input-text"><span id="typed"></span><span class="input-cursor"></span></div>
+    <div class="input-hint" id="hint">已接入持仓 · 自选 · 行情</div>
+    <div class="input-mic">⏵</div>
+    <div class="input-send">↑</div>
+  </div>
+</div>
+<div class="caption"><strong>OUI</strong> · 意图表达 → 意图识别 → 主区自组装 · 动效循环演示</div>
+
+<script>
+const sequence = [
+  { type:'idle', dwell:1600 },
+  { type:'type', text:'NVDA', scene:'research', hint:'live morph · 主区已重组', dwell:2200 },
+  { type:'clear', dwell:700 },
+  { type:'type', text:'分析持仓风险', scene:'risk', hint:'live morph · 主区已重组', dwell:2400 },
+  { type:'clear', dwell:700 },
+  { type:'type', text:'今天为什么跌了', scene:'attribution', hint:'live morph · 主区已重组', dwell:2400 },
+  { type:'clear', dwell:700 },
+];
+const typedEl = document.getElementById('typed');
+const pulseEl = document.getElementById('pulse');
+const hintEl = document.getElementById('hint');
+
+function setScene(name) {
+  document.querySelectorAll('.scene').forEach(s => s.classList.toggle('on', s.dataset.scene === name));
+  document.querySelectorAll('.agent-panel').forEach(p => p.classList.remove('show'));
+}
+function showAgentInActiveScene() {
+  const active = document.querySelector('.scene.on .agent-panel');
+  if (active) active.classList.add('show');
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function typeText(text, scene, hint) {
+  pulseEl.classList.add('live');
+  hintEl.classList.add('live');
+  hintEl.textContent = hint;
+  let buf = '';
+  const charDelay = 110;
+  const morphAt = Math.max(1, Math.floor(text.length * 0.5));
+  for (let i = 0; i < text.length; i++) {
+    buf += text[i];
+    typedEl.textContent = buf;
+    if (i + 1 === morphAt) {
+      setScene(scene);
+      setTimeout(showAgentInActiveScene, 220);
+    }
+    await sleep(charDelay);
+  }
+}
+async function clearText() {
+  typedEl.textContent = '';
+  pulseEl.classList.remove('live');
+  hintEl.classList.remove('live');
+  hintEl.textContent = '已接入持仓 · 自选 · 行情';
+  setScene('default');
+}
+
+(async function loop() {
+  while (true) {
+    for (const step of sequence) {
+      if (step.type === 'idle') {
+        await sleep(step.dwell);
+      } else if (step.type === 'type') {
+        await typeText(step.text, step.scene, step.hint);
+        await sleep(step.dwell);
+      } else if (step.type === 'clear') {
+        await clearText();
+        await sleep(step.dwell);
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>
