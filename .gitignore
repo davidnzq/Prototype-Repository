@@ -3,3 +3,9 @@ node_modules/
 *.log
 .vscode/
 .idea/
+
+# Claude Code 会话元数据(本地配置 / 历史)
+.claude/
+
+# 打包产物(可由源码生成,不入库)
+*.zip
