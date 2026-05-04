@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/detail.css">
 <link rel="stylesheet" href="css/dynamic.css">
+<link rel="stylesheet" href="css/static.css">
 </head>
 <body>
 <div class="shell">
@@ -27,16 +28,15 @@
     <div class="tn-mi">关于<span class="tn-mi-caret">⌄</span></div>
   </div>
   <div class="tn-icons">
-    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
-    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0118 0v6"/></svg></div>
-    <div class="tn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20"/></svg></div>
-    <div class="tn-avatar">C</div>
+    <button class="tn-ic" type="button" aria-label="搜索"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>
+    <button class="tn-ic" type="button" aria-label="客服"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14a9 9 0 0118 0v4a2 2 0 01-2 2h-1v-7"/><path d="M3 14v4a2 2 0 002 2h1v-7"/></svg></button>
+    <button class="tn-ic" type="button" aria-label="语言切换"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></button>
   </div>
 </div>
 
 <div class="bd">
   <!-- ICON NAV -->
-  <div class="in">
+  <div class="in" id="in">
     <div class="ni on" data-v="home" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>首页</span><span class="ni-b" id="badge">4</span></div>
     <div class="ni-s"></div>
     <div class="ni" data-v="watchlist" onclick="go('watchlist')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>自选</span></div>
@@ -46,6 +46,10 @@
     <div class="ni" data-v="market" onclick="go('market')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>市场</span></div>
     <div class="ni" data-v="community" onclick="go('community')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>社区</span></div>
     <div class="ni" data-v="trade" onclick="go('trade')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>交易</span></div>
+    <div class="in-spacer"></div>
+    <div class="ni" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg><span>Café</span></div>
+    <div class="ni" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg><span>AI</span></div>
+    <div class="in-user"><div class="in-user-avatar">D</div><div class="in-user-name">德玛西亚</div></div>
   </div>
 
   <div class="fr">
@@ -61,21 +65,21 @@
         <div class="vw" id="v-watchlist"></div>
         <div class="vw" id="v-portfolio"></div>
         <div class="vw" id="v-news"></div>
-        <div class="vw" id="v-market"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">市场</p></div>
-        <div class="vw" id="v-community"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">社区</p></div>
-        <div class="vw" id="v-trade"><p style="color:var(--tm);padding:24px 0;text-align:center;font-size:11px">交易</p></div>
+        <div class="vw" id="v-market"></div>
+        <div class="vw" id="v-community"></div>
+        <div class="vw" id="v-trade"></div>
         <div class="vw" id="v-dyn-risk"></div>
         <div class="vw" id="v-dyn-compare"></div>
         <div class="vw" id="v-dyn-tradeplan"></div>
         <div class="vw" id="v-dyn-research"></div>
         <div class="vw" id="v-dyn-attribution"></div>
+        <div class="vw" id="v-dyn-screener"></div>
       </div>
 
       <!-- 2. DETAIL (between main and AI workbench) -->
       <div class="dp" id="dp">
         <div class="dp-close" id="dpHeader">
-          <button class="dp-back-btn" id="dpBack" onclick="dpGoBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回</button>
-          <button class="dp-close-btn" onclick="closeDetail()">✕</button>
+          <button class="dp-close-btn" onclick="closeDetail()" aria-label="关闭详情">✕</button>
         </div>
         <div class="dp-inner" id="dpInner"></div>
         <div class="dp-footer" id="dpFooter"></div>
@@ -88,9 +92,26 @@
       </div>
 
       <!-- 4. CHAT -->
-      <div class="ch">
+      <div class="ch" id="ch">
+        <div class="ch-resize" id="chResize" title="拖拽调整 Chat 宽度"></div>
         <div class="ch-hd"><div class="ch-logo">AI</div><span class="ch-brand">LongbridgeAI</span><span class="ch-tag" id="chtag">首页</span></div>
         <div class="ch-msgs" id="chm"></div>
+      </div>
+    </div>
+
+    <!-- 全局二次确认 modal(下单 / 危险动作)-->
+    <div class="modal-mask" id="confirmModal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal-box" role="document">
+        <div class="modal-hd">
+          <div class="modal-ic" id="confirmModalIc"></div>
+          <div class="modal-t" id="confirmModalT">确认</div>
+          <button class="modal-close" id="confirmModalX" aria-label="关闭">×</button>
+        </div>
+        <div class="modal-bd" id="confirmModalBd"></div>
+        <div class="modal-ft">
+          <button class="modal-btn" id="confirmModalCancel">取消</button>
+          <button class="modal-btn primary" id="confirmModalOk">确认</button>
+        </div>
       </div>
     </div>
 
@@ -98,16 +119,17 @@
       <div class="hint-tip" id="hintTip"><span class="hint-tip-dot"></span>布局已按意图实时重组 · 继续输入可细化 · Enter 发送给 AI</div>
       <div class="gi-tries" id="giTries">
         <button class="gi-try" onclick="tryIntent('分析我的持仓风险')">试:分析我的持仓风险</button>
-        <button class="gi-try" onclick="tryIntent('对比 NVDA 和 AMD')">试:对比 NVDA 和 AMD</button>
-        <button class="gi-try" onclick="tryIntent('帮我建一个 NVDA Trade Plan')">试:建 NVDA Trade Plan</button>
-        <button class="gi-try" onclick="tryIntent('NVDA 能追吗')">试:NVDA 能追吗</button>
+        <button class="gi-try" onclick="tryIntent('我想筛选中概股中的潜力股')">试:我想筛选中概股中的潜力股</button>
+        <button class="gi-try" onclick="tryIntent('帮我建一个 NVDA 策略')">试:建 NVDA 策略</button>
+        <button class="gi-try" onclick="tryIntent('NVDA')">试:NVDA</button>
         <button class="gi-try" onclick="tryIntent('今天为什么跌了')">试:今天为什么跌了</button>
       </div>
       <div class="gi-box" id="giBox">
         <span class="gi-live-dot"></span>
-        <input placeholder="试试:分析持仓风险 / NVDA 能追吗 / 对比 NVDA 和 AMD / 建 Trade Plan / 今天为什么跌了" id="gin" onfocus="showTries()" onblur="hideTries()">
+        <input placeholder="试试:分析持仓风险 / NVDA 能追吗 / 我想筛选中概股中的潜力股 / 建策略 / 今天为什么跌了" id="gin" onfocus="showTries()" onblur="hideTries()">
         <span class="gi-hint">已接入持仓·自选·行情·策略</span>
-        <button class="gi-send" onclick="sendG()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        <button class="gi-mic" id="giMic" onclick="toggleVoiceInput()" aria-label="语音输入" title="语音输入"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
+        <button class="gi-send" onclick="sendG()" aria-label="发送给 AI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
       </div>
     </div>
   </div>
@@ -115,11 +137,13 @@
 
 </div>
 
+<script src="js/icons.js"></script>
 <script src="js/data.js"></script>
 <script src="js/home.js"></script>
 <script src="js/detail.js"></script>
 <script src="js/sidebar.js"></script>
 <script src="js/dynamic.js"></script>
+<script src="js/static-views.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
