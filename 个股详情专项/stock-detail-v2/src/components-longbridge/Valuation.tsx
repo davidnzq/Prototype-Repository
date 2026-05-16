@@ -93,9 +93,10 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
 }
 
 function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
-  const W = 280;
-  const H = 90;
-  const PAD = 4;
+  // viewBox 设计:VBW=600 匹配 Card 在 1280 容器内 2 列 grid 的实际宽度,SVG width=100%
+  const W = 600;
+  const H = 160;
+  const PAD = 6;
 
   const all = [
     ...m.history.map((p) => p.price),
@@ -122,7 +123,12 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
     .join(" L ")} L ${xAt(m.history.length - 1)},${H - PAD} Z`;
 
   return (
-    <svg aria-hidden="true" width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="block w-full">
+    <svg
+      aria-hidden="true"
+      width="100%"
+      viewBox={`0 0 ${W} ${H}`}
+      className="block w-full"
+    >
       {/* 区域填充 */}
       <path d={areaPath} fill="var(--color-accent)" fillOpacity="0.08" />
 
@@ -142,9 +148,9 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
       {/* 分位数值标签 */}
       <text
         x={W - PAD}
-        y={yAt(m.percentiles.high) - 2}
+        y={yAt(m.percentiles.high) - 3}
         textAnchor="end"
-        className="text-2xs"
+        fontSize="12"
         fill="var(--color-fg-3)"
         style={{ fontFamily: "var(--font-num)" }}
       >
@@ -152,9 +158,9 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
       </text>
       <text
         x={W - PAD}
-        y={yAt(m.percentiles.median) - 2}
+        y={yAt(m.percentiles.median) - 3}
         textAnchor="end"
-        className="text-2xs"
+        fontSize="12"
         fill="var(--color-fg-3)"
         style={{ fontFamily: "var(--font-num)" }}
       >
@@ -162,9 +168,9 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
       </text>
       <text
         x={W - PAD}
-        y={yAt(m.percentiles.low) - 2}
+        y={yAt(m.percentiles.low) - 3}
         textAnchor="end"
-        className="text-2xs"
+        fontSize="12"
         fill="var(--color-fg-3)"
         style={{ fontFamily: "var(--font-num)" }}
       >

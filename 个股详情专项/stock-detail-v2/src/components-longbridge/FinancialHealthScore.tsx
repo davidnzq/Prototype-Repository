@@ -61,7 +61,7 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-[280px_1fr] gap-6 px-4 py-4">
+      <div className="grid grid-cols-[400px_1fr] gap-8 px-4 py-4">
         {/* 雷达图 */}
         <RadarChart categories={data.categories} />
 
@@ -76,10 +76,11 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
             </button>
           </div>
 
-          <div className="grid grid-cols-[1fr_80px_60px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
+          <div className="grid grid-cols-[1fr_140px_120px_80px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
             <div>指标</div>
             <div className="text-right">数值</div>
             <div className="text-right">评分</div>
+            <div className="text-right">趋势</div>
           </div>
 
           {data.categories.map((cat, idx) => (
@@ -135,7 +136,7 @@ function CategoryRow({
         type="button"
         onClick={onToggle}
         className={cn(
-          "grid w-full grid-cols-[1fr_80px_60px] items-center gap-2 border-b border-hairline py-2 text-left text-sm transition-colors",
+          "grid w-full grid-cols-[1fr_140px_120px_80px] items-center gap-2 border-b border-hairline py-2 text-left text-sm transition-colors",
           expanded ? "bg-soft" : "hover:bg-soft/50",
         )}
       >
@@ -148,20 +149,24 @@ function CategoryRow({
         <div />
         <div className={cn("flex items-center justify-end gap-1 font-semibold", GRADE_COLOR[cat.grade])}>
           <span className="num text-base">{cat.grade}</span>
-          <TrendArrow trend="flat" size={10} />
+        </div>
+        <div className="flex justify-end">
+          <TrendArrow trend="flat" size={12} />
         </div>
       </button>
       {expanded &&
         cat.indicators.map((ind) => (
           <div
             key={ind.label}
-            className="grid grid-cols-[1fr_80px_60px] items-center gap-2 border-b border-hairline py-1.5 text-sm"
+            className="grid grid-cols-[1fr_140px_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-sm"
           >
             <span className="pl-6 text-fg-2">{ind.label}</span>
             <span className="num text-right text-fg-1">{ind.value}</span>
-            <span className={cn("flex items-center justify-end gap-1 font-semibold", GRADE_COLOR[ind.grade])}>
+            <span className={cn("text-right font-semibold", GRADE_COLOR[ind.grade])}>
               <span className="num">{ind.grade}</span>
-              <TrendArrow trend={ind.trend} size={9} />
+            </span>
+            <span className="flex justify-end">
+              <TrendArrow trend={ind.trend} size={11} />
             </span>
           </div>
         ))}
@@ -192,10 +197,10 @@ function TrendArrow({ trend, size = 12 }: { trend: RatingTrend; size?: number })
 }
 
 function RadarChart({ categories }: { categories: FinancialHealthCategory[] }) {
-  const SIZE = 240;
+  const SIZE = 360;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
-  const R = 78;
+  const R = 120;
   const LEVELS = 4;
   const N = categories.length;
 

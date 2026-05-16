@@ -1,5 +1,8 @@
 import { cn, formatNum, formatPct } from "@/lib/utils";
-import type { AnalystConsensus as AC } from "@/mock/stockDetail-lb";
+import type {
+  AnalystConsensus as AC,
+  AnalystRatingLabel,
+} from "@/mock/stockDetail-lb";
 import { SectionHeader } from "./QuoteKV";
 
 interface AnalystConsensusProps {
@@ -7,214 +10,311 @@ interface AnalystConsensusProps {
 }
 
 /**
- * 分析师一致预期 — Bloomberg ANR 页风格
- * 4 列布局:
- *   Col 1: 推荐分布 donut + mean rating
- *   Col 2: 推荐 stacked bar(buy/outperform/hold/underperform/sell)
- *   Col 3: 目标价范围 bar(low - median - high vs current)
- *   Col 4: 最近评级修订列表
+ * 长桥版分析师评级 — 对应 Figma "机构观点 & 持股股东 / 分析师评级":
+ *   左:Donut 6 段(强力推荐 accent / 买入 / 持有 / 跑输大盘 / 卖出 / 无意见)
+ *   中:评级 + 占比 表格 6 行(首项 consensus 高亮)
+ *   右:3 条折线图 — 股价 / 预测最高 / 预测最低(过去 24 月)
+ *   样式沿用 LB Design-System token,无 hardcode 颜色。
  */
-export function AnalystConsensus({ data }: AnalystConsensusProps) {
+const SEGMENTS: {
+  key: keyof AC["distribution"];
+  label: AnalystRatingLabel;
+  /** Tailwind dot class for legend swatch */
+  dot: string;
+  /** SVG fill color (CSS var) */
+  color: string;
+}[] = [
+  { key: "strongBuy",    label: "强力推荐", dot: "bg-accent",     color: "var(--color-accent)" },
+  { key: "buy",          label: "买入",     dot: "bg-up/60",      color: "var(--color-up-soft)" },
+  { key: "hold",         label: "持有",     dot: "bg-up/30",      color: "var(--color-up-soft)" },
+  { key: "underperform", label: "跑输大盘", dot: "bg-warn",       color: "var(--color-warn)" },
+  { key: "sell",         label: "卖出",     dot: "bg-down",       color: "var(--color-down)" },
+  { key: "noOpinion",    label: "无意见",   dot: "bg-fg-4",       color: "var(--color-fg-4)" },
+];
+
+export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader
-        label="Analyst Consensus"
-        hint={`ANR · ${data.totalAnalysts} ANALYSTS`}
-      />
-      <div className="grid grid-cols-[200px_1fr_1fr_320px] divide-x divide-hairline">
-        {/* Col 1: Mean rating */}
-        <div className="px-4 py-4">
-          <div className="caps mb-2">Mean Rating</div>
-          <div className="flex items-baseline gap-2">
-            <span className="num text-3xl font-semibold text-accent">
-              {formatNum(data.meanRating, 2)}
-            </span>
-            <span className="caps">/ 5</span>
-          </div>
-          <div className="mt-1 text-sm text-up">STRONG BUY</div>
-          <div className="num mt-3 space-y-0.5 text-sm text-fg-3">
-            <div>1 = Strong Buy</div>
-            <div>5 = Sell</div>
-          </div>
+      <SectionHeader label="分析师评级" hint={d.updatedAt} />
+      <div className="grid grid-cols-[260px_220px_1fr] gap-6 px-4 py-4">
+        {/* 左:Donut */}
+        <div className="flex flex-col items-center justify-center">
+          <DonutChart distribution={d.distribution} total={d.totalAnalysts} />
         </div>
 
-        {/* Col 2: Stacked bar */}
-        <div className="px-4 py-4">
-          <div className="caps mb-2">Recommendation</div>
-          {/* stacked bar */}
-          <div className="mb-3 flex h-3 w-full overflow-hidden">
-            <Seg pct={(data.buy / data.totalAnalysts) * 100} color="bg-up" />
-            <Seg pct={(data.outperform / data.totalAnalysts) * 100} color="bg-chart-green" />
-            <Seg pct={(data.hold / data.totalAnalysts) * 100} color="bg-warn" />
-            <Seg pct={(data.underperform / data.totalAnalysts) * 100} color="bg-chart-orange" />
-            <Seg pct={(data.sell / data.totalAnalysts) * 100} color="bg-down" />
-          </div>
-          {/* legend */}
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
-            <Legend dot="bg-up" label="Buy" count={data.buy} total={data.totalAnalysts} />
-            <Legend dot="bg-chart-green" label="Outperform" count={data.outperform} total={data.totalAnalysts} />
-            <Legend dot="bg-warn" label="Hold" count={data.hold} total={data.totalAnalysts} />
-            <Legend dot="bg-chart-orange" label="Underperform" count={data.underperform} total={data.totalAnalysts} />
-            <Legend dot="bg-down" label="Sell" count={data.sell} total={data.totalAnalysts} />
-          </div>
-        </div>
+        {/* 中:评级 + 占比 表格 */}
+        <RatingTable distribution={d.distribution} consensus={d.consensus} />
 
-        {/* Col 3: Target price */}
-        <div className="px-4 py-4">
-          <div className="caps mb-2">Target Price (12M)</div>
-          <div className="flex items-baseline gap-2">
-            <span className="num text-2xl font-semibold text-fg-1">
-              {formatNum(data.targetPrice.mean, 2)}
-            </span>
-            <span
-              className={cn(
-                "num text-sm font-semibold",
-                data.targetPrice.mean > data.currentPrice ? "text-up" : "text-down",
-              )}
-            >
-              {formatPct(
-                ((data.targetPrice.mean - data.currentPrice) / data.currentPrice) *
-                  100,
-                1,
-              )}
-            </span>
-          </div>
-          {/* range bar */}
-          <TargetRangeBar
-            low={data.targetPrice.low}
-            high={data.targetPrice.high}
-            median={data.targetPrice.median}
-            current={data.currentPrice}
-            mean={data.targetPrice.mean}
-          />
-          <div className="num mt-2 flex justify-between text-xs text-fg-3">
-            <span>Low {formatNum(data.targetPrice.low, 0)}</span>
-            <span>Med {formatNum(data.targetPrice.median, 0)}</span>
-            <span>High {formatNum(data.targetPrice.high, 0)}</span>
-          </div>
-        </div>
-
-        {/* Col 4: Revisions */}
-        <div className="px-4 py-4">
-          <div className="caps mb-2">Recent Revisions</div>
-          <ul className="space-y-1.5 text-sm">
-            {data.revisions.slice(0, 5).map((r, i) => (
-              <li key={i} className="flex items-baseline justify-between gap-2">
-                <span className="num text-fg-3">{r.date}</span>
-                <span className="flex-1 truncate text-fg-1">{r.analyst}</span>
-                <span
-                  className={cn(
-                    "num inline-flex items-center gap-1",
-                    r.to === "BUY"
-                      ? "text-up"
-                      : r.to === "SELL"
-                        ? "text-down"
-                        : "text-warn",
-                  )}
-                >
-                  {r.from !== r.to && (
-                    <span className="text-fg-4">{r.from} →</span>
-                  )}
-                  <span className="font-semibold">{r.to}</span>
-                </span>
-                <span className="num text-fg-2">{formatNum(r.tp, 0)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* 右:3 条折线 */}
+        <PriceChart history={d.priceHistory} />
       </div>
     </section>
   );
 }
 
-function Seg({ pct, color }: { pct: number; color: string }) {
-  return <div className={color} style={{ width: `${pct}%` }} />;
-}
+// ─── Donut ──────────────────────────────────────────────────────────
 
-function Legend({
-  dot,
-  label,
-  count,
+function DonutChart({
+  distribution,
   total,
 }: {
-  dot: string;
-  label: string;
-  count: number;
+  distribution: AC["distribution"];
   total: number;
 }) {
+  const W = 220;
+  const CX = W / 2;
+  const CY = W / 2;
+  const R_OUT = 92;
+  const R_IN = 64;
+
+  let cursor = -Math.PI / 2;
+  const arcs = SEGMENTS.map((s) => {
+    const pct = distribution[s.key];
+    const start = cursor;
+    const end = cursor + pct * Math.PI * 2;
+    cursor = end;
+    return { ...s, start, end, pct };
+  });
+
   return (
-    <div className="flex items-baseline gap-1.5">
-      <i className={cn("inline-block h-1.5 w-1.5 shrink-0", dot)} />
-      <span className="text-fg-2">{label}</span>
-      <span className="num ml-auto text-fg-1">{count}</span>
-      <span className="num text-fg-3">{Math.round((count / total) * 100)}%</span>
-    </div>
+    <svg
+      aria-hidden="true"
+      width="100%"
+      viewBox={`0 0 ${W} ${W}`}
+      className="block max-w-[220px]"
+    >
+      {arcs.map(
+        (a) =>
+          a.pct > 0 && (
+            <path
+              key={a.key}
+              d={arcPath(CX, CY, R_OUT, R_IN, a.start, a.end)}
+              fill={a.color}
+            />
+          ),
+      )}
+      {/* 中心总数 */}
+      <text
+        x={CX}
+        y={CY - 4}
+        textAnchor="middle"
+        className="num"
+        fontSize="28"
+        fontWeight="700"
+        fill="var(--color-fg-1)"
+      >
+        {total}
+      </text>
+      <text
+        x={CX}
+        y={CY + 18}
+        textAnchor="middle"
+        fontSize="11"
+        fill="var(--color-fg-3)"
+      >
+        位分析师
+      </text>
+    </svg>
   );
 }
 
-function TargetRangeBar({
-  low,
-  high,
-  median,
-  current,
-  mean,
+function arcPath(
+  cx: number,
+  cy: number,
+  rOut: number,
+  rIn: number,
+  start: number,
+  end: number,
+): string {
+  const largeArc = end - start > Math.PI ? 1 : 0;
+  const x1 = cx + Math.cos(start) * rOut;
+  const y1 = cy + Math.sin(start) * rOut;
+  const x2 = cx + Math.cos(end) * rOut;
+  const y2 = cy + Math.sin(end) * rOut;
+  const x3 = cx + Math.cos(end) * rIn;
+  const y3 = cy + Math.sin(end) * rIn;
+  const x4 = cx + Math.cos(start) * rIn;
+  const y4 = cy + Math.sin(start) * rIn;
+  return [
+    `M ${x1} ${y1}`,
+    `A ${rOut} ${rOut} 0 ${largeArc} 1 ${x2} ${y2}`,
+    `L ${x3} ${y3}`,
+    `A ${rIn} ${rIn} 0 ${largeArc} 0 ${x4} ${y4}`,
+    "Z",
+  ].join(" ");
+}
+
+// ─── 评级表 ──────────────────────────────────────────────────────────
+
+function RatingTable({
+  distribution,
+  consensus,
 }: {
-  low: number;
-  high: number;
-  median: number;
-  current: number;
-  mean: number;
+  distribution: AC["distribution"];
+  consensus: AnalystRatingLabel;
 }) {
-  const range = high - low;
-  const pctOf = (v: number) => ((v - low) / range) * 100;
-
   return (
-    <div className="relative mt-3 h-6 w-full">
-      {/* range bar */}
-      <div className="absolute inset-x-0 top-3 h-0.5 bg-stroke" />
-      <div
-        className="absolute top-3 h-0.5 bg-accent"
-        style={{ left: `${pctOf(low)}%`, width: `${pctOf(high) - pctOf(low)}%` }}
-      />
-      {/* current price marker */}
-      <Marker pos={pctOf(current)} color="bg-fg-1" label="C" />
-      {/* mean target marker */}
-      <Marker pos={pctOf(mean)} color="bg-accent" label="M" />
-      {/* median marker */}
-      <Marker pos={pctOf(median)} color="bg-warn" label="·" small />
+    <div className="flex flex-col justify-center">
+      <div className="grid grid-cols-[1fr_auto] items-center border-b border-hairline pb-1.5 text-xs text-fg-3">
+        <span>评级</span>
+        <span>占比</span>
+      </div>
+      <ul>
+        {SEGMENTS.map((s) => {
+          const isActive = s.label === consensus;
+          return (
+            <li
+              key={s.key}
+              className="grid grid-cols-[1fr_auto] items-center border-b border-hairline py-2 text-sm last:border-b-0"
+            >
+              <span className="inline-flex items-center gap-2">
+                <span className={cn("h-2 w-2 rounded-full", s.dot)} />
+                <span className={isActive ? "font-semibold text-accent" : "text-fg-2"}>
+                  {s.label}
+                </span>
+              </span>
+              <span
+                className={cn(
+                  "num",
+                  isActive ? "font-semibold text-accent" : "text-fg-1",
+                )}
+              >
+                {formatPct(distribution[s.key] * 100, 0)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
 
-function Marker({
-  pos,
+// ─── 折线图 ──────────────────────────────────────────────────────────
+
+function PriceChart({ history }: { history: AC["priceHistory"] }) {
+  const VBW = 720;
+  const VBH = 240;
+  const PAD_X = 8;
+  const PAD_TOP = 32;
+  const PAD_BOT = 24;
+  const innerW = VBW - PAD_X * 2;
+  const innerH = VBH - PAD_TOP - PAD_BOT;
+
+  const allValues = history.flatMap((h) => [
+    h.price,
+    h.predictHigh,
+    h.predictLow,
+  ]);
+  const min = Math.floor(Math.min(...allValues) / 100) * 100;
+  const max = Math.ceil(Math.max(...allValues) / 100) * 100;
+  const range = max - min || 1;
+
+  const xAt = (i: number) =>
+    PAD_X + (i / (history.length - 1)) * innerW;
+  const yAt = (v: number) =>
+    PAD_TOP + (1 - (v - min) / range) * innerH;
+
+  const linePath = (key: "price" | "predictHigh" | "predictLow") =>
+    history.map((h, i) => `${i === 0 ? "M" : "L"} ${xAt(i)} ${yAt(h[key])}`).join(" ");
+
+  const last = history[history.length - 1];
+
+  // Y 轴 4 个 tick(min / 1/3 / 2/3 / max)
+  const yTicks = [0, 1 / 3, 2 / 3, 1].map((t) => Math.round(min + range * t));
+
+  return (
+    <div className="min-w-0">
+      {/* 图例 */}
+      <div className="mb-2 flex flex-wrap items-center gap-4 text-xs">
+        <LegendDot color="var(--color-accent)" label="股价" value={last?.price} />
+        <LegendDot color="var(--color-up)" label="预测最高价" value={last?.predictHigh} />
+        <LegendDot color="var(--color-warn)" label="预测最低价" value={last?.predictLow} />
+      </div>
+
+      <svg
+        aria-hidden="true"
+        width="100%"
+        viewBox={`0 0 ${VBW} ${VBH}`}
+        className="block w-full"
+      >
+        {/* Y 轴 grid + label */}
+        {yTicks.map((v) => (
+          <g key={v}>
+            <line
+              x1={PAD_X + 36}
+              x2={VBW - PAD_X}
+              y1={yAt(v)}
+              y2={yAt(v)}
+              stroke="var(--color-hairline)"
+              strokeWidth="1"
+            />
+            <text
+              x={PAD_X}
+              y={yAt(v) + 4}
+              fontSize="11"
+              fill="var(--color-fg-3)"
+              className="num"
+            >
+              {formatNum(v, 0)}
+            </text>
+          </g>
+        ))}
+
+        {/* 三条线 */}
+        <path
+          d={linePath("predictHigh")}
+          fill="none"
+          stroke="var(--color-up)"
+          strokeWidth="1.5"
+        />
+        <path
+          d={linePath("price")}
+          fill="none"
+          stroke="var(--color-accent)"
+          strokeWidth="1.8"
+        />
+        <path
+          d={linePath("predictLow")}
+          fill="none"
+          stroke="var(--color-warn)"
+          strokeWidth="1.5"
+        />
+
+        {/* 末端 dot */}
+        {last && (
+          <>
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.price)} r="3.5" fill="var(--color-accent)" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictHigh)} r="3" fill="var(--color-bg-1)" stroke="var(--color-up)" strokeWidth="1.5" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictLow)} r="3" fill="var(--color-bg-1)" stroke="var(--color-warn)" strokeWidth="1.5" />
+          </>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+function LegendDot({
   color,
   label,
-  small,
+  value,
 }: {
-  pos: number;
   color: string;
   label: string;
-  small?: boolean;
+  value?: number;
 }) {
   return (
-    <div
-      className="absolute top-0 -translate-x-1/2"
-      style={{ left: `${pos}%` }}
-    >
-      <div
-        className={cn(
-          "rounded-full",
-          color,
-          small ? "h-1 w-1 mt-2.5" : "h-2 w-2 mt-2",
-          !small && "ring-2 ring-bg",
-        )}
+    <span className="inline-flex items-baseline gap-1.5 text-fg-2">
+      <span
+        aria-hidden="true"
+        className="inline-block h-2 w-2 rounded-full"
+        style={{ background: color }}
       />
-      {!small && (
-        <div className="num mt-0.5 text-center text-3xs font-bold text-fg-3">
-          {label}
-        </div>
+      <span>{label}</span>
+      {typeof value === "number" && (
+        <span className="num font-semibold text-fg-1">
+          {formatNum(value, 3)}
+        </span>
       )}
-    </div>
+    </span>
   );
 }

@@ -88,12 +88,12 @@ function CommandBar({
   onSwitch: (p: PageKey) => void;
 }) {
   const crumb =
-      page === "stock-detail"    ? "DETAIL"
-    : page === "components"      ? "COMPONENTS"
-    : page === "stock-detail-lb" ? "DETAIL · LB"
-    : page === "components-lb"   ? "COMPONENTS · LB"
-    : page === "stock-detail-us" ? "DETAIL · US"
-    :                              "COMPONENTS · US";
+      page === "stock-detail"    ? "DETAIL V1"
+    : page === "components"      ? "COMPONENTS V1"
+    : page === "stock-detail-lb" ? "DETAIL V2"
+    : page === "components-lb"   ? "COMPONENTS V2"
+    : page === "stock-detail-us" ? "DETAIL V3"
+    :                              "COMPONENTS V3";
 
   return (
     <header className="sticky top-0 z-30 flex h-8 items-center justify-between border-b border-line bg-bg-2 px-3 text-sm">
@@ -110,37 +110,37 @@ function CommandBar({
         <PageButton
           active={page === "stock-detail"}
           onClick={() => onSwitch("stock-detail")}
-          label="Stock Detail"
+          label="Stock Detail V1"
           icon="▤"
         />
         <PageButton
           active={page === "components"}
           onClick={() => onSwitch("components")}
-          label="Components"
+          label="Components V1"
           icon="▦"
         />
         <PageButton
           active={page === "stock-detail-lb"}
           onClick={() => onSwitch("stock-detail-lb")}
-          label="长桥个股"
+          label="Stock Detail V2"
           icon="📊"
         />
         <PageButton
           active={page === "components-lb"}
           onClick={() => onSwitch("components-lb")}
-          label="长桥组件"
+          label="Components V2"
           icon="🧩"
         />
         <PageButton
           active={page === "stock-detail-us"}
           onClick={() => onSwitch("stock-detail-us")}
-          label="US 个股"
+          label="Stock Detail V3"
           icon="📱"
         />
         <PageButton
           active={page === "components-us"}
           onClick={() => onSwitch("components-us")}
-          label="US 组件"
+          label="Components V3"
           icon="🇺🇸"
         />
       </div>

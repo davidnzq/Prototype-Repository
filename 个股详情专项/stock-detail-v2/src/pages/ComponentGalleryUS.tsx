@@ -204,8 +204,10 @@ const CATEGORIES = [
   "News",
   "Community",
   "财务报表",
-  "未用于 US",
 ];
+
+// 隐藏未用于 V3 (US) 的 LB 残留组件 — 仍保留代码以备后用
+const VISIBLE_ENTRIES = ENTRIES.filter((e) => e.category !== "未用于 US");
 
 /**
  * TOC 点击:在页面内 smooth scroll 到目标组件
@@ -222,10 +224,10 @@ export function ComponentGalleryUSPage() {
     <div className="mx-auto grid max-w-[var(--ctn-max-wide)] grid-cols-[240px_1fr] gap-0">
       {/* 左侧 sticky TOC */}
       <aside className="sticky top-8 z-10 h-[calc(100vh-4rem)] overflow-y-auto border-r border-line bg-bg-2 px-3 py-4 text-sm">
-        <div className="caps mb-3 text-accent">Component Index · 28 (长桥版)</div>
+        <div className="caps mb-3 text-accent">Component Index · {VISIBLE_ENTRIES.length} (V3)</div>
         <nav className="space-y-4">
           {CATEGORIES.map((cat) => {
-            const items = ENTRIES.filter((e) => e.category === cat);
+            const items = VISIBLE_ENTRIES.filter((e) => e.category === cat);
             if (items.length === 0) return null;
             return (
               <div key={cat}>
@@ -255,11 +257,11 @@ export function ComponentGalleryUSPage() {
 
       {/* 右侧组件展示 */}
       <main className="space-y-0">
-        {ENTRIES.map((e) => (
+        {VISIBLE_ENTRIES.map((e) => (
           <ComponentDemo key={e.id} entry={e} />
         ))}
         <div className="caps border-t border-hairline px-4 py-6 text-fg-4">
-          End of gallery · 28 atoms total
+          End of gallery · {VISIBLE_ENTRIES.length} atoms (V3)
         </div>
       </main>
     </div>

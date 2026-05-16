@@ -104,90 +104,91 @@ function YearStackedBars({
 }) {
   const maxTotal = Math.max(...bars.map((b) => b.total));
   const yAxisMax = Math.ceil(maxTotal / 1000) * 1000;
-  const H = 220;
-  const PAD_TOP = 16;
-  const PAD_BOTTOM = 28;
-  const BAR_AREA_H = H - PAD_TOP - PAD_BOTTOM;
-  const W_PER_BAR = 44;
-  const BAR_W = 22;
-  const chartW = bars.length * W_PER_BAR + 60;
+  // viewBox 设定:VBW=1200 匹配 1280 主容器,SVG width=100% 等比缩放
+  const VBW = 1200;
+  const VBH = 260;
+  const PAD_TOP = 20;
+  const PAD_BOTTOM = 32;
+  const PAD_LEFT = 64;
+  const PAD_RIGHT = 16;
+  const BAR_AREA_H = VBH - PAD_TOP - PAD_BOTTOM;
+  const N = bars.length;
+  const SLOT_W = (VBW - PAD_LEFT - PAD_RIGHT) / N;
+  const BAR_W = Math.min(SLOT_W * 0.55, 60);
 
   return (
     <div className="px-4 py-3">
-      <div className="overflow-x-auto">
-        <svg aria-hidden="true"
-          width={chartW}
-          height={H}
-          viewBox={`0 0 ${chartW} ${H}`}
-          className="block"
-          style={{ minWidth: chartW }}
-        >
-          {/* Y 轴标签 + 网格 */}
-          {[0, 0.5, 1].map((t) => {
-            const y = PAD_TOP + BAR_AREA_H * (1 - t);
-            return (
-              <g key={t}>
-                <line
-                  x1={50}
-                  y1={y}
-                  x2={chartW - 10}
-                  y2={y}
-                  stroke="var(--color-hairline)"
-                  strokeWidth="1"
-                />
-                <text
-                  x={44}
-                  y={y}
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                  className="text-xs"
-                  fill="var(--color-fg-3)"
-                  style={{ fontFamily: "var(--font-num)" }}
-                >
-                  {Math.round((yAxisMax * t) / (yAxisMax >= 1000 ? 1 : 1))} 亿
-                </text>
-              </g>
-            );
-          })}
+      <svg
+        aria-hidden="true"
+        width="100%"
+        viewBox={`0 0 ${VBW} ${VBH}`}
+        className="block w-full"
+      >
+        {/* Y 轴标签 + 网格 */}
+        {[0, 0.5, 1].map((t) => {
+          const y = PAD_TOP + BAR_AREA_H * (1 - t);
+          return (
+            <g key={t}>
+              <line
+                x1={PAD_LEFT}
+                y1={y}
+                x2={VBW - PAD_RIGHT}
+                y2={y}
+                stroke="var(--color-hairline)"
+                strokeWidth="1"
+              />
+              <text
+                x={PAD_LEFT - 8}
+                y={y}
+                textAnchor="end"
+                dominantBaseline="middle"
+                fontSize="13"
+                fill="var(--color-fg-3)"
+                style={{ fontFamily: "var(--font-num)" }}
+              >
+                {Math.round(yAxisMax * t)} 亿
+              </text>
+            </g>
+          );
+        })}
 
-          {/* 柱体 + 年份 */}
-          {bars.map((b, i) => {
-            const xCenter = 50 + i * W_PER_BAR + W_PER_BAR / 2;
-            const x = xCenter - BAR_W / 2;
-            let cursorBottom = PAD_TOP + BAR_AREA_H;
-            return (
-              <g key={b.year}>
-                {b.segments.map((seg, j) => {
-                  const h = (seg.value / yAxisMax) * BAR_AREA_H;
-                  const y = cursorBottom - h;
-                  cursorBottom = y;
-                  return (
-                    <rect
-                      key={j}
-                      x={x}
-                      y={y}
-                      width={BAR_W}
-                      height={Math.max(h, 0.5)}
-                      fill={segmentColors[j]}
-                    />
-                  );
-                })}
-                {/* 年份标签 */}
-                <text
-                  x={xCenter}
-                  y={H - 10}
-                  textAnchor="middle"
-                  className="text-xs"
-                  fill="var(--color-fg-3)"
-                  style={{ fontFamily: "var(--font-num)" }}
-                >
-                  {b.year}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+        {/* 柱体 + 年份 */}
+        {bars.map((b, i) => {
+          const xCenter = PAD_LEFT + i * SLOT_W + SLOT_W / 2;
+          const x = xCenter - BAR_W / 2;
+          let cursorBottom = PAD_TOP + BAR_AREA_H;
+          return (
+            <g key={b.year}>
+              {b.segments.map((seg, j) => {
+                const h = (seg.value / yAxisMax) * BAR_AREA_H;
+                const y = cursorBottom - h;
+                cursorBottom = y;
+                return (
+                  <rect
+                    key={j}
+                    x={x}
+                    y={y}
+                    width={BAR_W}
+                    height={Math.max(h, 0.5)}
+                    fill={segmentColors[j]}
+                  />
+                );
+              })}
+              {/* 年份标签 */}
+              <text
+                x={xCenter}
+                y={VBH - 12}
+                textAnchor="middle"
+                fontSize="13"
+                fill="var(--color-fg-3)"
+                style={{ fontFamily: "var(--font-num)" }}
+              >
+                {b.year}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
 
       {/* 顶部图例 */}
       <div className="mt-2 flex flex-wrap gap-3 text-xs text-fg-2">

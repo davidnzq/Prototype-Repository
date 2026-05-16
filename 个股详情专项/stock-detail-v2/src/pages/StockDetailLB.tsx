@@ -18,6 +18,8 @@ import { NewsPreview } from "@/components-longbridge/NewsPreview";
 import { DiscussionFeed, DiscussionPreview } from "@/components-longbridge/DiscussionFeed";
 import { NewsCardBig } from "@/components-longbridge/NewsCardBig";
 import { EventTracker } from "@/components-longbridge/EventTracker";
+import { QuoteKV } from "@/components-longbridge/QuoteKV";
+import { EarningsSummary } from "@/components-longbridge/EarningsSummary";
 
 import {
   mockQuote,
@@ -40,6 +42,8 @@ import {
   mockNewsItems,
   mockDiscussions,
   mockTrackedEvents,
+  mockQuoteKV,
+  mockEarningsHighlight,
 } from "@/mock/stockDetail-lb";
 
 /**
@@ -79,9 +83,15 @@ function TabOverview() {
   return (
     <>
       <IntradayChart meta={mockIntradayMeta} />
+      <QuoteKV groups={mockQuoteKV} />
       <CompanyProfile profile={mockCompanyProfile} />
-      <DolphinResearch reports={mockDolphinReports} />
-      <EventTracker events={mockTrackedEvents} />
+      {/* 左右并排:事件追踪 + 海豚投研 */}
+      <div className="grid grid-cols-2 border-b border-line">
+        <div className="border-r border-line">
+          <EventTracker events={mockTrackedEvents} />
+        </div>
+        <DolphinResearch reports={mockDolphinReports} />
+      </div>
       <NewsPreview items={mockNewsItems.slice(0, 5)} />
       <DiscussionPreview posts={mockDiscussions} />
     </>
@@ -91,6 +101,7 @@ function TabOverview() {
 function TabFinancial() {
   return (
     <>
+      <EarningsSummary data={mockEarningsHighlight} />
       <FinancialHealthScore data={mockFinancialHealth} />
       <FinancialTable data={mockIncomeStatement} />
       <FinancialTable data={mockBalanceSheet} />

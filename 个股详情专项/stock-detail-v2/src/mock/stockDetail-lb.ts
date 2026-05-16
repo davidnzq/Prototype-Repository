@@ -156,18 +156,42 @@ export interface KeyFactorNode {
 // ────────────────────────────────────────────────────────────────────────────
 // 8. AnalystConsensus 分析师一致预期
 // ────────────────────────────────────────────────────────────────────────────
+/** 长桥版 — 分析师评级(6 类 + 股价 / 预测高低时间序列)
+ *  对应 Figma 设计:左 Donut(6 段)+ 中 评级表 + 右 折线图(股价/预测最高/预测最低)
+ */
+export type AnalystRatingLabel =
+  | "强力推荐"
+  | "买入"
+  | "持有"
+  | "跑输大盘"
+  | "卖出"
+  | "无意见";
+
 export interface AnalystConsensus {
+  /** 更新时间,显示在 SectionHeader hint */
+  updatedAt: string;          // "14/05/2026"
+  /** 分析师总数 */
   totalAnalysts: number;
-  buy: number;
-  outperform: number;
-  hold: number;
-  underperform: number;
-  sell: number;
-  meanRating: number;        // 1-5(1 = strong buy)
-  targetPrice: { low: number; mean: number; high: number; median: number };
+  /** 当前共识(donut 中间大字 + 表格首项高亮)*/
+  consensus: AnalystRatingLabel;
+  /** 6 类评级占比(0-1,合计 1)*/
+  distribution: {
+    strongBuy: number;        // 强力推荐
+    buy: number;              // 买入
+    hold: number;             // 持有
+    underperform: number;     // 跑输大盘
+    sell: number;             // 卖出
+    noOpinion: number;        // 无意见
+  };
+  /** 现价 */
   currentPrice: number;
-  /** 最近 4 周评级变动 */
-  revisions: { date: string; analyst: string; from: string; to: string; tp: number }[];
+  /** 股价 + 预测高/低 时间序列 — 月度,~24 点 */
+  priceHistory: {
+    date: string;             // "2024-06" 等
+    price: number;
+    predictHigh: number;
+    predictLow: number;
+  }[];
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -604,24 +628,45 @@ export const mockKeyFactorsTree: KeyFactorNode = {
   ],
 };
 
+// 长桥版分析师评级 — 6 类占比 + 股价/预测高低 24 月时序
+function genAnalystPriceHistory(): AnalystConsensus["priceHistory"] {
+  // 24 个月,从 2024-06 → 2026-05
+  const start = new Date(2024, 5, 1);
+  const out: AnalystConsensus["priceHistory"] = [];
+  for (let i = 0; i < 24; i++) {
+    const d = new Date(start);
+    d.setMonth(d.getMonth() + i);
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    // 股价 100 → 298 缓慢上升,带波动
+    const t = i / 23;
+    const price = 110 + t * 180 + Math.sin(i * 0.7) * 10 + Math.cos(i * 0.4) * 6;
+    // 预测最高 / 最低(在 price 周围 ±30-50)
+    const predictHigh = price + 50 + Math.sin(i * 0.5) * 8;
+    const predictLow = price - 40 + Math.cos(i * 0.6) * 6;
+    out.push({
+      date,
+      price: Number(price.toFixed(2)),
+      predictHigh: Number(predictHigh.toFixed(2)),
+      predictLow: Number(predictLow.toFixed(2)),
+    });
+  }
+  return out;
+}
+
 export const mockAnalystConsensus: AnalystConsensus = {
-  totalAnalysts: 44,
-  buy: 22,
-  outperform: 12,
-  hold: 8,
-  underperform: 1,
-  sell: 1,
-  meanRating: 1.84,
-  targetPrice: { low: 220.0, mean: 312.5, high: 380.0, median: 305.0 },
-  currentPrice: 287.44,
-  revisions: [
-    { date: "05/08", analyst: "Morgan Stanley",   from: "BUY",   to: "BUY",   tp: 325.0 },
-    { date: "05/06", analyst: "Goldman Sachs",    from: "HOLD",  to: "BUY",   tp: 310.0 },
-    { date: "05/02", analyst: "JP Morgan",        from: "BUY",   to: "BUY",   tp: 305.0 },
-    { date: "04/28", analyst: "Bank of America",  from: "BUY",   to: "BUY",   tp: 320.0 },
-    { date: "04/22", analyst: "Wedbush",          from: "HOLD",  to: "BUY",   tp: 330.0 },
-    { date: "04/15", analyst: "UBS",              from: "BUY",   to: "HOLD",  tp: 280.0 },
-  ],
+  updatedAt: "14/05/2026",
+  totalAnalysts: 50,
+  consensus: "强力推荐",
+  distribution: {
+    strongBuy:    0.46,
+    buy:          0.14,
+    hold:         0.32,
+    underperform: 0.02,
+    sell:         0.02,
+    noOpinion:    0.04,
+  },
+  currentPrice: 298.21,
+  priceHistory: genAnalystPriceHistory(),
 };
 
 // 长桥版 — 持股股东 Top 10(对齐真实页:持股比例 + 较内份额增减万股 + 披露时间)

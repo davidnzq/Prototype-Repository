@@ -1,0 +1,14 @@
+# 子项目本地 gitignore(stock-detail-v2 作为 Vercel root directory 自给自足)
+.DS_Store
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+
+# 本地参考素材
+.figma-cache/
+.longbridge-ref/
+
+# IDE
+.vscode/
+.idea/

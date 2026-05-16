@@ -70,14 +70,16 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
   const minV = negative.length ? Math.min(...negative) : 0;
   const range = maxV - minV || maxV || 1;
 
-  const H = 200;
-  const PAD_TOP = 30;
-  const PAD_BOTTOM = 24;
-  const CHART_H = H - PAD_TOP - PAD_BOTTOM;
-  const W_PER_BAR = 110;
-  const BAR_W = 36;
+  // viewBox 设定:VBW=1200 匹配 1280 主容器,SVG width=100% 等比缩放
+  const VBW = 1200;
+  const VBH = 220;
+  const PAD_TOP = 36;
+  const PAD_BOTTOM = 28;
+  const PAD_X = 24;
+  const CHART_H = VBH - PAD_TOP - PAD_BOTTOM;
   const N = metric.points.length;
-  const chartW = N * W_PER_BAR + 40;
+  const SLOT_W = (VBW - PAD_X * 2) / N;
+  const BAR_W = Math.min(SLOT_W * 0.5, 120);
 
   // 0 线 y 坐标(若有负数,按比例)
   const zeroY =
@@ -86,26 +88,25 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
       : PAD_TOP + CHART_H;
 
   return (
-    <div className="overflow-x-auto px-4 py-4">
-      <svg aria-hidden="true"
-        width={chartW}
-        height={H}
-        viewBox={`0 0 ${chartW} ${H}`}
-        className="block"
-        style={{ minWidth: chartW }}
+    <div className="px-4 py-4">
+      <svg
+        aria-hidden="true"
+        width="100%"
+        viewBox={`0 0 ${VBW} ${VBH}`}
+        className="block w-full"
       >
         {/* 0 线 */}
         <line
-          x1={20}
+          x1={PAD_X}
           y1={zeroY}
-          x2={chartW - 20}
+          x2={VBW - PAD_X}
           y2={zeroY}
           stroke="var(--color-hairline)"
           strokeWidth="1"
         />
 
         {metric.points.map((p, i) => {
-          const xCenter = 20 + i * W_PER_BAR + W_PER_BAR / 2;
+          const xCenter = PAD_X + i * SLOT_W + SLOT_W / 2;
           const x = xCenter - BAR_W / 2;
           const h = (Math.abs(p.value) / range) * CHART_H;
           const y = p.value >= 0 ? zeroY - h : zeroY;
@@ -124,9 +125,9 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
               {/* 顶部 value 标签 */}
               <text
                 x={xCenter}
-                y={isUp ? y - 6 : y + h + 14}
+                y={isUp ? y - 8 : y + h + 18}
                 textAnchor="middle"
-                className="text-sm"
+                fontSize="14"
                 fill="var(--color-fg-1)"
                 style={{ fontFamily: "var(--font-num)", fontWeight: 600 }}
               >
@@ -141,7 +142,7 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
           <polyline
             points={metric.trendLine
               .map((v, i) => {
-                const x = 20 + i * W_PER_BAR + W_PER_BAR / 2;
+                const x = PAD_X + i * SLOT_W + SLOT_W / 2;
                 const y = zeroY - (v / range) * CHART_H;
                 return `${x},${y}`;
               })
