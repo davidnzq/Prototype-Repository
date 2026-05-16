@@ -1,0 +1,8 @@
+# 拉下来的真实行情数据 — 不提交到 git
+# 数据来自 Longbridge OpenAPI,属于用户数据
+*.json
+
+# 凭证文件保护(以防有人把 .env 放这里)
+.env
+.env.*
+credentials.json

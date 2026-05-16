@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * Design Tokens 来自 SSOT: Design-System/tokens/tokens.css
+ *
+ * 本项目不再本地维护 token 定义。任何颜色 / 字号 / 间距改动
+ * 应在 Design-System/tokens/tokens.css 中修改,本项目通过 @import 自动同步。
+ *
+ * 项目本地 css(类名样式、动效等)继续写在本文件下方。
+ * ═════════════════════════════════════════════════════════════════════════ */
+@import "../../../Design-System/tokens/tokens.css";
+
+/* ─────────────────────────────────────────────────────────────
+ * 项目本地 base 样式
+ * ───────────────────────────────────────────────────────────── */
+
+html,
+body {
+  height: 100%;
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum", "cv11";
+  letter-spacing: var(--ls-snug);
+}
+
+/* WCAG AA — 全局键盘 focus 可见性(Plan5 C2 修复)
+   所有 button/a/select 在键盘 Tab 时显示 accent outline。
+   鼠标点击不显示(:focus-visible 不匹配),保留视觉干净。 */
+button:focus-visible,
+a:focus-visible,
+[role="tab"]:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 项目本地工具类(所有数值均来自 SSOT token)
+ * ───────────────────────────────────────────────────────────── */
+
+/* Tabular numerals */
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ls-tight);
+}
+
+/* Caps label */
+.caps {
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-none);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+/* Compact ticker — 长桥青高亮 */
+.ticker {
+  font-family: var(--font-num);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Accent glow */
+.accent-glow {
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: var(--sp-2);
+  height: var(--sp-2);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--stroke);
+  border-radius: var(--r-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--line);
+}

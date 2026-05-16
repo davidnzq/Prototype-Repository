@@ -9,3 +9,8 @@ node_modules/
 
 # 打包产物(可由源码生成,不入库)
 *.zip
+dist/
+
+# 本地参考素材(截图/PDF/Figma 缓存)
+.figma-cache/
+.longbridge-ref/
