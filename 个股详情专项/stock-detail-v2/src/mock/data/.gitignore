@@ -1,3 +1,1 @@
-# 真实行情数据 - 来自 Longbridge OpenAPI,不提交到 git
-# 重新获取:python3 data/fetch-kline.py
-*.json
+# mock 行情数据可以提交（AAPL 公开行情，用于原型演示）
