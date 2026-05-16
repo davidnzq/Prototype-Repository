@@ -17,7 +17,7 @@ export function InstitutionalHolding({ data }: InstitutionalHoldingProps) {
       <SectionHeader label="持股股东" hint="Institutional Holding" />
       <div className="px-4 py-3">
         {/* 表头 */}
-        <div className="grid grid-cols-[1fr_120px_140px_120px] gap-3 border-b border-hairline pb-2 text-xs text-fg-3">
+        <div className="grid grid-cols-[1fr_120px_140px_120px] gap-2 border-b border-hairline pb-2 text-xs text-fg-3">
           <div>股东名称</div>
           <div className="text-right">持股比例</div>
           <div className="text-right">较内份额增减</div>
@@ -29,10 +29,10 @@ export function InstitutionalHolding({ data }: InstitutionalHoldingProps) {
           {data.holders.map((h) => (
             <li
               key={h.name}
-              className="grid grid-cols-[1fr_120px_140px_120px] gap-3 py-2 text-sm"
+              className="grid grid-cols-[1fr_120px_140px_120px] items-center gap-2 py-1.5 text-sm"
             >
               <span className="truncate text-fg-1">{h.name}</span>
-              <span className="num text-right font-semibold text-up">
+              <span className="num text-right font-semibold text-fg-1">
                 {formatPct(h.pctOut * 100, 2)}
               </span>
               <span

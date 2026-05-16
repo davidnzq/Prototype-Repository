@@ -39,7 +39,7 @@ export function RevenueComposition({ data }: RevenueCompositionProps) {
 
       {/* 明细表 */}
       <div className="px-4 pb-4">
-        <div className="grid grid-cols-[1fr_120px_80px] gap-3 border-b border-hairline pb-1.5 text-xs text-fg-3">
+        <div className="grid grid-cols-[1fr_120px_80px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
           <div>名称</div>
           <div className="text-right">营收收入</div>
           <div className="text-right">占比</div>
@@ -79,7 +79,7 @@ function TabPill({
 
 function SegmentRow({ seg }: { seg: RevenueSeriesPoint }) {
   return (
-    <div className="grid grid-cols-[1fr_120px_80px] gap-3 border-b border-hairline py-2 text-sm last:border-b-0">
+    <div className="grid grid-cols-[1fr_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-sm last:border-b-0">
       <span className="inline-flex items-center gap-2">
         <i
           className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"

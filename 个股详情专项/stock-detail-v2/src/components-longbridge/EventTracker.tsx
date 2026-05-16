@@ -55,13 +55,13 @@ function EventRow({
   isDayBoundary: boolean;
 }) {
   return (
-    <li className="grid grid-cols-[44px_24px_1fr] gap-3">
+    <li className="grid grid-cols-[44px_24px_1fr] items-start gap-3">
       {/* 日期列 */}
-      <div className="pt-1 text-right">
+      <div className="text-right">
         {showDate && (
           <>
             <div className="text-xs text-fg-3">{e.month}</div>
-            <div className="num text-3xl font-semibold leading-none text-fg-1">
+            <div className="num text-xl font-semibold leading-tight text-fg-1">
               {e.day}
             </div>
           </>

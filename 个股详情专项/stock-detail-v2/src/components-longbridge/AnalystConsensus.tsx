@@ -25,8 +25,8 @@ const SEGMENTS: {
   color: string;
 }[] = [
   { key: "strongBuy",    label: "强力推荐", dot: "bg-accent",     color: "var(--color-accent)" },
-  { key: "buy",          label: "买入",     dot: "bg-up/60",      color: "var(--color-up-soft)" },
-  { key: "hold",         label: "持有",     dot: "bg-up/30",      color: "var(--color-up-soft)" },
+  { key: "buy",          label: "买入",     dot: "bg-up",         color: "var(--color-up)" },
+  { key: "hold",         label: "持有",     dot: "bg-chart-grey", color: "var(--color-chart-grey)" },
   { key: "underperform", label: "跑输大盘", dot: "bg-warn",       color: "var(--color-warn)" },
   { key: "sell",         label: "卖出",     dot: "bg-down",       color: "var(--color-down)" },
   { key: "noOpinion",    label: "无意见",   dot: "bg-fg-4",       color: "var(--color-fg-4)" },

@@ -189,7 +189,7 @@ function SessionBadge({ session }: { session: Quote["session"] }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5", config.color)}>
       <span className={cn("h-1 w-1 rounded-full", config.dot)} />
-      <span className="text-xs font-bold tracking-wider">{config.label}</span>
+      <span className="text-xs font-semibold tracking-wider">{config.label}</span>
     </span>
   );
 }

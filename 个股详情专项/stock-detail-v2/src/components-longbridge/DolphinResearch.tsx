@@ -51,7 +51,7 @@ export function DolphinResearch({ reports }: DolphinResearchProps) {
                 </span>
               )}
             </div>
-            <h3 className="mt-1 text-md font-semibold text-fg-1">{r.title}</h3>
+            <h3 className="mt-1.5 text-lg font-semibold leading-snug text-fg-1">{r.title}</h3>
             <p className="mt-1 text-sm leading-relaxed-snug text-fg-2">{r.summary}</p>
           </div>
         ))}

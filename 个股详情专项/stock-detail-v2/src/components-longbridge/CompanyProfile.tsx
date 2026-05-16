@@ -54,15 +54,20 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
             </span>
           </div>
 
-          {/* AAPL 总市值 + 排名 */}
-          <div className="text-xs text-fg-3">
-            <span className="num">AAPL.US</span> 总市值{" "}
-            <span className="num font-semibold text-fg-1">
-              {profile.companyMarketCap}
-            </span>{" "}
-            · 市值排名{" "}
-            <span className="num font-semibold text-fg-1">
-              {profile.rank.rank}/{profile.rank.total}
+          {/* AAPL 总市值 + 排名 — 拆出 label/value 结构提高层次 */}
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs">
+            <span className="inline-flex items-baseline gap-1.5">
+              <span className="text-fg-3">本股总市值</span>
+              <span className="num font-semibold text-fg-1">
+                {profile.companyMarketCap}
+              </span>
+            </span>
+            <span className="text-fg-4">·</span>
+            <span className="inline-flex items-baseline gap-1.5">
+              <span className="text-fg-3">行业排名</span>
+              <span className="num font-semibold text-fg-1">
+                {profile.rank.rank}/{profile.rank.total}
+              </span>
             </span>
           </div>
 

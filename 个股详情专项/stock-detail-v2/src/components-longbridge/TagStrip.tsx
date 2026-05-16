@@ -42,7 +42,7 @@ function CategoryRow({ label, tags }: { label: string; tags: StockTag[] }) {
       <div className="flex flex-wrap items-baseline gap-x-1 gap-y-1.5 text-base">
         {tags.map((tag, i) => (
           <span key={tag.label} className="inline-flex items-baseline gap-0.5">
-            {i > 0 && <span className="mr-1 text-fg-4">|</span>}
+            {i > 0 && <span className="mr-1 text-fg-3">|</span>}
             <Tag tag={tag} />
           </span>
         ))}
@@ -59,7 +59,7 @@ function Tag({ tag }: { tag: StockTag }) {
       type="button"
       aria-pressed={tag.selected}
       className={cn(
-        "inline-flex items-baseline gap-1.5 px-1.5 py-0.5",
+        "inline-flex items-baseline gap-1.5 rounded-sm px-1.5 py-0.5",
         "transition-colors duration-75",
         tag.selected
           ? "bg-accent-soft text-accent"

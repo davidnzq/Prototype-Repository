@@ -36,7 +36,7 @@ export function EarningsSummary({ data }: EarningsSummaryProps) {
           <div className="flex items-baseline gap-2">
             <span
               className={cn(
-                "num text-3xl font-semibold leading-none",
+                "num text-2xl font-semibold leading-none",
                 data.surprise >= 0 ? "text-up" : "text-down",
               )}
             >

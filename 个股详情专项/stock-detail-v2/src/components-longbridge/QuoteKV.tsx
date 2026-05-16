@@ -25,7 +25,7 @@ export function QuoteKV({ groups }: QuoteKVProps) {
 function KVGroup({ group }: { group: QuoteKVGroup }) {
   return (
     <div className="px-4 py-3">
-      <div className="caps mb-2 text-accent">{group.label}</div>
+      <div className="caps mb-3 text-accent">{group.label}</div>
       <dl className="space-y-1">
         {group.items.map((item) => (
           <div key={item.label} className="flex items-baseline justify-between gap-2">
@@ -50,7 +50,7 @@ function KVGroup({ group }: { group: QuoteKVGroup }) {
 
 export function SectionHeader({ label, hint }: { label: string; hint?: string }) {
   return (
-    <div className="flex items-baseline justify-between border-b border-hairline px-4 py-2">
+    <div className="flex items-baseline justify-between border-b border-hairline px-4 pt-3 pb-2">
       <h2 className="caps font-semibold text-fg-1">{label}</h2>
       {hint && <span className="caps num">{hint}</span>}
     </div>

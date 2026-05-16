@@ -65,7 +65,7 @@ export function SectorPosition({ data }: SectorPositionProps) {
                 </span>
               </Td>
               <Td>
-                <span className="text-fg-2">{p.name}</span>
+                <span className={p.highlighted ? "font-semibold text-fg-1" : "text-fg-2"}>{p.name}</span>
               </Td>
               <Td right>
                 <span className="num text-fg-1">{formatCompact(p.marketCap, 2)}</span>

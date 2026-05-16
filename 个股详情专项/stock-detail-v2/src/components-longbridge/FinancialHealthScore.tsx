@@ -48,7 +48,7 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
       {/* 头部 grade card */}
       <div className="mx-4 mt-3 flex items-center gap-6 border border-hairline px-4 py-3">
         <div className="flex items-center gap-1">
-          <span className={cn("num text-6xl font-bold", GRADE_COLOR[data.overall])}>
+          <span className={cn("num text-4xl font-bold leading-none", GRADE_COLOR[data.overall])}>
             {data.overall}
           </span>
           <TrendArrow trend={data.overallTrend} size={16} />
@@ -136,7 +136,7 @@ function CategoryRow({
         type="button"
         onClick={onToggle}
         className={cn(
-          "grid w-full grid-cols-[1fr_140px_120px_80px] items-center gap-2 border-b border-hairline py-2 text-left text-sm transition-colors",
+          "grid w-full grid-cols-[1fr_140px_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-left text-sm transition-colors",
           expanded ? "bg-soft" : "hover:bg-soft/50",
         )}
       >

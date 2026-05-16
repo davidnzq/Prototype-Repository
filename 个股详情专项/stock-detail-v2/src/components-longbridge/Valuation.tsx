@@ -34,7 +34,7 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
   const [range, setRange] = useState<RangeKey>("1年");
 
   return (
-    <div className="border border-hairline px-3 py-3">
+    <div className="border border-hairline px-4 py-3">
       {/* 顶部:label + 时间区间 tab */}
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-semibold text-fg-1">{m.label}</span>
@@ -76,9 +76,9 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
       {/* 图例 */}
       <div className="mb-1 flex items-center gap-3 text-xs text-fg-3">
         <LegendDot color="var(--color-accent)" label="股价" />
-        <LegendDot color="var(--chart-red)" label="高分位" />
+        <LegendDot color="var(--color-chart-red)" label="高分位" />
         <LegendDot color="var(--color-warn)" label="中位" />
-        <LegendDot color="var(--chart-blue)" label="低分位" />
+        <LegendDot color="var(--color-chart-blue)" label="低分位" />
       </div>
 
       <ValuationMiniChart metric={m} />
@@ -133,9 +133,9 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
       <path d={areaPath} fill="var(--color-accent)" fillOpacity="0.08" />
 
       {/* 分位虚线 */}
-      <ReferenceLine y={yAt(m.percentiles.high)} color="var(--chart-red)" width={W} />
+      <ReferenceLine y={yAt(m.percentiles.high)} color="var(--color-chart-red)" width={W} />
       <ReferenceLine y={yAt(m.percentiles.median)} color="var(--color-warn)" width={W} />
-      <ReferenceLine y={yAt(m.percentiles.low)} color="var(--chart-blue)" width={W} />
+      <ReferenceLine y={yAt(m.percentiles.low)} color="var(--color-chart-blue)" width={W} />
 
       {/* 股价线 */}
       <polyline
