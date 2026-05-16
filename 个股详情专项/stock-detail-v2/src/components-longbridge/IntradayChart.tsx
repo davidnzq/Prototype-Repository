@@ -211,7 +211,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
           aria-label={`${activeTab} ${candles.length} 根`}
         >
           {/* 水平栅格 — 9 档 */}
-          <g stroke="var(--grid-hair)" strokeWidth="1">
+          <g stroke="var(--color-hairline)" strokeWidth="1">
             {priceTicks.map((p, i) => {
               const y = scaleY(p);
               return <line key={i} x1={CHART_X_START} y1={y} x2={CHART_X_END} y2={y} />;
@@ -225,7 +225,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
               y1={baselineY}
               x2={CHART_X_END}
               y2={baselineY}
-              stroke="var(--fg-3)"
+              stroke="var(--color-fg-3)"
               strokeWidth="0.8"
               strokeDasharray="3 3"
               className="opacity-50"
@@ -240,7 +240,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 y1={scaleY(h52)}
                 x2={CHART_X_END}
                 y2={scaleY(h52)}
-                stroke="var(--fg-3)"
+                stroke="var(--color-fg-3)"
                 strokeWidth="0.8"
                 strokeDasharray="4 4"
                 className="opacity-55"
@@ -249,7 +249,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 x={CHART_X_START + 4}
                 y={scaleY(h52) - 3}
                 fontSize="8.5"
-                fill="var(--fg-3)"
+                fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
               >
                 52W H {formatNum(h52, 2)}
@@ -265,7 +265,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 y1={scaleY(l52)}
                 x2={CHART_X_END}
                 y2={scaleY(l52)}
-                stroke="var(--fg-3)"
+                stroke="var(--color-fg-3)"
                 strokeWidth="0.8"
                 strokeDasharray="4 4"
                 className="opacity-55"
@@ -274,7 +274,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 x={CHART_X_START + 4}
                 y={scaleY(l52) + 10}
                 fontSize="8.5"
-                fill="var(--fg-3)"
+                fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
               >
                 52W L {formatNum(l52, 2)}
@@ -288,8 +288,8 @@ export function IntradayChart({ meta }: IntradayChartProps) {
               {/* 价格折线下方填充(基于 baseline 分色) */}
               <defs>
                 <linearGradient id="line-area" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor={isUp ? "var(--up)" : "var(--down)"} stopOpacity="0.18" />
-                  <stop offset="100%" stopColor={isUp ? "var(--up)" : "var(--down)"} stopOpacity="0" />
+                  <stop offset="0%" stopColor={isUp ? "var(--color-up)" : "var(--color-down)"} stopOpacity="0.18" />
+                  <stop offset="100%" stopColor={isUp ? "var(--color-up)" : "var(--color-down)"} stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path
@@ -304,7 +304,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
               {/* 价格折线 */}
               <polyline
                 points={candles.map((c, i) => `${xs[i]},${scaleY(c.close)}`).join(" ")}
-                stroke={isUp ? "var(--up)" : "var(--down)"}
+                stroke={isUp ? "var(--color-up)" : "var(--color-down)"}
                 strokeWidth="1.4"
                 fill="none"
               />
@@ -312,7 +312,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
               {vwap && (
                 <polyline
                   points={vwap.map((v, i) => `${xs[i]},${scaleY(v)}`).join(" ")}
-                  stroke="var(--chart-yellow)"
+                  stroke="var(--color-chart-yellow)"
                   strokeWidth="1"
                   fill="none"
                   strokeDasharray="3 2"
@@ -340,7 +340,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                       y1={yHigh}
                       x2={xs[i]}
                       y2={yLow}
-                      stroke={up ? "var(--up)" : "var(--down)"}
+                      stroke={up ? "var(--color-up)" : "var(--color-down)"}
                       strokeWidth={wickW}
                     />
                     {up ? (
@@ -350,7 +350,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                         width={bodyW}
                         height={bodyH}
                         fill="none"
-                        stroke="var(--up)"
+                        stroke="var(--color-up)"
                         strokeWidth="1"
                       />
                     ) : (
@@ -359,7 +359,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                         y={bodyTop}
                         width={bodyW}
                         height={bodyH}
-                        fill="var(--down)"
+                        fill="var(--color-down)"
                       />
                     )}
                   </g>
@@ -374,7 +374,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
             y1={latestY}
             x2={CHART_X_END}
             y2={latestY}
-            stroke={isUp ? "var(--up)" : "var(--down)"}
+            stroke={isUp ? "var(--color-up)" : "var(--color-down)"}
             strokeWidth="0.8"
             strokeDasharray="2 3"
             className="opacity-60"
@@ -442,7 +442,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 y={VOL_H - h}
                 width={bodyW}
                 height={h}
-                fill={up ? "var(--up)" : "var(--down)"}
+                fill={up ? "var(--color-up)" : "var(--color-down)"}
                 className={up ? "opacity-55" : "opacity-60"}
               />
             );
@@ -452,7 +452,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
             y1={VOL_H - (avgVol / maxVol) * (VOL_H - 2)}
             x2={CHART_X_END}
             y2={VOL_H - (avgVol / maxVol) * (VOL_H - 2)}
-            stroke="var(--fg-3)"
+            stroke="var(--color-fg-3)"
             strokeWidth="0.7"
             strokeDasharray="3 3"
             className="opacity-50"
@@ -473,7 +473,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
             <span className="inline-flex items-center gap-1.5">
               <i
                 className="inline-block h-0.5 w-3"
-                style={{ background: "var(--chart-yellow)" }}
+                style={{ background: "var(--color-chart-yellow)" }}
               />
               <span className="caps">VWAP</span>
               <span className="num text-fg-2">

@@ -65,7 +65,7 @@ export function ValuationHistory() {
             y1={peerY}
             x2={w - 20}
             y2={peerY}
-            stroke="var(--fg-3)"
+            stroke="var(--color-fg-3)"
             strokeWidth="0.8"
             strokeDasharray="3 3"
           />
@@ -73,7 +73,7 @@ export function ValuationHistory() {
             x={w - 25}
             y={peerY - 3}
             fontSize="9"
-            fill="var(--fg-3)"
+            fill="var(--color-fg-3)"
             style={{ fontFamily: "var(--font-num)" }}
             textAnchor="end"
           >
@@ -83,21 +83,21 @@ export function ValuationHistory() {
           {/* Area */}
           <path
             d={`${pathD} L ${points[points.length - 1].x},${h - 15} L ${points[0].x},${h - 15} Z`}
-            fill="var(--accent)"
+            fill="var(--color-accent)"
             className="opacity-10"
           />
           {/* Line */}
-          <path d={pathD} stroke="var(--accent)" strokeWidth="1.5" fill="none" />
+          <path d={pathD} stroke="var(--color-accent)" strokeWidth="1.5" fill="none" />
 
           {/* Points */}
           {points.map((p) => (
             <g key={p.date}>
-              <circle cx={p.x} cy={p.y} r="3" fill="var(--accent)" />
+              <circle cx={p.x} cy={p.y} r="3" fill="var(--color-accent)" />
               <text
                 x={p.x}
                 y={p.y - 8}
                 fontSize="9"
-                fill="var(--fg-1)"
+                fill="var(--color-fg-1)"
                 style={{ fontFamily: "var(--font-num)" }}
                 textAnchor="middle"
                 fontWeight="600"
@@ -108,7 +108,7 @@ export function ValuationHistory() {
                 x={p.x}
                 y={h - 2}
                 fontSize="9"
-                fill="var(--fg-3)"
+                fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
                 textAnchor="middle"
               >

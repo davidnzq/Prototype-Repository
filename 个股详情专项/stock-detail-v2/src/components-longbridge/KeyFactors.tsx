@@ -136,7 +136,7 @@ function TreeNode({ positioned }: { positioned: Positioned }) {
         fill={labelFill}
         style={{
           fontWeight: depth === 0 ? 700 : node.importance === "high" ? 600 : 500,
-          fontFamily: "var(--font-text)",
+          fontFamily: "var(--font-sans)",
         }}
       >
         {node.label}
