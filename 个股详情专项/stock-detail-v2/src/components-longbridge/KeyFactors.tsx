@@ -118,6 +118,13 @@ function TreeNode({ positioned }: { positioned: Positioned }) {
   const cx = PAD_X + depth * COL_W;
   const labelX = cx + 10;
 
+  const labelFill =
+    node.importance === "high"
+      ? "var(--color-fg-1)"
+      : node.importance === "medium"
+        ? "var(--color-fg-2)"
+        : "var(--color-fg-3)";
+
   return (
     <g>
       <ImportanceCircle cx={cx} cy={y} importance={node.importance} />
@@ -126,13 +133,7 @@ function TreeNode({ positioned }: { positioned: Positioned }) {
         y={y}
         dominantBaseline="middle"
         className="text-base"
-        fill={
-          node.importance === "high"
-            ? "var(--color-fg-1)"
-            : node.importance === "medium"
-              ? "var(--color-fg-2)"
-              : "var(--color-fg-3)"
-        }
+        fill={labelFill}
         style={{
           fontWeight: depth === 0 ? 700 : node.importance === "high" ? 600 : 500,
           fontFamily: "var(--font-text)",
@@ -140,6 +141,22 @@ function TreeNode({ positioned }: { positioned: Positioned }) {
       >
         {node.label}
       </text>
+      {/* Plan9 — 叶子节点可选数值 */}
+      {node.value && (
+        <text
+          x={labelX}
+          y={y + 12}
+          dominantBaseline="middle"
+          fill="var(--color-fg-3)"
+          style={{
+            fontSize: "10px",
+            fontFamily: "var(--font-num)",
+            fontWeight: 500,
+          }}
+        >
+          {node.value}
+        </text>
+      )}
     </g>
   );
 }

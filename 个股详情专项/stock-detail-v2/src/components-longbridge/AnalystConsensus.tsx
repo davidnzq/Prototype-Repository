@@ -48,8 +48,73 @@ export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
         {/* 右:3 条折线 */}
         <PriceChart history={d.priceHistory} />
       </div>
+
+      {/* Plan9 — 近期评级变动 */}
+      {d.recentRevisions.length > 0 && (
+        <RecentRevisions revisions={d.recentRevisions} />
+      )}
     </section>
   );
+}
+
+// ─── Recent Revisions ─────────────────────────────────────────────────
+
+function RecentRevisions({
+  revisions,
+}: {
+  revisions: AC["recentRevisions"];
+}) {
+  return (
+    <div className="border-t border-hairline px-4 py-3">
+      <div className="caps mb-2 text-fg-3">近期评级变动 · Recent Revisions</div>
+      <ul className="grid grid-cols-5 divide-x divide-hairline">
+        {revisions.map((r, i) => {
+          const upgraded = ratingScore(r.toRating) > ratingScore(r.fromRating);
+          const downgraded = ratingScore(r.toRating) < ratingScore(r.fromRating);
+          const arrowColor = upgraded
+            ? "text-up"
+            : downgraded
+              ? "text-down"
+              : "text-fg-3";
+          return (
+            <li key={i} className="px-3 first:pl-0 last:pr-0">
+              <div className="num text-xs text-fg-3">{r.date}</div>
+              <div className="mt-0.5 truncate text-sm font-semibold text-fg-1">
+                {r.analyst}
+              </div>
+              <div className="mt-1 flex items-baseline gap-1 text-xs">
+                <span className="text-fg-3">{r.fromRating}</span>
+                <span className={cn("font-semibold", arrowColor)}>→</span>
+                <span
+                  className={cn(
+                    "font-semibold",
+                    upgraded ? "text-up" : downgraded ? "text-down" : "text-fg-1",
+                  )}
+                >
+                  {r.toRating}
+                </span>
+              </div>
+              <div className="num mt-0.5 text-xs text-fg-2">
+                目标价 <span className="font-semibold text-accent">${r.targetPrice}</span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+const RATING_ORDER: AnalystRatingLabel[] = [
+  "卖出",
+  "跑输大盘",
+  "无意见",
+  "持有",
+  "买入",
+  "强力推荐",
+];
+function ratingScore(r: AnalystRatingLabel): number {
+  return RATING_ORDER.indexOf(r);
 }
 
 // ─── Donut ──────────────────────────────────────────────────────────

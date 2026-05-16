@@ -114,6 +114,19 @@ export interface CompanyProfile {
   rank: { rank: number; total: number };  // 1/43
   /** 行业 mini chart 30 点 */
   industrySpark: number[];
+  // Plan9 — 普通投资者基本面字段(由 V1 回补)
+  /** 现任 CEO */
+  ceo: string;
+  /** 成立年份 */
+  founded: number;
+  /** 总部地址(国家 / 州 / 市)*/
+  hq: string;
+  /** 员工总数 */
+  employees: number;
+  /** 官网(只展示域名)*/
+  website: string;
+  /** IPO 日期 */
+  ipoDate: string;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -151,6 +164,8 @@ export interface KeyFactorNode {
   label: string;
   importance: KeyFactorImportance;
   children?: KeyFactorNode[];
+  /** Plan9 — 叶子节点可选数值(显示在 label 后面)*/
+  value?: string;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -191,6 +206,14 @@ export interface AnalystConsensus {
     price: number;
     predictHigh: number;
     predictLow: number;
+  }[];
+  // Plan9 — 近期评级变动(由 V1 回补;最多 5 条,按时间倒序)
+  recentRevisions: {
+    date: string;             // "05/12"
+    analyst: string;          // "摩根士丹利"
+    fromRating: AnalystRatingLabel;
+    toRating: AnalystRatingLabel;
+    targetPrice: number;      // 新目标价
   }[];
 }
 
@@ -507,6 +530,13 @@ export const mockCompanyProfile: CompanyProfile = {
   industrySpark: Array.from({ length: 30 }, (_, i) =>
     100 + Math.sin(i * 0.5) * 4 + Math.cos(i * 0.3) * 2 + (i / 30) * 3,
   ),
+  // Plan9 — 普通投资者基本面字段
+  ceo: "Tim Cook",
+  founded: 1976,
+  hq: "Cupertino, CA · 美国",
+  employees: 164_000,
+  website: "apple.com",
+  ipoDate: "1980-12-12",
 };
 
 export const mockSectorPosition: SectorPosition = {
@@ -553,22 +583,23 @@ export const mockKeyFactorsTree: KeyFactorNode = {
                   label: "iPhone",
                   importance: "high",
                   children: [
-                    { id: "iphone-asp", label: "iPhone 单价", importance: "high" },
-                    { id: "iphone-vol", label: "iPhone 销量", importance: "high" },
+                    { id: "iphone-asp", label: "iPhone 单价", importance: "high", value: "$928" },
+                    { id: "iphone-vol", label: "iPhone 销量", importance: "high", value: "2.34 亿" },
                   ],
                 },
-                { id: "mac", label: "Mac", importance: "medium" },
-                { id: "ipad", label: "iPad", importance: "medium" },
-                { id: "wearables", label: "可穿戴/家居/配件", importance: "medium" },
+                { id: "mac", label: "Mac", importance: "medium", value: "$30B" },
+                { id: "ipad", label: "iPad", importance: "medium", value: "$26B" },
+                { id: "wearables", label: "可穿戴/家居/配件", importance: "medium", value: "$37B" },
               ],
             },
             {
               id: "services",
               label: "服务收入",
               importance: "high",
+              value: "$96B · +14%",
               children: [
-                { id: "appstore", label: "App Store 抽成", importance: "medium" },
-                { id: "icloud", label: "iCloud / Apple One", importance: "low" },
+                { id: "appstore", label: "App Store 抽成", importance: "medium", value: "$28B" },
+                { id: "icloud", label: "iCloud / Apple One", importance: "low", value: "$8B" },
                 { id: "advertising", label: "广告业务", importance: "low" },
               ],
             },
@@ -578,9 +609,10 @@ export const mockKeyFactorsTree: KeyFactorNode = {
           id: "gross-margin",
           label: "毛利率",
           importance: "high",
+          value: "46.2%",
           children: [
-            { id: "hw-gm", label: "硬件毛利率", importance: "medium" },
-            { id: "svc-gm", label: "服务毛利率", importance: "high" },
+            { id: "hw-gm", label: "硬件毛利率", importance: "medium", value: "37.4%" },
+            { id: "svc-gm", label: "服务毛利率", importance: "high", value: "71.0%" },
           ],
         },
         {
@@ -667,6 +699,13 @@ export const mockAnalystConsensus: AnalystConsensus = {
   },
   currentPrice: 298.21,
   priceHistory: genAnalystPriceHistory(),
+  recentRevisions: [
+    { date: "05/12", analyst: "摩根士丹利",  fromRating: "买入",     toRating: "强力推荐", targetPrice: 340 },
+    { date: "05/08", analyst: "高盛",        fromRating: "持有",     toRating: "买入",     targetPrice: 315 },
+    { date: "05/02", analyst: "瑞银",        fromRating: "强力推荐", toRating: "强力推荐", targetPrice: 350 },
+    { date: "04/28", analyst: "巴克莱",      fromRating: "买入",     toRating: "持有",     targetPrice: 280 },
+    { date: "04/22", analyst: "美银美林",    fromRating: "买入",     toRating: "买入",     targetPrice: 305 },
+  ],
 };
 
 // 长桥版 — 持股股东 Top 10(对齐真实页:持股比例 + 较内份额增减万股 + 披露时间)
@@ -1080,6 +1119,11 @@ export interface TrackedEvent {
   title: string;
   /** 时间 HH:MM */
   time: string;
+  // Plan9 — 事件价值字段(由 V1 回补)
+  /** 事件影响力(由 V1 回补;不显示 = 普通新闻)*/
+  impact?: "high" | "medium" | "low";
+  /** 事件公布后股价短期变化 % */
+  priceChange?: number;
 }
 
 // DolphinResearch — 海豚投研报告
@@ -1188,14 +1232,14 @@ export const mockAIAnalysis: AIAnalysisData = {
 };
 
 export const mockTrackedEvents: TrackedEvent[] = [
-  { month: "5月", day: "15", time: "16:13", title: "报道称苹果计划在 iPhone 18 系列中使用自研 5G 芯片" },
-  { month: "5月", day: "15", time: "15:12", title: "Mythos5 攻破苹果最强硬件,20 亿设备告急" },
-  { month: "5月", day: "15", time: "11:21", title: "分析师郭明錤:苹果正与英特尔合作开发低端芯片" },
-  { month: "5月", day: "15", time: "11:15", title: "苹果 iOS 26.3 推新隐私功能:自研数据机用户独享限制精确位置权限" },
-  { month: "5月", day: "15", time: "09:01", title: "Spotify 采用苹果 HLS 技术,将播客分发至 Apple Podcasts" },
-  { month: "5月", day: "15", time: "08:46", title: "苹果扩展 Apple Wallet 车钥匙功能,新增支持保时捷车型" },
-  { month: "5月", day: "14", time: "17:30", title: "苹果发布 iOS 26.3 开发者测试版 Beta 2" },
-  { month: "5月", day: "14", time: "10:15", title: "WWDC 2025 时间确认 6 月 9 日开幕,Apple Intelligence 第二阶段更新预期" },
+  { month: "5月", day: "15", time: "16:13", title: "报道称苹果计划在 iPhone 18 系列中使用自研 5G 芯片", impact: "high",   priceChange: 0.0240 },
+  { month: "5月", day: "15", time: "15:12", title: "Mythos5 攻破苹果最强硬件,20 亿设备告急",            impact: "high",   priceChange: -0.0180 },
+  { month: "5月", day: "15", time: "11:21", title: "分析师郭明錤:苹果正与英特尔合作开发低端芯片",       impact: "medium", priceChange: 0.0035 },
+  { month: "5月", day: "15", time: "11:15", title: "苹果 iOS 26.3 推新隐私功能:自研数据机用户独享限制精确位置权限", impact: "low" },
+  { month: "5月", day: "15", time: "09:01", title: "Spotify 采用苹果 HLS 技术,将播客分发至 Apple Podcasts",     impact: "low" },
+  { month: "5月", day: "15", time: "08:46", title: "苹果扩展 Apple Wallet 车钥匙功能,新增支持保时捷车型",       impact: "low" },
+  { month: "5月", day: "14", time: "17:30", title: "苹果发布 iOS 26.3 开发者测试版 Beta 2",                       impact: "medium", priceChange: 0.0012 },
+  { month: "5月", day: "14", time: "10:15", title: "WWDC 2025 时间确认 6 月 9 日开幕,Apple Intelligence 第二阶段更新预期", impact: "high",   priceChange: 0.0184 },
 ];
 
 export const mockDolphinReports: DolphinReport[] = [

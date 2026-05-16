@@ -99,9 +99,47 @@ function EventRow({
 
       {/* 内容列 */}
       <div className="pb-5">
-        <div className="text-sm leading-relaxed text-fg-1">{e.title}</div>
-        <div className="num mt-1 text-xs text-fg-3">{e.time}</div>
+        <div className="flex items-start gap-2">
+          <div className="flex-1 text-sm leading-relaxed text-fg-1">{e.title}</div>
+          {e.impact && <ImpactBadge impact={e.impact} />}
+        </div>
+        <div className="mt-1 flex items-baseline gap-2 text-xs">
+          <span className="num text-fg-3">{e.time}</span>
+          {e.priceChange !== undefined && (
+            <>
+              <span className="text-fg-4">·</span>
+              <span className="num text-fg-3">事件后</span>
+              <span
+                className={cn(
+                  "num font-semibold",
+                  e.priceChange >= 0 ? "text-up" : "text-down",
+                )}
+              >
+                {e.priceChange >= 0 ? "+" : ""}
+                {(e.priceChange * 100).toFixed(2)}%
+              </span>
+            </>
+          )}
+        </div>
       </div>
     </li>
+  );
+}
+
+function ImpactBadge({ impact }: { impact: "high" | "medium" | "low" }) {
+  const config = {
+    high:   { label: "高",  cls: "border-warn text-warn" },
+    medium: { label: "中",  cls: "border-fg-3 text-fg-2" },
+    low:    { label: "低",  cls: "border-hairline text-fg-3" },
+  }[impact];
+  return (
+    <span
+      className={cn(
+        "shrink-0 rounded-sm border px-1.5 text-2xs font-semibold leading-snug",
+        config.cls,
+      )}
+    >
+      {config.label}
+    </span>
   );
 }

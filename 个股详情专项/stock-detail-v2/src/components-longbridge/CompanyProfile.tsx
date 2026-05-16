@@ -16,13 +16,22 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
     <section className="border-b border-line">
       <SectionHeader label="公司概况" hint="Company Profile" />
       <div className="grid grid-cols-[3fr_2fr] items-start gap-6 px-4 py-3">
-        {/* 左列 — 描述 + KV */}
+        {/* 左列 — 描述 + 基本面 + KV */}
         <div className="space-y-3">
           <p className="text-sm leading-relaxed text-fg-2">
             {profile.description}
           </p>
-          <div className="grid grid-cols-3 gap-4 border-t border-hairline pt-3">
-            <KvItem label="所属行业" value={profile.industry} />
+          {/* 基本面信息 — 普通投资者必看 */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 border-t border-hairline pt-3 text-xs">
+            <FactRow label="CEO" value={profile.ceo} />
+            <FactRow label="成立" value={`${profile.founded} 年 · IPO ${profile.ipoDate.slice(0, 4)}`} num />
+            <FactRow label="总部" value={profile.hq} />
+            <FactRow label="员工" value={`${(profile.employees / 1000).toFixed(0)}k`} num />
+            <FactRow label="官网" value={profile.website} link />
+            <FactRow label="行业" value={profile.industry} />
+          </div>
+          {/* 市值 + 排名 */}
+          <div className="grid grid-cols-2 gap-4 border-t border-hairline pt-3">
             <KvItem
               label="公司总市值"
               value={profile.companyMarketCap}
@@ -105,6 +114,33 @@ function KvItem({
       >
         {value}
       </div>
+    </div>
+  );
+}
+
+function FactRow({
+  label,
+  value,
+  num,
+  link,
+}: {
+  label: string;
+  value: string;
+  num?: boolean;
+  link?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <span className="text-fg-3">{label}</span>
+      <span
+        className={cn(
+          "min-w-0 truncate text-right",
+          num && "num",
+          link ? "text-accent" : "text-fg-1",
+        )}
+      >
+        {value}
+      </span>
     </div>
   );
 }

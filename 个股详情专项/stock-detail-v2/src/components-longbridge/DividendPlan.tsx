@@ -22,7 +22,7 @@ export function DividendPlan({ history, records }: DividendPlanProps) {
       <SectionHeader label="分配方案" hint="Dividend Plan" />
 
       {/* 摘要条 */}
-      <div className="grid grid-cols-3 divide-x divide-hairline border-b border-hairline">
+      <div className="grid grid-cols-[1fr_1fr_1fr_1.4fr] divide-x divide-hairline border-b border-hairline">
         <SummaryKV label="当期每股派息" value={`$${formatNum(latest.dps, 2)}`} />
         <SummaryKV
           label="股息率"
@@ -33,6 +33,8 @@ export function DividendPlan({ history, records }: DividendPlanProps) {
           label="派发率"
           value={formatPct(latest.payoutRatio * 100, 1)}
         />
+        {/* Plan9 — 股息率历史 mini 折线 */}
+        <YieldTrend history={history} />
       </div>
 
       {/* 分配方案列表 */}
@@ -59,6 +61,65 @@ function SummaryKV({
       <div className="text-xs text-fg-3">{label}</div>
       <div className={cn("num text-xl font-semibold", color ?? "text-fg-1")}>
         {value}
+      </div>
+    </div>
+  );
+}
+
+function YieldTrend({ history }: { history: DividendYear[] }) {
+  const W = 200;
+  const H = 56;
+  const PAD = 4;
+  const yields = history.map((y) => y.yieldPct);
+  const max = Math.max(...yields);
+  const min = Math.min(...yields);
+  const range = max - min || 1;
+  const points = history
+    .map((y, i) => {
+      const x = PAD + (i / (history.length - 1)) * (W - PAD * 2);
+      const yPos = PAD + (1 - (y.yieldPct - min) / range) * (H - PAD * 2 - 12);
+      return `${x},${yPos}`;
+    })
+    .join(" ");
+  const first = history[0];
+  const last = history[history.length - 1];
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-3">
+      <div className="min-w-0 flex-1">
+        <div className="text-xs text-fg-3">股息率历史</div>
+        <svg
+          aria-hidden="true"
+          width="100%"
+          viewBox={`0 0 ${W} ${H}`}
+          className="mt-1 block h-12 w-full"
+        >
+          <polyline
+            points={points}
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeWidth="1.5"
+          />
+          <text
+            x={PAD}
+            y={H - 2}
+            fontSize="9"
+            fill="var(--color-fg-4)"
+            style={{ fontFamily: "var(--font-num)" }}
+          >
+            {first.year}
+          </text>
+          <text
+            x={W - PAD}
+            y={H - 2}
+            textAnchor="end"
+            fontSize="9"
+            fill="var(--color-fg-4)"
+            style={{ fontFamily: "var(--font-num)" }}
+          >
+            {last.year}
+          </text>
+        </svg>
       </div>
     </div>
   );
