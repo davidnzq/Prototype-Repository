@@ -1097,10 +1097,22 @@ export interface CalendarEvent {
 // AIAnalysis — AI 分析
 export interface AIAnalysisData {
   generatedAt: string;
-  bullishPoints: string[];
-  bearishPoints: string[];
   signals: { label: string; value: string; trend: Trend }[];
-  summary: string;
+  /** 单条 narrative entry(参考 Perplexity 时间线样式)*/
+  entryDate: string;          // 例:"5月17日"
+  entryLocale: string;        // 例:"New York 时间 08:29"
+  priceSnapshot: {
+    price: number;
+    changePct: number;        // 例: 0.0068 = +0.68%
+    sessionLabel: string;     // 例:"收盘时"
+    afterHours?: { price: number; changePct: number; label: string };  // 例:"盘后"
+  };
+  /** 长正文 — 综合 bull/bear + summary 的叙事段落 */
+  narrative: string;
+  /** 来源(初始字母 + 颜色 token) */
+  sources: { label: string; color: string }[];
+  /** 更多入口 — 查看完整 / 原始分析 */
+  fullAnalysisHint?: string;
 }
 
 // 长桥版 — 事件追踪(垂直时间线)
@@ -1202,28 +1214,37 @@ export const mockCalendarEvents: CalendarEvent[] = [
 ];
 
 export const mockAIAnalysis: AIAnalysisData = {
-  generatedAt: "2026-05-08 16:42 EDT",
-  bullishPoints: [
-    "服务业务 YoY +14.2%,持续高毛利,占比突破 21%",
-    "现金流 41B 创纪录,FCF margin 27.8%",
-    "AI Devices 概念催化,Vision Pro 2 即将发布",
-    "44 位分析师中 34 位 Buy/Outperform,目标价中位数 305(+6.1%)",
-  ],
-  bearishPoints: [
-    "Wearables YoY -2.4%,可穿戴增长疲软",
-    "P/E 34.8x 远高于行业均值 28.4x,估值偏高",
-    "Berkshire Q1 减持 2.3%,机构信心边际下降",
-    "大中华区监管不确定性持续",
-  ],
+  generatedAt: "2026-05-17 08:29 EDT",
   signals: [
     { label: "Technical",  value: "Bullish",  trend: "up" },
     { label: "Fundamental", value: "Strong", trend: "up" },
     { label: "Sentiment",   value: "Mixed",  trend: "flat" },
     { label: "Valuation",   value: "Stretched", trend: "down" },
   ],
-  summary:
-    "综合技术面、基本面、情绪面、估值面分析:Apple 短期受 AI 叙事和强劲现金流支撑,但估值偏离 peer median 40%以上。" +
-    "建议在 Vision Pro 2 发布前后保持中性配置,关注服务业务持续渗透与 Wearables 触底回升信号。",
+  entryDate: "5月15日",
+  entryLocale: "New York 时间 16:00",
+  priceSnapshot: {
+    price: 300.23,
+    changePct: 0.0068,
+    sessionLabel: "收盘时",
+    afterHours: { price: 299.85, changePct: -0.0013, label: "盘后" },
+  },
+  narrative:
+    "在科技板块普遍走弱、标普 500 与纳斯达克分别回落 1% 与 1.5% 的背景下,Apple 仍守住 +0.68% 涨幅,逼近 52 周高点,显示出强于大盘的相对韧性。" +
+    "这种韧性根植于 Q1 2026 业绩:124.3B 营收(+6.4% YoY)与创纪录的 41B 自由现金流(FCF margin 27.8%)双双超预期,服务业务 YoY +14.2%、占比突破 21%,毛利结构持续向上。" +
+    "资本回报方面,管理层同步释放 100B 回购 + 股息上调至 0.27 USD/股,叠加 Tigress Financial 上调目标价至 375、Evercore ISI 至 365 等卖方利好,机构对短期上行空间维持 buy-side 共识(44 位分析师中 34 位 Buy/Outperform,目标价中位数 305、隐含 +6.1%)。" +
+    "催化层面,WWDC 2026 即将开幕,Apple Intelligence 第二阶段更新与 Vision Pro 2 ($1,999–$2,499)发布构成双重 AI 叙事支撑。" +
+    "但需警惕:Wearables YoY -2.4% 持续疲软、P/E 34.8x 显著高于行业均值 28.4x、Berkshire Q1 减持 2.3% 反映机构信心边际下行,加之大中华区监管不确定性与 OpenAI 合作可能进入法律诉讼,均构成中期估值脆弱性。" +
+    "综合判断:AI 叙事 + 现金流 + 股东回报形成短期支撑底,但偏离 peer median 40% 的估值要求中性配置——重点跟踪服务渗透速率、Wearables 触底信号与 WWDC 催化兑现度。",
+  sources: [
+    { label: "B",  color: "var(--color-chart-blue)"  },
+    { label: "R",  color: "var(--color-up)"          },
+    { label: "α",  color: "var(--color-warn)"        },
+    { label: "E",  color: "var(--color-down)"        },
+    { label: "W",  color: "var(--color-chart-grey)"  },
+    { label: "F",  color: "var(--color-accent)"      },
+  ],
+  fullAnalysisHint: "查看完整原始分析",
 };
 
 export const mockTrackedEvents: TrackedEvent[] = [
