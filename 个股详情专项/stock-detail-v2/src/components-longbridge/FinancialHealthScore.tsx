@@ -61,7 +61,7 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-[400px_1fr] gap-8 px-4 py-4">
+      <div className="grid grid-cols-[320px_1fr] items-start gap-8 px-4 py-4">
         {/* 雷达图 */}
         <RadarChart categories={data.categories} />
 
@@ -197,10 +197,11 @@ function TrendArrow({ trend, size = 12 }: { trend: RatingTrend; size?: number })
 }
 
 function RadarChart({ categories }: { categories: FinancialHealthCategory[] }) {
-  const SIZE = 360;
+  // SIZE 360 → 320 以与右侧评分明细面板等高(默认展开 1 行约 5×row + 3 indicators ≈ 310px)
+  const SIZE = 320;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
-  const R = 120;
+  const R = 105;
   const LEVELS = 4;
   const N = categories.length;
 

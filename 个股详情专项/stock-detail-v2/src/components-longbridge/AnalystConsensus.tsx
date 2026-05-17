@@ -77,7 +77,7 @@ function DonutChart({
       aria-hidden="true"
       width="100%"
       viewBox={`0 0 ${W} ${W}`}
-      className="block max-w-[220px]"
+      className="block max-w-[240px]"
     >
       {arcs.map(
         (a) =>
@@ -176,10 +176,11 @@ function RatingLegend({
 
 function PriceChart({ history }: { history: AC["priceHistory"] }) {
   const VBW = 720;
-  const VBH = 280;
+  // VBH=232 → 在 1280px 容器右列(~744 宽)下,渲染高度 ≈ 240,正好对齐 donut max-w-[240]
+  const VBH = 232;
   const PAD_X = 8;
-  const PAD_TOP = 32;
-  const PAD_BOT = 24;
+  const PAD_TOP = 24;
+  const PAD_BOT = 20;
   const innerW = VBW - PAD_X * 2;
   const innerH = VBH - PAD_TOP - PAD_BOT;
 

@@ -54,6 +54,8 @@ export function DividendPlan({ history, records }: DividendPlanProps) {
 function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
   const maxDps = Math.max(...history.map((h) => h.dps));
   const N = history.length;
+  // 网格列模板:年份 | 柱区 | DPS | 股息率(去掉派发率列)
+  const COLS = "48px 1fr 90px 80px";
 
   return (
     <ul className="flex flex-col gap-1.5">
@@ -64,14 +66,13 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
           <li
             key={h.year}
             className="grid items-center gap-3"
-            style={{ gridTemplateColumns: "48px 1fr 90px 80px 80px" }}
+            style={{ gridTemplateColumns: COLS }}
           >
-            {/* 年份 */}
             <span className={cn("num text-sm", isCurrent ? "font-semibold text-fg-1" : "text-fg-2")}>
               {h.year}
             </span>
 
-            {/* 横向柱 — 底色 track + accent fill */}
+            {/* 横向柱 — 纯 DPS 柱(不代表百分比)*/}
             <div className="relative h-4 bg-hairline/60">
               <div
                 className={cn(
@@ -82,33 +83,25 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
               />
             </div>
 
-            {/* DPS */}
             <span className={cn("num text-right text-sm", isCurrent ? "font-semibold text-fg-1" : "text-fg-1")}>
               ${formatNum(h.dps, 2)}
             </span>
 
-            {/* yield */}
             <span className="num text-right text-sm text-warn">
               {(h.yieldPct * 100).toFixed(2)}%
-            </span>
-
-            {/* payout */}
-            <span className="num text-right text-xs text-fg-3">
-              派发 {(h.payoutRatio * 100).toFixed(1)}%
             </span>
           </li>
         );
       })}
-      {/* 表头(贴在最后,作为脚注 caps) */}
+      {/* 表头脚注 */}
       <li
         className="grid items-center gap-3 border-t border-hairline pt-1.5 text-2xs text-fg-3"
-        style={{ gridTemplateColumns: "48px 1fr 90px 80px 80px" }}
+        style={{ gridTemplateColumns: COLS }}
       >
         <span className="caps">年份</span>
-        <span className="caps">DPS 强度</span>
-        <span className="caps text-right">每股派息</span>
+        <span className="caps">每股股息</span>
+        <span className="caps text-right">DPS (USD)</span>
         <span className="caps text-right">股息率</span>
-        <span className="caps text-right">派发率</span>
       </li>
     </ul>
   );
