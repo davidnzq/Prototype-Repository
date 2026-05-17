@@ -103,8 +103,8 @@ function BarLineChart({ quarters }: { quarters: FinancialQuarter[] }) {
       <svg aria-hidden="true"
         width="100%"
         viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="none"
-        className="block h-56 w-full"
+        className="block w-full"
+        style={{ aspectRatio: `${W} / ${H}` }}
       >
         {/* Horizontal grid */}
         {[0.25, 0.5, 0.75].map((t) => (

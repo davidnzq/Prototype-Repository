@@ -28,8 +28,6 @@ import { ValuationHistory } from "@/components-us/ValuationHistory";
 import { OrderBookL2 } from "@/components-us/OrderBookL2";
 import { CapitalFlow } from "@/components-us/CapitalFlow";
 import { Shorting } from "@/components-us/Shorting";
-import { StickyTradeBar } from "@/components-us/StickyTradeBar";
-import { BottomTabNav } from "@/components-us/BottomTabNav";
 
 import {
   mockQuote,
@@ -188,12 +186,6 @@ const ENTRIES: ComponentEntry[] = [
   { id: "shorting", num: "31", name: "Shorting", nameZh: "Shorting", category: "Quote",
     desc: "US:Short sale / Short position 双 tab + 6 KV(NASDAQ 数据)+ 三线图(short% / NASDAQ / closing)+ 量柱",
     node: <Shorting data={mockShorting} /> },
-  { id: "sticky-trade-bar", num: "32", name: "StickyTradeBar", nameZh: "底部 CTA Bar", category: "Quote",
-    desc: "US:8x grid icon + Options / Trade 双按钮(主按钮 accent 色),sticky 在容器底部",
-    node: <StickyTradeBar /> },
-  { id: "bottom-tab-nav", num: "33", name: "BottomTabNav", nameZh: "底部 4 系统 Tab", category: "Quote",
-    desc: "US:Watchlist / Markets / Portfolio / Profile 4 个 icon-text tab,激活态 accent 色",
-    node: <BottomTabNav active="markets" /> },
 ];
 
 const CATEGORIES = [

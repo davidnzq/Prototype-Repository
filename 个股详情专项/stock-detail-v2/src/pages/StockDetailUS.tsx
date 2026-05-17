@@ -16,8 +16,6 @@ import { EarningsSummary } from "@/components-us/EarningsSummary";
 import { OrderBookL2 } from "@/components-us/OrderBookL2";
 import { CapitalFlow } from "@/components-us/CapitalFlow";
 import { Shorting } from "@/components-us/Shorting";
-import { StickyTradeBar } from "@/components-us/StickyTradeBar";
-import { BottomTabNav } from "@/components-us/BottomTabNav";
 
 import {
   mockQuote,
@@ -65,14 +63,6 @@ export function StockDetailUSPage() {
         {tab === "news"      && <TabNews />}
         {tab === "community" && <TabCommunity />}
       </main>
-
-      {/* Bottom sticky CTAs(仅 Quote tab 显示)*/}
-      {tab === "quote" && (
-        <div className="mx-auto max-w-[var(--ctn-max)]">
-          <StickyTradeBar />
-          <BottomTabNav active="markets" />
-        </div>
-      )}
     </>
   );
 }

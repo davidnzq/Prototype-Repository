@@ -214,8 +214,8 @@ function RealtimeChart({
     <svg aria-hidden="true"
       width="100%"
       viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      className="mt-2 block h-32 w-full"
+      className="mt-2 block w-full"
+      style={{ aspectRatio: `${W} / ${H}` }}
     >
       <defs>
         <linearGradient id="us-cf-area" x1="0" y1="0" x2="0" y2="1">

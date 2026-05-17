@@ -2,6 +2,7 @@
  * Mock data for stock detail v2 — Bloomberg + 长桥 US 设计语言.
  * AAPL.US 基线,覆盖阶段一 16 个组件所需全部 schema.
  */
+import { formatNum, formatPct, formatCompact } from "@/lib/utils";
 
 export type Trend = "up" | "down" | "flat";
 
@@ -76,8 +77,8 @@ export type KlineTab =
   | "5分"
   | "15分";
 
-/** US 客户端 IntradayChart — 24hr 延长盘三段 */
-export type IntradayRange = "1D" | "5D" | "1M" | "3M" | "YTD" | "1Y" | "5Y";
+/** US 客户端 IntradayChart — 24hr 延长盘三段 + 多周期 K 线 */
+export type IntradayRange = "1D" | "5D" | "1M" | "3M" | "YTD" | "1Y" | "5Y" | "Max";
 
 export interface IntradaySegment {
   /** 三段标签 */
@@ -86,18 +87,43 @@ export interface IntradaySegment {
   values: number[];
 }
 
+/** 5D+ 周期 K 线蜡烛 */
+export interface Candle {
+  /** X 轴标签 (e.g. "Apr 8" / "10:30") */
+  t: string;
+  /** 开盘 */
+  o: number;
+  /** 最高 */
+  h: number;
+  /** 最低 */
+  l: number;
+  /** 收盘 */
+  c: number;
+  /** 成交量 */
+  v: number;
+}
+
+export interface CandleSeries {
+  period: Exclude<IntradayRange, "1D">;
+  candles: Candle[];
+  /** X 轴稀疏标签 (3-5 个) */
+  xLabels: string[];
+}
+
 export interface IntradayMeta {
   activeRange: IntradayRange;
   ranges: IntradayRange[];
-  /** 三段延长盘价格序列 */
+  /** 1D 三段延长盘价格序列 */
   segments: IntradaySegment[];
   /** Day high / low 标注点 */
   high: number;
   low: number;
   /** 参考虚线 (e.g. 前收) */
   reference: number;
-  /** 时间轴标签(20:00 / 04:00 / 09:30 / 16:00 / 20:00) */
+  /** 1D 时间轴标签(20:00 / 04:00 / 09:30 / 16:00 / 20:00) */
   ticks: string[];
+  /** 5D+ 各周期 K 线数据 */
+  candleSeries: CandleSeries[];
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -307,26 +333,47 @@ export interface FinancialBarReport {
 // - 多年(2013–2025)叠加柱状图
 // - "行业 / 地区" tab 切换
 // - 下方明细表:名称 / 营收(亿) / 占比
-/** US 客户端 Sankey 节点 — 左侧 segment / 右侧 Revenue 中心节点共用 */
+/** Sankey 节点类型(决定配色 + label 语义) */
+export type SankeyKind = "revenue" | "profit" | "cost";
+
+/** US 客户端 Sankey 节点 (多阶段) */
 export interface SankeyNode {
-  /** Display label (segment 名 or "Revenue") */
+  /** 唯一 id, 用于 link 引用 */
+  id: string;
+  /** Display label */
   label: string;
-  /** Display value with unit, e.g. "$292.35B" */
+  /** 实际数值(B 单位) — 决定节点高度 + flow 宽度 */
+  rawValue: number;
+  /** 格式化后的显示值,如 "$292.35B" */
   value: string;
   /** Period-over-period pct, signed e.g. 0.0125 / -0.1224 */
   pct: number;
+  /** Stage 列位置 0..N (从左到右) */
+  stage: number;
+  /** 类型(决定配色) */
+  kind: SankeyKind;
 }
 
-/** US 客户端 Revenue breakdown — 左侧多 segment Sankey 流向右侧 Revenue 中心节点 */
+/** Sankey 流(连边),颜色随 to 节点的 kind 决定 */
+export interface SankeyLink {
+  from: string;
+  to: string;
+  /** flow 强度(B 单位) — 决定 path 宽度 */
+  value: number;
+}
+
+/** US 客户端 Revenue breakdown — 5 阶段 Sankey */
 export interface RevenueCompositionData {
   /** "Quarterly" / "Annual" cycle */
   cycle: "Quarterly" | "Annual";
-  /** Bottom X-axis periods e.g. ["Q3 2024","Q4 2024","Q1 2025","Q2 2025"] */
+  /** Bottom X-axis periods (横轴时间轴) */
   periods: string[];
-  /** Left-side segment nodes (4-6 个) */
-  segments: SankeyNode[];
-  /** Center Revenue node */
-  revenue: SankeyNode;
+  /** 当前激活的 period (高亮) */
+  activePeriod: string;
+  /** 所有节点 (跨 stage) */
+  nodes: SankeyNode[];
+  /** 所有连边 */
+  links: SankeyLink[];
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -436,30 +483,90 @@ export const mockQuote: Quote = {
   ],
 };
 
-// US 客户端 — 24hr 延长盘价格序列(deterministic 模拟,Tesla 风格震荡)
-function genSeries(start: number, count: number, vol: number, seed: number): number[] {
+// US 客户端 — 24hr 延长盘价格序列(deterministic 模拟,均值回归到 anchor)
+//   - 段间端点连续:下一段起点 = 上一段末值,避免视觉断裂
+//   - anchor 拉回:wiggle 围绕 anchor,长程不漂移
+function genSeries(
+  start: number,
+  count: number,
+  vol: number,
+  seed: number,
+  anchor: number = start,
+): number[] {
   const out: number[] = [];
   let v = start;
   for (let i = 0; i < count; i++) {
     const wiggle = Math.sin((i + seed) * 0.6) * vol + Math.cos((i + seed) * 0.23) * vol * 0.4;
-    v += wiggle - vol * 0.15;
+    // 均值回归: 偏离 anchor 越多, 回归力越强
+    const meanRevert = (anchor - v) * 0.06;
+    v += wiggle + meanRevert;
     out.push(Number(v.toFixed(2)));
   }
   return out;
 }
 
+/** 生成一段 K 线蜡烛数据 (deterministic, 用 sin/cos) */
+function genCandles(
+  period: Exclude<IntradayRange, "1D">,
+  start: number,
+  count: number,
+  vol: number,
+  seed: number,
+  labels: string[],
+): CandleSeries {
+  const candles: Candle[] = [];
+  let c = start;
+  for (let i = 0; i < count; i++) {
+    const drift = Math.sin((i + seed) * 0.32) * vol + Math.cos((i + seed) * 0.11) * vol * 0.6;
+    const o = c;
+    c = Number((c + drift).toFixed(2));
+    const h = Number((Math.max(o, c) + Math.abs(Math.sin((i + seed) * 0.7)) * vol * 0.5).toFixed(2));
+    const l = Number((Math.min(o, c) - Math.abs(Math.cos((i + seed) * 0.9)) * vol * 0.5).toFixed(2));
+    const v = Math.round(
+      1_000_000 + Math.abs(Math.sin((i + seed) * 0.5)) * 3_000_000 + (i % 7) * 200_000,
+    );
+    candles.push({ t: `${i}`, o, h, l, c, v });
+  }
+  // 把 X 轴标签均匀分配到首/中/末等位置上,候选用 labels.length 个稀疏点
+  return { period, candles, xLabels: labels };
+}
+
+// AAPL 基准价(与 mockQuote.price 对齐) — 全模块价位数据皆以此为锚
+const BASE_PRICE = 287.44;
+const PREV_CLOSE = 287.51;
+
+// 三段端点连续:pre 末 → reg 首 → reg 末 → post 首 (无视觉跳跃)
+const _preSeg  = genSeries(PREV_CLOSE,                   40, 0.4, 1, PREV_CLOSE);
+const _regSeg  = genSeries(_preSeg[_preSeg.length - 1],  80, 0.9, 2, BASE_PRICE);
+const _postSeg = genSeries(_regSeg[_regSeg.length - 1],  30, 0.3, 3, BASE_PRICE);
+
+// 计算实际全段 high / low (用于标签)
+const _allValues = [..._preSeg, ..._regSeg, ..._postSeg];
+const _high = Math.max(..._allValues);
+const _low  = Math.min(..._allValues);
+
 export const mockIntradayMeta: IntradayMeta = {
   activeRange: "1D",
-  ranges: ["1D", "5D", "1M", "3M", "YTD", "1Y", "5Y"],
+  ranges: ["1D", "5D", "1M", "3M", "YTD", "1Y", "5Y", "Max"],
   segments: [
-    { kind: "pre", values: genSeries(150.82, 40, 0.6, 1) },   // 20:00 → 04:00 pre-market
-    { kind: "reg", values: genSeries(148.20, 80, 1.2, 2) },   // 09:30 → 16:00 regular
-    { kind: "post", values: genSeries(146.52, 30, 0.4, 3) },  // 16:00 → 20:00 after-hours
+    { kind: "pre",  values: _preSeg  },  // 04:00 → 09:30 pre-market   (5.5h)
+    { kind: "reg",  values: _regSeg  },  // 09:30 → 16:00 regular      (6.5h)
+    { kind: "post", values: _postSeg },  // 16:00 → 20:00 after-hours  (4h)
   ],
-  high: 150.82,
-  low: 128.93,
-  reference: 148.64,
-  ticks: ["20:00", "04:00", "09:30", "16:00", "20:00"],
+  high: Number(_high.toFixed(2)),
+  low:  Number(_low.toFixed(2)),
+  reference: PREV_CLOSE,
+  // 时间标签按真实美股延长盘时间(总 16h, 04:00 → 20:00)
+  ticks: ["04:00", "09:30", "12:45", "16:00", "20:00"],
+  candleSeries: [
+    genCandles("5D",  BASE_PRICE - 4,  60, 1.1, 11, ["Mon", "Tue", "Wed", "Thu", "Fri"]),
+    genCandles("1M",  BASE_PRICE - 10, 60, 1.6, 22, ["Apr 8", "Apr 15", "Apr 22", "Apr 29", "May 6"]),
+    genCandles("3M",  BASE_PRICE - 22, 60, 2.4, 33, ["Feb", "Mar", "Apr", "May"]),
+    genCandles("YTD", BASE_PRICE - 35, 60, 3.1, 44, ["Jan", "Feb", "Mar", "Apr", "May"]),
+    genCandles("1Y",  BASE_PRICE - 55, 60, 4.2, 55, ["Jun '24", "Sep '24", "Dec '24", "Mar '25"]),
+    genCandles("5Y",   95.40,          60, 6.5, 66, ["2021", "2022", "2023", "2024", "2025"]),
+    genCandles("Max",  18.50,          60, 9.0, 77, ["2005", "2010", "2015", "2020", "2025"]),
+  ],
 };
 
 export const mockTags: StockTag[] = [
@@ -472,17 +579,45 @@ export const mockTags: StockTag[] = [
   { label: "ARK", category: "holding", pct: -0.0089 },
 ];
 
-// US 客户端 Key statistics — Day's range + 52W range slider + 6 KV + Expand
+// US 客户端 Key statistics — Day's range + 52W range slider + 23 KV(8 行 3 列)
+//   字段顺序严格按 Figma 1:205,数值口径用 lib/utils 格式化
+//   AAPL 真实形态:price ≈ 287.44, P/E ≈ 35, EPS ≈ 8.26, mkt cap ≈ 4.27T
 export const mockQuoteKV: QuoteKVGroup = {
-  dayRange: { low: 750_000.001, high: 758_095.430, current: 754_281.6 },
-  weekRange52: { low: 607_135.001, high: 812_855.000, current: 754_281.6 },
+  dayRange:    { low: 285.88, high: 289.41, current: BASE_PRICE },
+  weekRange52: { low: 178.42, high: 299.21, current: BASE_PRICE },
   kvs: [
-    { label: "Prev. close",    value: "139.67" },
-    { label: "Open",           value: "140.00" },
-    { label: "Market cap",     value: "3,193.25B" },
-    { label: "Turnover ratio", value: "0.45%" },
-    { label: "P/E (TTM)",      value: "54.44" },
-    { label: "Bid/ask ratio",  value: "--", tone: "default" },
+    // Row 1
+    { label: "Prev. close",          value: formatNum(PREV_CLOSE, 2) },
+    { label: "Open",                 value: formatNum(286.20, 2) },
+    { label: "Market cap",           value: formatCompact(4_270_000_000_000, 2) },
+    // Row 2
+    { label: "Turnover ratio",       value: formatPct(0.33, 2) },
+    { label: "P/E (TTM)",            value: formatNum(34.80, 2) },
+    { label: "Bid/ask ratio",        value: "0.71" },
+    // Row 3
+    { label: "Vol. ratio",           value: formatNum(0.92, 2) },
+    { label: "Vol.",                 value: formatCompact(48_237_412, 2) },
+    { label: "Shares",               value: formatCompact(14_850_000_000, 2) },
+    // Row 4
+    { label: "Amplitude",            value: formatPct(1.23, 2) },
+    { label: "Floating shares",      value: formatCompact(14_780_000_000, 2) },
+    { label: "Free-float mkt. cap",  value: formatCompact(4_249_900_000_000, 2) },
+    // Row 5
+    { label: "EPS (TTM)",            value: formatNum(8.26, 2) },
+    { label: "P/B",                  value: formatNum(58.40, 2) },
+    { label: "Dividend yield (TTM)", value: formatPct(0.46, 2) },
+    // Row 6
+    { label: "P/E (dynamic)",        value: formatNum(33.10, 2) },
+    { label: "EPS (dynamic)",        value: formatNum(8.68, 2) },
+    { label: "Avg. price",           value: formatNum(287.62, 2) },
+    // Row 7
+    { label: "Dividend (TTM)",       value: formatNum(1.04, 2) },
+    { label: "P/E (static)",         value: formatNum(36.20, 2) },
+    { label: "EPS (static)",         value: formatNum(7.94, 2) },
+    // Row 8
+    { label: "BVPS",                 value: formatNum(4.92, 2) },
+    { label: "Min. lot size",        value: "1" },
+    { label: "Currency",             value: "USD" },
   ],
 };
 
@@ -509,11 +644,19 @@ export interface OrderBookL2Data {
   askBalancePct: number;       // 0.3265
   /** 5 个明细档 */
   rows: OrderBookLevel[];
-  /** 中段 mini chart 数据(volume + 价格 7-20 个点) */
+  /** 中段 mini chart 数据(价格折线 + 量柱) */
   miniChart: {
     priceLow: number;
     priceHigh: number;
     priceLine: number[];
+    /** 与 priceLine 等长的成交量序列 */
+    volumeBars: number[];
+    /** Y 轴量峰值标签 (e.g. "76.21K") */
+    volumePeakLabel: string;
+    /** Y 轴量谷值标签 (e.g. "22") */
+    volumeFloorLabel: string;
+    /** X 轴 4 个时间标签 (e.g. ["235.211","256.320","265.310","285.100"]) */
+    xLabels: string[];
   };
 }
 
@@ -566,80 +709,127 @@ export interface ShortingData {
   xLabels: string[];
 }
 
+// OrderBookL2 — 价位锚定 BASE_PRICE($287.44), 档间 spread ~$0.10
+//   档位号设计:level 1 = 最优买/卖一, 向外档位价格递减/递增
+//   BBO 总量 = sum(rows.bidQty / askQty), 保证内部一致
+const _obRows: OrderBookLevel[] = [
+  { level: 1,  bidQty:  820, bidPx: 287.40, askPx: 287.46, askQty: 1_240 },
+  { level: 2,  bidQty: 1_540, bidPx: 287.32, askPx: 287.54, askQty:   964 },
+  { level: 3,  bidQty:   650, bidPx: 287.25, askPx: 287.61, askQty: 1_810 },
+  { level: 4,  bidQty: 2_340, bidPx: 287.18, askPx: 287.69, askQty:   720 },
+  { level: 5,  bidQty:   480, bidPx: 287.10, askPx: 287.77, askQty: 1_405 },
+  { level: 6,  bidQty: 1_120, bidPx: 287.02, askPx: 287.84, askQty:   930 },
+  { level: 7,  bidQty:   780, bidPx: 286.94, askPx: 287.92, askQty:   515 },
+  { level: 8,  bidQty:   340, bidPx: 286.86, askPx: 288.01, askQty: 1_260 },
+  { level: 9,  bidQty: 1_960, bidPx: 286.78, askPx: 288.10, askQty:   665 },
+  { level: 10, bidQty:   590, bidPx: 286.70, askPx: 288.18, askQty:   810 },
+];
+const _bidTotal = _obRows.reduce((a, r) => a + r.bidQty, 0);
+const _askTotal = _obRows.reduce((a, r) => a + r.askQty, 0);
+
 export const mockOrderBookL2: OrderBookL2Data = {
-  bidTotal: 500,
-  askTotal: 200,
-  midBid: 194.600,
-  midAsk: 194.900,
+  bidTotal: _bidTotal,
+  askTotal: _askTotal,
+  midBid: _obRows[0].bidPx,
+  midAsk: _obRows[0].askPx,
   levelCount: 10,
-  bidBalancePct: 0.6527,
-  askBalancePct: 0.3265,
-  rows: [
-    { level: 1, bidQty: 80,  bidPx: 145.320, askPx: 148.892, askQty:  43 },
-    { level: 2, bidQty: 400, bidPx: 145.221, askPx: 141.220, askQty: 214 },
-    { level: 3, bidQty: 125, bidPx: 144.215, askPx: 141.238, askQty: 459 },
-    { level: 4, bidQty: 434, bidPx: 146.320, askPx: 145.120, askQty: 603 },
-    { level: 5, bidQty: 676, bidPx: 148.001, askPx: 144.878, askQty: 238 },
-  ],
+  bidBalancePct: _bidTotal / (_bidTotal + _askTotal),
+  askBalancePct: _askTotal / (_bidTotal + _askTotal),
+  rows: _obRows,
   miniChart: {
-    priceLow: 235.211,
-    priceHigh: 285.100,
+    // 盘中价格走势(过去 ~30 分钟,1m 一点)
+    priceLow:  286.62,
+    priceHigh: 287.84,
     priceLine: [
-      265, 260, 252, 248, 250, 256, 263, 268, 270, 274, 278, 282, 285,
+      287.20, 287.05, 286.92, 286.78, 286.72, 286.68, 286.65, 286.62,
+      286.74, 286.91, 287.08, 287.22, 287.34, 287.46, 287.58, 287.72,
     ],
+    volumeBars: [
+      48_300, 62_100, 71_400, 58_200, 41_700, 39_900, 35_500, 28_400,
+      44_200, 56_800, 68_300, 79_210, 65_400, 52_100, 41_500, 33_800,
+    ],
+    volumePeakLabel: "79.2K",
+    volumeFloorLabel: "0",
+    // 盘中时间刻度(过去 30 分钟,5 分钟一刻度)
+    xLabels: ["10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00"],
   },
 };
 
+// Capital flow — AAPL 盘中资金流向($M, 自洽:Total = Large + Medium + Small)
+//   AAPL 日成交额 ≈ $13.8B,资金流 inflow + outflow ≈ 全天成交额,符合量纲
+const _cfBuckets = [
+  { size: "Large"  as const, inflow: 3_482.40, outflow: 3_388.62 },
+  { size: "Medium" as const, inflow: 1_864.18, outflow: 1_792.06 },
+  { size: "Small"  as const, inflow:   795.32, outflow:   758.14 },
+];
+const _cfInflow  = _cfBuckets.reduce((a, b) => a + b.inflow,  0);
+const _cfOutflow = _cfBuckets.reduce((a, b) => a + b.outflow, 0);
+
 export const mockCapitalFlow: CapitalFlowData = {
-  unit: "M",
-  netInflow: 31_816.500,
-  totalInflow: 681_276.47,
-  totalOutflow: 649_459.28,
-  buckets: [
-    { size: "Large",  inflow:  63_986.31, outflow:  52_524.24 },
-    { size: "Medium", inflow: 285_917.06, outflow: 308_628.52 },
-    { size: "Small",  inflow: 127_819.29, outflow: 108_653.81 },
-  ],
-  realtime: Array.from({ length: 80 }, (_, i) => ({
-    t: `${9 + Math.floor((i / 80) * 7)}:${String(Math.floor(((i / 80) * 7 * 60) % 60)).padStart(2, "0")}`,
-    v: -100 + Math.sin(i * 0.18) * 80 + (i / 80) * 250 + Math.cos(i * 0.07) * 30,
-  })),
+  unit: "$M",
+  netInflow: Number((_cfInflow - _cfOutflow).toFixed(2)),
+  totalInflow:  Number(_cfInflow.toFixed(2)),
+  totalOutflow: Number(_cfOutflow.toFixed(2)),
+  buckets: _cfBuckets,
+  // 盘中净流入序列(80 点, 9:30 → 16:00, 单位 $M)
+  realtime: Array.from({ length: 80 }, (_, i) => {
+    const t = i / 80;
+    const hour = 9 + Math.floor(t * 6.5);
+    const min  = Math.floor((t * 6.5 - Math.floor(t * 6.5)) * 60);
+    // 从 -30M 起步,午后转正,收盘 +220M(波动 ±60M)
+    const v = -30 + t * 250 + Math.sin(i * 0.22) * 55 + Math.cos(i * 0.09) * 20;
+    return {
+      t: `${hour}:${String(min < 30 ? min + 30 : min).padStart(2, "0")}`,
+      v: Number(v.toFixed(2)),
+    };
+  }),
   ticks: ["9:30", "12:00", "13:00", "16:00"],
 };
 
+// Shorting — AAPL 做空数据(NASDAQ 来源, 与 BASE_PRICE / mockQuote 对齐)
+//   口径:
+//   - shortSalePct = 当日 short volume / 当日 total volume (NASDAQ)
+//   - nasdaq       = 当日 NASDAQ 上的 short volume (M shares,即 short volume in millions)
+//   - closingPrice = $287.44(与 hero 一致)
+//   - volume       = NASDAQ 当日总成交量(M shares)
+//   - shortVolume  = NASDAQ 当日 short volume(M shares,= nasdaq)
+//   - pctChg       = 当日收盘涨跌幅 -0.24%
 export const mockShorting: ShortingData = {
   activeTab: "sale",
   source: "NASDAQ",
   metrics: {
-    date: "Fri Apr 25, 2025",
-    shortSalePct: 0.0058,
-    nasdaq: 334.00,
-    closingPrice: 9.07,
-    volume: 22.00,
-    shortVolume: 22.00,
-    pctChg: -0.022,
+    date: "Fri May 16, 2025",
+    shortSalePct: 0.185,     // 18.5% (典型 AAPL short volume ratio)
+    nasdaq: 8.92,            // 8.92M short shares on NASDAQ
+    closingPrice: BASE_PRICE,// 287.44
+    volume: 48.24,           // 48.24M total shares
+    shortVolume: 8.92,       // 8.92M short shares (= NASDAQ short volume)
+    pctChg: -0.0024,         // -0.24% (与 mockQuote.pct 一致)
   },
+  // 40 个交易日的双线(短率 vs 收盘价),量柱为同期 short volume
   lines: [
     {
       label: "Short sale %",
       color: "var(--color-warn)",
-      points: Array.from({ length: 40 }, (_, i) => 0.4 + Math.sin(i * 0.4) * 0.15 + (i / 40) * 0.2),
-    },
-    {
-      label: "NASDAQ",
-      color: "var(--chart-blue, var(--color-accent))",
-      points: Array.from({ length: 40 }, (_, i) => 200 + Math.cos(i * 0.32) * 8 + (i / 40) * 6),
+      // 18-22% 区间波动
+      points: Array.from({ length: 40 }, (_, i) =>
+        18.5 + Math.sin(i * 0.35) * 1.8 + Math.cos(i * 0.11) * 0.8,
+      ),
     },
     {
       label: "Closing price",
       color: "var(--color-down)",
-      points: Array.from({ length: 40 }, (_, i) => 195 + Math.sin(i * 0.5 + 1) * 5 - (i / 40) * 4),
+      // 收盘价 270-295 区间,终值 287.44
+      points: Array.from({ length: 40 }, (_, i) =>
+        270 + (i / 39) * 17.44 + Math.sin(i * 0.42) * 3.5 + Math.cos(i * 0.17) * 1.8,
+      ),
     },
   ],
+  // Short volume(M shares),40 个交易日
   volumeBars: Array.from({ length: 40 }, (_, i) =>
-    3000 + Math.abs(Math.sin(i * 0.45)) * 2500 + Math.cos(i * 0.21) * 1200,
+    Number((6 + Math.abs(Math.sin(i * 0.45)) * 5 + Math.cos(i * 0.21) * 1.5).toFixed(2)),
   ),
-  xLabels: ["03/25/2025", "04/25/2025", "05/27/2025"],
+  xLabels: ["Mar 17", "Apr 14", "May 16"],
 };
 
 // US 客户端 About 卡(对应 PDF "About" section)
@@ -904,18 +1094,66 @@ export const mockCashFlow: FinancialBarReport = {
   ],
 };
 
-// US 客户端 Revenue breakdown — 左 5 segment → 中心 Revenue Sankey
+// US 客户端 Revenue breakdown — 5 阶段 Sankey (Sources → Revenue → Gross/Cost → OpInc/OpEx → 5 Terminals)
+//   口径:AAPL Q4 2024 季度 P&L 自洽
+//   Sources 和 = Revenue ; Cost + Gross = Revenue ; OpInc + OpEx = Gross ; ...
+const _fmtB = (v: number) => `$${v.toFixed(2)}B`;
+
 export const mockRevenueComposition: RevenueCompositionData = {
   cycle: "Quarterly",
   periods: ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025"],
-  segments: [
-    { label: "Cloud service", value: "$292.35B", pct:  0.0125 },
-    { label: "Computer",      value: "$292.35B", pct:  0.0125 },
-    { label: "Graphics",      value: "$292.35B", pct: -0.1224 },
-    { label: "Network",       value: "$292.35B", pct:  0.0125 },
-    { label: "Others",        value: "$292.35B", pct: -0.1224 },
+  activePeriod: "Q4 2024",
+  nodes: [
+    // Stage 0: 5 个营收来源 (sum = 94.0)
+    { id: "src-cloud",    label: "Cloud service", rawValue: 28.20, value: _fmtB(28.20), pct:  0.0625, stage: 0, kind: "revenue" },
+    { id: "src-computer", label: "Computer",      rawValue: 33.70, value: _fmtB(33.70), pct:  0.0420, stage: 0, kind: "revenue" },
+    { id: "src-graphics", label: "Graphics",      rawValue: 14.10, value: _fmtB(14.10), pct: -0.0850, stage: 0, kind: "revenue" },
+    { id: "src-network",  label: "Network",       rawValue: 10.34, value: _fmtB(10.34), pct:  0.0310, stage: 0, kind: "revenue" },
+    { id: "src-others",   label: "Others",        rawValue:  7.66, value: _fmtB( 7.66), pct: -0.1220, stage: 0, kind: "revenue" },
+
+    // Stage 1: Revenue 汇总
+    { id: "revenue",      label: "Revenue",       rawValue: 94.00, value: _fmtB(94.00), pct:  0.0125, stage: 1, kind: "revenue" },
+
+    // Stage 2: 拆分为 Cost / Gross profit
+    { id: "gross-profit", label: "Gross profit",  rawValue: 51.70, value: _fmtB(51.70), pct:  0.0354, stage: 2, kind: "profit" },
+    { id: "cost-revenue", label: "Cost of revenue", rawValue: 42.30, value: _fmtB(42.30), pct: -0.0152, stage: 2, kind: "cost" },
+
+    // Stage 3: Gross profit 拆为 Operating income / Operating expenses
+    { id: "op-income",    label: "Operating income",  rawValue: 28.43, value: _fmtB(28.43), pct:  0.0521, stage: 3, kind: "profit" },
+    { id: "op-expenses",  label: "Operating expenses", rawValue: 23.27, value: _fmtB(23.27), pct:  0.0212, stage: 3, kind: "cost" },
+
+    // Stage 4: 5 个终端 (Operating income → Net income + Tax; Operating expenses → Others + SG&A + R&D)
+    { id: "net-income",   label: "Net income",   rawValue: 24.16, value: _fmtB(24.16), pct:  0.0612, stage: 4, kind: "profit" },
+    { id: "tax-expense",  label: "Tax expense",  rawValue:  4.27, value: _fmtB( 4.27), pct: -0.0810, stage: 4, kind: "cost" },
+    { id: "others",       label: "Others",       rawValue:  3.49, value: _fmtB( 3.49), pct:  0.0125, stage: 4, kind: "cost" },
+    { id: "sga",          label: "SG&A",         rawValue: 10.47, value: _fmtB(10.47), pct: -0.0220, stage: 4, kind: "cost" },
+    { id: "rd",           label: "R&D",          rawValue:  9.31, value: _fmtB( 9.31), pct:  0.0780, stage: 4, kind: "cost" },
   ],
-  revenue: { label: "Revenue", value: "$999.35B", pct: 0.0125 },
+  links: [
+    // Sources → Revenue
+    { from: "src-cloud",    to: "revenue",     value: 28.20 },
+    { from: "src-computer", to: "revenue",     value: 33.70 },
+    { from: "src-graphics", to: "revenue",     value: 14.10 },
+    { from: "src-network",  to: "revenue",     value: 10.34 },
+    { from: "src-others",   to: "revenue",     value:  7.66 },
+
+    // Revenue → Gross / Cost
+    { from: "revenue", to: "gross-profit",  value: 51.70 },
+    { from: "revenue", to: "cost-revenue",  value: 42.30 },
+
+    // Gross profit → OpInc / OpEx
+    { from: "gross-profit", to: "op-income",   value: 28.43 },
+    { from: "gross-profit", to: "op-expenses", value: 23.27 },
+
+    // OpInc → Net income + Tax
+    { from: "op-income", to: "net-income",  value: 24.16 },
+    { from: "op-income", to: "tax-expense", value:  4.27 },
+
+    // OpEx → Others + SG&A + R&D
+    { from: "op-expenses", to: "others", value:  3.49 },
+    { from: "op-expenses", to: "sga",    value: 10.47 },
+    { from: "op-expenses", to: "rd",     value:  9.31 },
+  ],
 };
 
 // US 客户端 Stock valuation — donut + 行业排名说明

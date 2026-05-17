@@ -59,8 +59,8 @@ function BarChart({ bars }: { bars: IH["bars"] }) {
     <svg aria-hidden="true"
       width="100%"
       viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      className="block h-44 w-full"
+      className="block w-full"
+      style={{ aspectRatio: `${W} / ${H}` }}
     >
       {/* Zero line */}
       <line

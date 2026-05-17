@@ -56,8 +56,7 @@ export function ValuationHistory() {
         <svg aria-hidden="true"
           className="mt-3 block w-full"
           viewBox={`0 0 ${w} ${h}`}
-          preserveAspectRatio="none"
-          style={{ height: `${h}px` }}
+          style={{ aspectRatio: `${w} / ${h}` }}
         >
           {/* peer avg horizontal */}
           <line

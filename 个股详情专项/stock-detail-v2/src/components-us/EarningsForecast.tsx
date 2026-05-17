@@ -69,8 +69,8 @@ function ScatterChart({
   unit: string;
 }) {
   const W = 540;
-  const H = 200;
-  const PAD_X = 30;
+  const H = 220;
+  const PAD_X = 36;
   const PAD_Y = 24;
   const innerW = W - PAD_X * 2;
   const innerH = H - PAD_Y * 2 - 18; // 18 for x-axis labels
@@ -92,8 +92,8 @@ function ScatterChart({
     <svg aria-hidden="true"
       width="100%"
       viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      className="block h-52 w-full"
+      className="block w-full"
+      style={{ aspectRatio: `${W} / ${H}` }}
     >
       {/* Horizontal guides */}
       {[0.25, 0.5, 0.75].map((t) => (
@@ -108,14 +108,14 @@ function ScatterChart({
         />
       ))}
 
-      {/* Estimate ring (drawn first behind) */}
+      {/* Estimate (空圈, 灰色描边, 稍微向右下偏移 4px 避免与 Actual 完全重叠) */}
       {points.map((p, i) =>
         typeof p.estimate === "number" ? (
           <circle
             key={`est-${i}`}
-            cx={xAt(i)}
-            cy={yAt(p.estimate)}
-            r={5}
+            cx={xAt(i) + 4}
+            cy={yAt(p.estimate) + 4}
+            r={8}
             fill="var(--color-bg-2)"
             stroke="var(--color-fg-3)"
             strokeWidth={1.5}
@@ -123,14 +123,14 @@ function ScatterChart({
         ) : null,
       )}
 
-      {/* Actual filled */}
+      {/* Actual filled (实心圆, beat 绿 / miss 粉) */}
       {points.map((p, i) =>
         typeof p.actual === "number" ? (
           <circle
             key={`act-${i}`}
             cx={xAt(i)}
             cy={yAt(p.actual)}
-            r={6}
+            r={9}
             fill={p.beat ? "var(--color-up)" : "var(--color-down)"}
           />
         ) : null,

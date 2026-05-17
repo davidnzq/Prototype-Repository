@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn, formatNum, formatPct, formatCompact } from "@/lib/utils";
+import { cn, formatNum, formatPct } from "@/lib/utils";
 import type { ShortingData, ShortingTab } from "@/mock/stockDetail-us";
 import { SectionHeader } from "./QuoteKV";
 
@@ -53,14 +53,14 @@ export function Shorting({ data: d }: ShortingProps) {
           </span>
         </div>
 
-        {/* KV list (6 rows) */}
+        {/* KV list (6 rows,数值单位:量为 M shares, 价为 USD) */}
         <ul className="mb-4 space-y-1.5 border-t border-hairline pt-3 text-sm">
-          <KVRow dot="bg-warn"   label="Short sale (%)" value={formatPct(d.metrics.shortSalePct * 100, 2)} />
-          <KVRow dot="bg-accent" label={d.source}        value={formatNum(d.metrics.nasdaq, 2)} />
-          <KVRow dot="bg-down"   label="Closing price"   value={formatNum(d.metrics.closingPrice, 2)} />
-          <KVRow                  label="Vol."            value={formatNum(d.metrics.volume, 2)} />
-          <KVRow                  label="Short vol."      value={formatNum(d.metrics.shortVolume, 2)} />
-          <KVRow                  label="%Chg"            value={formatPct(d.metrics.pctChg * 100, 2)} tone={d.metrics.pctChg < 0 ? "down" : "up"} />
+          <KVRow dot="bg-warn"   label="Short sale ratio" value={`${(d.metrics.shortSalePct * 100).toFixed(2)}%`} />
+          <KVRow dot="bg-chart-blue" label={`${d.source} short vol.`} value={`${formatNum(d.metrics.nasdaq, 2)}M`} />
+          <KVRow dot="bg-down"   label="Closing price"    value={`$${formatNum(d.metrics.closingPrice, 2)}`} />
+          <KVRow                  label="Vol."             value={`${formatNum(d.metrics.volume, 2)}M`} />
+          <KVRow                  label="Short vol."       value={`${formatNum(d.metrics.shortVolume, 2)}M`} />
+          <KVRow                  label="%Chg"             value={formatPct(d.metrics.pctChg * 100, 2)} tone={d.metrics.pctChg < 0 ? "down" : "up"} />
         </ul>
 
         {/* 3-line chart */}
@@ -113,50 +113,97 @@ function KVRow({
   );
 }
 
+/** 按 label 推断格式: % 用 formatPct(), 价格用 $formatNum() */
+function formatLineValue(label: string, v: number): string {
+  if (label.includes("%")) return `${v.toFixed(1)}%`;
+  if (label.toLowerCase().includes("price")) return `$${formatNum(v, 2)}`;
+  return formatNum(v, 2);
+}
+
 function LinesChart({ lines }: { lines: ShortingData["lines"] }) {
   const W = 540;
-  const H = 130;
-  const PAD_X = 36;
-  const PAD_Y = 8;
-  const innerW = W - PAD_X * 2;
-  const innerH = H - PAD_Y * 2;
+  const H = 150;
+  const PAD_X_LEFT = 50;
+  const PAD_X_RIGHT = 50;
+  const PAD_Y_TOP = 22;
+  const PAD_Y_BOT = 14;
+  const innerW = W - PAD_X_LEFT - PAD_X_RIGHT;
+  const innerH = H - PAD_Y_TOP - PAD_Y_BOT;
 
-  // Each line is normalized independently to fit innerH
+  // 每条线独立 normalize 到 innerH 高度(双 Y 轴)
   const paths = lines.map((line) => {
     const min = Math.min(...line.points);
     const max = Math.max(...line.points);
     const range = max - min || 1;
     const pts = line.points.map((v, i) => {
-      const x = PAD_X + (i / (line.points.length - 1)) * innerW;
-      const y = PAD_Y + (1 - (v - min) / range) * innerH;
+      const x = PAD_X_LEFT + (i / (line.points.length - 1)) * innerW;
+      const y = PAD_Y_TOP + (1 - (v - min) / range) * innerH;
       return `${x},${y}`;
     });
-    return { color: line.color, d: `M ${pts.join(" L ")}`, min, max };
+    return { color: line.color, label: line.label, d: `M ${pts.join(" L ")}`, min, max };
   });
 
   return (
-    <svg aria-hidden="true"
-      width="100%"
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      className="block h-32 w-full"
-    >
-      {paths.map((p, i) => (
-        <g key={i}>
-          {/* L axis: min/max label on left, top/bottom for this line */}
-          <text
-            x={6}
-            y={PAD_Y + 10 + i * 14}
-            fontSize="9"
-            fill={p.color}
-            className="num"
-          >
-            {formatPct(p.max, 2)}
-          </text>
-          <path d={p.d} fill="none" stroke={p.color} strokeWidth="1.4" />
-        </g>
-      ))}
-    </svg>
+    <div>
+      {/* Legend (位于图上方) */}
+      <div className="mb-1 flex items-center gap-4 text-[11px] text-fg-3">
+        {lines.map((l, i) => (
+          <span key={i} className="num inline-flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="inline-block h-0.5 w-3"
+              style={{ background: l.color }}
+            />
+            {l.label}
+          </span>
+        ))}
+      </div>
+
+      <svg aria-hidden="true"
+        width="100%"
+        viewBox={`0 0 ${W} ${H}`}
+        className="block w-full"
+        style={{ aspectRatio: `${W} / ${H}` }}
+      >
+        {/* 顶/底栅格 */}
+        <line
+          x1={PAD_X_LEFT} x2={W - PAD_X_RIGHT}
+          y1={PAD_Y_TOP} y2={PAD_Y_TOP}
+          stroke="var(--color-hairline)" strokeWidth="0.5"
+        />
+        <line
+          x1={PAD_X_LEFT} x2={W - PAD_X_RIGHT}
+          y1={PAD_Y_TOP + innerH} y2={PAD_Y_TOP + innerH}
+          stroke="var(--color-hairline)" strokeWidth="0.5"
+        />
+
+        {paths.map((p, i) => {
+          const onLeft = i === 0;
+          const labelX = onLeft ? PAD_X_LEFT - 4 : W - PAD_X_RIGHT + 4;
+          const anchor = onLeft ? "end" : "start";
+          return (
+            <g key={i}>
+              {/* Y 轴 max / min 标签(按线对应位置) */}
+              <text
+                x={labelX} y={PAD_Y_TOP + 4}
+                textAnchor={anchor} fontSize="10"
+                fill={p.color} className="num"
+              >
+                {formatLineValue(p.label, p.max)}
+              </text>
+              <text
+                x={labelX} y={PAD_Y_TOP + innerH + 2}
+                textAnchor={anchor} fontSize="10"
+                fill={p.color} className="num"
+              >
+                {formatLineValue(p.label, p.min)}
+              </text>
+              <path d={p.d} fill="none" stroke={p.color} strokeWidth="1.5" />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
 
@@ -168,59 +215,86 @@ function VolumeBars({
   labels: string[];
 }) {
   const W = 540;
-  const H = 80;
-  const PAD_X = 16;
-  const PAD_Y = 6;
-  const innerW = W - PAD_X * 2;
-  const innerH = H - PAD_Y * 2 - 14;
+  const H = 90;
+  const PAD_X_LEFT = 50;
+  const PAD_X_RIGHT = 50;
+  const PAD_Y_TOP = 16;
+  const PAD_Y_BOT = 14;
+  const innerW = W - PAD_X_LEFT - PAD_X_RIGHT;
+  const innerH = H - PAD_Y_TOP - PAD_Y_BOT;
 
   const max = Math.max(...bars) || 1;
   const slotW = innerW / bars.length;
   const barW = slotW * 0.55;
 
   return (
-    <svg aria-hidden="true"
-      width="100%"
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      className="mt-1 block h-20 w-full"
-    >
-      <text x={6} y={PAD_Y + 10} fontSize="10" fill="var(--color-fg-4)" className="num">
-        {formatCompact(max)}
-      </text>
-      {bars.map((v, i) => {
-        const x = PAD_X + slotW * i + (slotW - barW) / 2;
-        const h = (v / max) * innerH;
-        const y = PAD_Y + innerH - h;
-        return (
-          <rect
-            key={i}
-            x={x}
-            y={y}
-            width={barW}
-            height={h}
-            fill="var(--color-accent)"
-            className="opacity-70"
-            rx={1}
-          />
-        );
-      })}
-      {labels.map((l, i) => {
-        const x = PAD_X + (i / (labels.length - 1)) * innerW;
-        return (
-          <text
-            key={l}
-            x={x}
-            y={H - 2}
-            textAnchor={i === 0 ? "start" : i === labels.length - 1 ? "end" : "middle"}
-            fontSize="10"
-            fill="var(--color-fg-3)"
-            className="num"
-          >
-            {l}
-          </text>
-        );
-      })}
-    </svg>
+    <div className="mt-2">
+      <div className="mb-1 text-[11px] text-fg-3">
+        Short volume (M shares)
+      </div>
+      <svg aria-hidden="true"
+        width="100%"
+        viewBox={`0 0 ${W} ${H}`}
+        className="block w-full"
+        style={{ aspectRatio: `${W} / ${H}` }}
+      >
+        {/* Y 轴 max 标签 */}
+        <text
+          x={PAD_X_LEFT - 4} y={PAD_Y_TOP + 4}
+          textAnchor="end" fontSize="10"
+          fill="var(--color-fg-3)" className="num"
+        >
+          {max.toFixed(1)}M
+        </text>
+        <text
+          x={PAD_X_LEFT - 4} y={PAD_Y_TOP + innerH + 2}
+          textAnchor="end" fontSize="10"
+          fill="var(--color-fg-3)" className="num"
+        >
+          0
+        </text>
+
+        {/* Y 轴底线 */}
+        <line
+          x1={PAD_X_LEFT} x2={W - PAD_X_RIGHT}
+          y1={PAD_Y_TOP + innerH} y2={PAD_Y_TOP + innerH}
+          stroke="var(--color-hairline)" strokeWidth="0.5"
+        />
+
+        {bars.map((v, i) => {
+          const x = PAD_X_LEFT + slotW * i + (slotW - barW) / 2;
+          const h = (v / max) * innerH;
+          const y = PAD_Y_TOP + innerH - h;
+          return (
+            <rect
+              key={i}
+              x={x}
+              y={y}
+              width={barW}
+              height={Math.max(1, h)}
+              fill="var(--color-chart-blue)"
+              opacity="0.7"
+              rx={1}
+            />
+          );
+        })}
+        {labels.map((l, i) => {
+          const x = PAD_X_LEFT + (i / (labels.length - 1)) * innerW;
+          return (
+            <text
+              key={l}
+              x={x}
+              y={H - 2}
+              textAnchor={i === 0 ? "start" : i === labels.length - 1 ? "end" : "middle"}
+              fontSize="10"
+              fill="var(--color-fg-3)"
+              className="num"
+            >
+              {l}
+            </text>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
