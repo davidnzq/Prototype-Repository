@@ -185,7 +185,7 @@ function VolumeBars({
       preserveAspectRatio="none"
       className="mt-1 block h-20 w-full"
     >
-      <text x={6} y={PAD_Y + 10} fontSize="10" fill="var(--fg-4)" className="num">
+      <text x={6} y={PAD_Y + 10} fontSize="10" fill="var(--color-fg-4)" className="num">
         {formatCompact(max)}
       </text>
       {bars.map((v, i) => {
@@ -214,7 +214,7 @@ function VolumeBars({
             y={H - 2}
             textAnchor={i === 0 ? "start" : i === labels.length - 1 ? "end" : "middle"}
             fontSize="10"
-            fill="var(--fg-3)"
+            fill="var(--color-fg-3)"
             className="num"
           >
             {l}

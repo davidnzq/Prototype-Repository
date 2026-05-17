@@ -80,12 +80,12 @@ function ValuationDonutChart({ metric: m }: { metric: ValuationMetric }) {
   return (
     <svg aria-hidden="true" width={W} height={W} viewBox={`0 0 ${W} ${W}`} className="mx-auto">
       {/* Outer ring (stock price) */}
-      <RingArc cx={CX} cy={CY} rOut={78} rIn={62} pct={stockShare} color="var(--chart-blue, var(--color-accent))" />
-      <RingArc cx={CX} cy={CY} rOut={78} rIn={62} pct={1 - stockShare} color="var(--bg-3)" rotate={stockShare} />
+      <RingArc cx={CX} cy={CY} rOut={78} rIn={62} pct={stockShare} color="var(--color-chart-blue)" />
+      <RingArc cx={CX} cy={CY} rOut={78} rIn={62} pct={1 - stockShare} color="var(--color-card-2)" rotate={stockShare} />
 
       {/* Inner ring (EPS) */}
       <RingArc cx={CX} cy={CY} rOut={56} rIn={40} pct={epsShare} color="var(--color-warn)" />
-      <RingArc cx={CX} cy={CY} rOut={56} rIn={40} pct={1 - epsShare} color="var(--bg-3)" rotate={epsShare} />
+      <RingArc cx={CX} cy={CY} rOut={56} rIn={40} pct={1 - epsShare} color="var(--color-card-2)" rotate={epsShare} />
 
       {/* Center label */}
       <text
@@ -95,7 +95,7 @@ function ValuationDonutChart({ metric: m }: { metric: ValuationMetric }) {
         className="num"
         fontSize="22"
         fontWeight="700"
-        fill="var(--fg-1)"
+        fill="var(--color-fg-1)"
       >
         {formatNum(m.peRatio, 1)}x
       </text>
@@ -104,7 +104,7 @@ function ValuationDonutChart({ metric: m }: { metric: ValuationMetric }) {
         y={CY + 14}
         textAnchor="middle"
         fontSize="10"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       >
         P/E ratio
       </text>

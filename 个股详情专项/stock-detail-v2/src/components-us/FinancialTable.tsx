@@ -114,7 +114,7 @@ function BarLineChart({ quarters }: { quarters: FinancialQuarter[] }) {
             x2={W - PAD_X}
             y1={PAD_TOP + innerH * t}
             y2={PAD_TOP + innerH * t}
-            stroke="var(--hairline)"
+            stroke="var(--color-hairline)"
             strokeDasharray="2 4"
           />
         ))}
@@ -162,7 +162,7 @@ function BarLineChart({ quarters }: { quarters: FinancialQuarter[] }) {
                 y={H - 10}
                 textAnchor="middle"
                 fontSize="11"
-                fill={isHover ? "var(--fg-1)" : "var(--fg-3)"}
+                fill={isHover ? "var(--color-fg-1)" : "var(--color-fg-3)"}
                 fontWeight={isHover ? 700 : 400}
               >
                 {q.period}
@@ -184,7 +184,7 @@ function BarLineChart({ quarters }: { quarters: FinancialQuarter[] }) {
             cy={yLine(q.netMargin)}
             r={3.5}
             fill="var(--color-warn)"
-            stroke="var(--bg-2)"
+            stroke="var(--color-bg-2)"
             strokeWidth={1.5}
           />
         ))}

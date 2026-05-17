@@ -91,7 +91,7 @@ function BulletList({
         <span className="mr-1">{icon}</span>
         {label}
       </div>
-      <ul className="space-y-2 text-base leading-relaxed-tight text-fg-1">
+      <ul className="space-y-2 text-base leading-relaxed-snug text-fg-1">
         {items.map((p, i) => (
           <li key={i} className="flex gap-2">
             <span className={cn("shrink-0 text-xs", color)}>›</span>

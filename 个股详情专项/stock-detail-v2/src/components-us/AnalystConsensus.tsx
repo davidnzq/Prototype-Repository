@@ -133,7 +133,7 @@ function DonutChart({
         className="num"
         fontSize="22"
         fontWeight="700"
-        fill="var(--fg-1)"
+        fill="var(--color-fg-1)"
       >
         {total}
       </text>
@@ -142,7 +142,7 @@ function DonutChart({
         y={CY + 14}
         textAnchor="middle"
         fontSize="11"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       >
         analysts
       </text>

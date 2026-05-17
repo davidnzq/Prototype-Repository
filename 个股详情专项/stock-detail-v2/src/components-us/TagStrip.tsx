@@ -59,7 +59,7 @@ function Tag({ tag }: { tag: StockTag }) {
       type="button"
       aria-pressed={tag.selected}
       className={cn(
-        "inline-flex items-baseline gap-1.5 px-1.5 py-0.5",
+        "inline-flex items-baseline gap-1.5 rounded-sm px-1.5 py-0.5",
         "transition-colors duration-75",
         tag.selected
           ? "bg-accent-soft text-accent"

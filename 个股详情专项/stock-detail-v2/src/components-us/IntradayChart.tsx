@@ -101,7 +101,7 @@ function ExtendedChart({ meta }: { meta: IntradayMeta }) {
         x2={W - PAD_X}
         y1={yAt(meta.reference)}
         y2={yAt(meta.reference)}
-        stroke="var(--hairline-strong)"
+        stroke="var(--color-hairline-strong)"
         strokeDasharray="3 3"
       />
 
@@ -128,7 +128,7 @@ function ExtendedChart({ meta }: { meta: IntradayMeta }) {
           textAnchor="middle"
           fontSize="11"
           fontWeight="600"
-          fill="var(--fg-1)"
+          fill="var(--color-fg-1)"
           className="num"
         >
           {formatNum(meta.high, 2)}
@@ -142,7 +142,7 @@ function ExtendedChart({ meta }: { meta: IntradayMeta }) {
           textAnchor="middle"
           fontSize="11"
           fontWeight="600"
-          fill="var(--fg-1)"
+          fill="var(--color-fg-1)"
           className="num"
         >
           {formatNum(meta.low, 2)}
@@ -225,7 +225,7 @@ function MoonIcon() {
     <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
       <path
         d="M9.5 7.5 a4.5 4.5 0 1 1 -5 -5 a3.5 3.5 0 0 0 5 5z"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       />
     </svg>
   );

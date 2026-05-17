@@ -117,7 +117,7 @@ function SankeyChart({
               textAnchor="end"
               fontSize="13"
               fontWeight="700"
-              fill="var(--fg-1)"
+              fill="var(--color-fg-1)"
               className="num"
             >
               {s.value}
@@ -138,7 +138,7 @@ function SankeyChart({
               x={leftX + NODE_W + 4}
               y={midY + 4}
               fontSize="11"
-              fill="var(--fg-3)"
+              fill="var(--color-fg-3)"
             >
               {s.label}
             </text>
@@ -160,7 +160,7 @@ function SankeyChart({
         y={revNodeY + revNodeH / 2 - 6}
         fontSize="14"
         fontWeight="700"
-        fill="var(--fg-1)"
+        fill="var(--color-fg-1)"
         className="num"
       >
         {revenue.value}
@@ -180,7 +180,7 @@ function SankeyChart({
         x={rightX + NODE_W + 6}
         y={revNodeY + revNodeH / 2 + 24}
         fontSize="11"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       >
         {revenue.label}
       </text>
@@ -196,7 +196,7 @@ function SankeyChart({
             y={H - 4}
             textAnchor="middle"
             fontSize="11"
-            fill="var(--fg-3)"
+            fill="var(--color-fg-3)"
           >
             {p}
           </text>

@@ -103,7 +103,7 @@ function ScatterChart({
           x2={W - PAD_X}
           y1={PAD_Y + innerH * t}
           y2={PAD_Y + innerH * t}
-          stroke="var(--hairline)"
+          stroke="var(--color-hairline)"
           strokeDasharray="2 4"
         />
       ))}
@@ -116,8 +116,8 @@ function ScatterChart({
             cx={xAt(i)}
             cy={yAt(p.estimate)}
             r={5}
-            fill="var(--bg-2)"
-            stroke="var(--fg-3)"
+            fill="var(--color-bg-2)"
+            stroke="var(--color-fg-3)"
             strokeWidth={1.5}
           />
         ) : null,
@@ -144,14 +144,14 @@ function ScatterChart({
           y={H - 4}
           textAnchor="middle"
           fontSize="11"
-          fill="var(--fg-3)"
+          fill="var(--color-fg-3)"
         >
           {p.period}
         </text>
       ))}
 
       {/* Y-axis min/max labels */}
-      <text x={PAD_X - 6} y={PAD_Y + 4} textAnchor="end" fontSize="10" fill="var(--fg-4)">
+      <text x={PAD_X - 6} y={PAD_Y + 4} textAnchor="end" fontSize="10" fill="var(--color-fg-4)">
         {unit}
         {formatNum(max, 2)}
       </text>
@@ -160,7 +160,7 @@ function ScatterChart({
         y={PAD_Y + innerH + 2}
         textAnchor="end"
         fontSize="10"
-        fill="var(--fg-4)"
+        fill="var(--color-fg-4)"
       >
         {unit}
         {formatNum(min, 2)}

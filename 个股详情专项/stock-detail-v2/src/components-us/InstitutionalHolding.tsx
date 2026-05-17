@@ -68,7 +68,7 @@ function BarChart({ bars }: { bars: IH["bars"] }) {
         x2={W - PAD_X}
         y1={zeroY}
         y2={zeroY}
-        stroke="var(--line)"
+        stroke="var(--color-line)"
         strokeWidth={1}
       />
 
@@ -96,7 +96,7 @@ function BarChart({ bars }: { bars: IH["bars"] }) {
         y={H - 4}
         textAnchor="middle"
         fontSize="11"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       >
         {bars[0]?.period}
       </text>
@@ -105,7 +105,7 @@ function BarChart({ bars }: { bars: IH["bars"] }) {
         y={H - 4}
         textAnchor="middle"
         fontSize="11"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       >
         {bars[bars.length - 1]?.period}
       </text>
@@ -116,7 +116,7 @@ function BarChart({ bars }: { bars: IH["bars"] }) {
         y={PAD_Y - 4}
         textAnchor="end"
         fontSize="10"
-        fill="var(--fg-4)"
+        fill="var(--color-fg-4)"
       >
         {formatCompact(maxAbs)}
       </text>

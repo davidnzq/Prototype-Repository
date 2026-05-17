@@ -259,7 +259,7 @@ function RadarChart({ categories }: { categories: FinancialHealthCategory[] }) {
             dominantBaseline="middle"
             className="text-sm"
             fill="var(--color-fg-2)"
-            style={{ fontFamily: "var(--font-text)" }}
+            style={{ fontFamily: "var(--font-sans)" }}
           >
             {a.cat.axis}
           </text>

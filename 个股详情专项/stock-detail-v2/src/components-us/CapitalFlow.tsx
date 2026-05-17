@@ -105,7 +105,7 @@ function FlowDonut({
         y={CY - 4}
         textAnchor="middle"
         fontSize="10"
-        fill="var(--fg-3)"
+        fill="var(--color-fg-3)"
       >
         Net Inflow
       </text>
@@ -228,7 +228,7 @@ function RealtimeChart({
         x2={W - PAD_X}
         y1={zeroY}
         y2={zeroY}
-        stroke="var(--hairline)"
+        stroke="var(--color-hairline)"
         strokeDasharray="2 3"
       />
       <path d={areaPath} fill="url(#us-cf-area)" />
@@ -244,7 +244,7 @@ function RealtimeChart({
             y={H - 4}
             textAnchor={i === 0 ? "start" : i === ticks.length - 1 ? "end" : "middle"}
             fontSize="10"
-            fill="var(--fg-3)"
+            fill="var(--color-fg-3)"
             className="num"
           >
             {t}
@@ -253,7 +253,7 @@ function RealtimeChart({
       })}
 
       {/* Right-side scale labels */}
-      <text x={W - PAD_X} y={PAD_Y + 8} textAnchor="end" fontSize="10" fill="var(--fg-4)" className="num">
+      <text x={W - PAD_X} y={PAD_Y + 8} textAnchor="end" fontSize="10" fill="var(--color-fg-4)" className="num">
         {formatCompact(max)}
       </text>
     </svg>

@@ -28,7 +28,7 @@ export function AlertCalendar({ events }: AlertCalendarProps) {
             <span key={i} className="inline-flex items-baseline gap-2 whitespace-nowrap">
               <span className="num font-semibold text-fg-1">{e.date}</span>
               {e.time && <span className="num text-fg-3">{e.time}</span>}
-              <span className={cn("font-medium", TYPE_COLOR[e.type])}>
+              <span className={cn("font-semibold", TYPE_COLOR[e.type])}>
                 [{e.type}]
               </span>
               <span className="text-fg-2">{e.title}</span>
