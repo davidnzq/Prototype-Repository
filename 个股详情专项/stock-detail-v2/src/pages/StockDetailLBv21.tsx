@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { QuoteHero } from "@/components-longbridge/QuoteHero";
 import { IntradayChart } from "@/components-longbridge/IntradayChart";
+import { AIAnalysis } from "@/components-longbridge/AIAnalysis";
 import { CompanyProfile } from "@/components-longbridge/CompanyProfile";
 import { KeyFactors } from "@/components-longbridge/KeyFactors";
 import { AnalystConsensus } from "@/components-longbridge/AnalystConsensus";
@@ -43,6 +44,7 @@ import {
   mockTrackedEvents,
   mockQuoteKV,
   mockEarningsHighlight,
+  mockAIAnalysis,
 } from "@/mock/stockDetail-lb";
 
 /**
@@ -80,12 +82,16 @@ export function StockDetailLBv21Page() {
   );
 }
 
-/** V2.1 概览:相对 V2 移除 NewsPreview + DiscussionPreview */
+/** V2.1 概览:
+ *   - 相对 V2 移除 NewsPreview + DiscussionPreview
+ *   - 相对 V2 新增 AIAnalysis(置于 CompanyProfile 之前)
+ */
 function TabOverview() {
   return (
     <>
       <IntradayChart meta={mockIntradayMeta} />
       <QuoteKV groups={mockQuoteKV} />
+      <AIAnalysis data={mockAIAnalysis} />
       <CompanyProfile profile={mockCompanyProfile} />
       {/* 左右并排:事件追踪 + 海豚投研 */}
       <div className="grid grid-cols-2 border-b border-line">

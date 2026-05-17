@@ -62,24 +62,14 @@ function NarrativeEntry({ data }: { data: AIAnalysisData }) {
   const ahUp = (ps.afterHours?.changePct ?? 0) >= 0;
 
   return (
-    <div className="bg-brand-soft">
+    <div>
       <div className="grid grid-cols-[120px_1fr] gap-4 px-4 py-4">
-        {/* 左:日期 + 地区时间 + timeline dot */}
-        <div className="relative pr-3">
+        {/* 左:日期 + 地区时间(单条 entry,不再渲染 timeline dot/line)*/}
+        <div className="pr-3">
           <div className="num text-sm font-semibold text-fg-1">{data.entryDate}</div>
           <div className="num mt-1 text-xs leading-tight text-fg-3">
             {data.entryLocale}
           </div>
-          {/* timeline dot — 贴近右侧分隔线 */}
-          <span
-            aria-hidden="true"
-            className="absolute right-0 top-1.5 inline-block h-2 w-2 rounded-full bg-accent ring-2 ring-bg-1"
-          />
-          {/* timeline 竖线(装饰)*/}
-          <span
-            aria-hidden="true"
-            className="absolute right-[3px] top-5 bottom-0 w-px bg-hairline"
-          />
         </div>
 
         {/* 右:行情快照 → 正文 → 来源 → 更多 */}
