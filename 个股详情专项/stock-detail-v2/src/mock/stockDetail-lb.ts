@@ -207,14 +207,6 @@ export interface AnalystConsensus {
     predictHigh: number;
     predictLow: number;
   }[];
-  // Plan9 — 近期评级变动(由 V1 回补;最多 5 条,按时间倒序)
-  recentRevisions: {
-    date: string;             // "05/12"
-    analyst: string;          // "摩根士丹利"
-    fromRating: AnalystRatingLabel;
-    toRating: AnalystRatingLabel;
-    targetPrice: number;      // 新目标价
-  }[];
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -699,13 +691,6 @@ export const mockAnalystConsensus: AnalystConsensus = {
   },
   currentPrice: 298.21,
   priceHistory: genAnalystPriceHistory(),
-  recentRevisions: [
-    { date: "05/12", analyst: "摩根士丹利",  fromRating: "买入",     toRating: "强力推荐", targetPrice: 340 },
-    { date: "05/08", analyst: "高盛",        fromRating: "持有",     toRating: "买入",     targetPrice: 315 },
-    { date: "05/02", analyst: "瑞银",        fromRating: "强力推荐", toRating: "强力推荐", targetPrice: 350 },
-    { date: "04/28", analyst: "巴克莱",      fromRating: "买入",     toRating: "持有",     targetPrice: 280 },
-    { date: "04/22", analyst: "美银美林",    fromRating: "买入",     toRating: "买入",     targetPrice: 305 },
-  ],
 };
 
 // 长桥版 — 持股股东 Top 10(对齐真实页:持股比例 + 较内份额增减万股 + 披露时间)
