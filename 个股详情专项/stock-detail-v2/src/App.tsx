@@ -18,44 +18,45 @@ type PageKey =
   | "components-us";
 
 const HASH_TO_PAGE: Record<string, PageKey> = {
-  "": "stock-detail",
-  "#components":    "components",
-  "#lb-stock":      "stock-detail-lb",
+  "":               "stock-detail-lb",   // 默认 = V2
+  "#lb-stock":      "stock-detail-lb",   // 兼容旧 URL
   "#lb-stock-v21":  "stock-detail-lb-v21",
   "#lb-components": "components-lb",
   "#us-stock":      "stock-detail-us",
   "#us-components": "components-us",
+  "#v1-stock":      "stock-detail",
+  "#v1-components": "components",
 };
 
 const PAGE_TO_HASH: Record<PageKey, string> = {
-  "stock-detail":        "",
-  "components":          "#components",
-  "stock-detail-lb":     "#lb-stock",
+  "stock-detail-lb":     "",                   // 默认页 → 无 hash
   "stock-detail-lb-v21": "#lb-stock-v21",
   "components-lb":       "#lb-components",
   "stock-detail-us":     "#us-stock",
   "components-us":       "#us-components",
+  "stock-detail":        "#v1-stock",
+  "components":          "#v1-components",
 };
 
 /**
- * App shell — 7 个可访问的视图:
- *   1. /                → Bloomberg 个股详情(5 Tab)
- *   2. #components      → Bloomberg 组件目录
- *   3. #lb-stock        → 长桥个股 V2(桌面 Web,5 Tab)
- *   4. #lb-stock-v21    → 长桥个股 V2.1(V2 精简变体:概览去掉资讯/社区预览)
- *   5. #lb-components   → 长桥组件目录
- *   6. #us-stock        → US 客户端个股(Web 响应式,4 Tab,英文)
- *   7. #us-components   → US 组件目录
+ * App shell — 7 个可访问的视图(默认 = V2):
+ *   1. /                → 长桥个股 V2(默认)
+ *   2. #lb-stock-v21    → 长桥个股 V2.1(概览去掉资讯/社区预览)
+ *   3. #lb-components   → 长桥组件目录
+ *   4. #us-stock        → US 客户端个股(Web 响应式,4 Tab,英文)
+ *   5. #us-components   → US 组件目录
+ *   6. #v1-stock        → Bloomberg V1 个股详情(冻结)
+ *   7. #v1-components   → Bloomberg V1 组件目录(冻结)
  */
 export default function App() {
   const [page, setPage] = useState<PageKey>(() => {
-    if (typeof window === "undefined") return "stock-detail";
-    return HASH_TO_PAGE[window.location.hash] ?? "stock-detail";
+    if (typeof window === "undefined") return "stock-detail-lb";
+    return HASH_TO_PAGE[window.location.hash] ?? "stock-detail-lb";
   });
 
   useEffect(() => {
     const onHash = () => {
-      setPage(HASH_TO_PAGE[window.location.hash] ?? "stock-detail");
+      setPage(HASH_TO_PAGE[window.location.hash] ?? "stock-detail-lb");
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
@@ -112,20 +113,8 @@ function CommandBar({
         <span className="text-fg-3">{crumb}</span>
       </div>
 
-      {/* Page Switcher — 6 tab(2 Bloomberg · 2 长桥 · 2 US) */}
+      {/* Page Switcher — 7 tab(V2 · V2.1 · V2 Components · V3 · V3 Components · V1 · V1 Components)*/}
       <div className="flex items-center gap-0 border border-hairline-strong">
-        <PageButton
-          active={page === "stock-detail"}
-          onClick={() => onSwitch("stock-detail")}
-          label="Stock Detail V1"
-          icon="▤"
-        />
-        <PageButton
-          active={page === "components"}
-          onClick={() => onSwitch("components")}
-          label="Components V1"
-          icon="▦"
-        />
         <PageButton
           active={page === "stock-detail-lb"}
           onClick={() => onSwitch("stock-detail-lb")}
@@ -155,6 +144,19 @@ function CommandBar({
           onClick={() => onSwitch("components-us")}
           label="Components V3"
           icon="🇺🇸"
+        />
+        {/* V1 冻结,放最后 */}
+        <PageButton
+          active={page === "stock-detail"}
+          onClick={() => onSwitch("stock-detail")}
+          label="Stock Detail V1"
+          icon="▤"
+        />
+        <PageButton
+          active={page === "components"}
+          onClick={() => onSwitch("components")}
+          label="Components V1"
+          icon="▦"
         />
       </div>
 
