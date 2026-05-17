@@ -63,29 +63,39 @@ export function FinancialTable({ data }: FinancialTableProps) {
 }
 
 function MetricBarChart({ metric }: { metric: FinancialMetric }) {
-  const values = metric.points.map((p) => p.value);
-  const positive = values.filter((v) => v >= 0);
-  const negative = values.filter((v) => v < 0);
+  const isDual = metric.points.some((p) => p.value2 !== undefined);
+  const allValues = isDual
+    ? metric.points.flatMap((p) => [p.value, p.value2 ?? 0])
+    : metric.points.map((p) => p.value);
+  const positive = allValues.filter((v) => v >= 0);
+  const negative = allValues.filter((v) => v < 0);
   const maxV = positive.length ? Math.max(...positive) : 0;
   const minV = negative.length ? Math.min(...negative) : 0;
   const range = maxV - minV || maxV || 1;
 
-  // viewBox 设定:VBW=1200 匹配 1280 主容器,SVG width=100% 等比缩放
+  // viewBox 设定:VBW=1200 匹配 1280 主容器
   const VBW = 1200;
-  const VBH = 220;
+  const VBH = 240;
   const PAD_TOP = 36;
-  const PAD_BOTTOM = 28;
+  const PAD_BOTTOM = 36;
   const PAD_X = 24;
   const CHART_H = VBH - PAD_TOP - PAD_BOTTOM;
   const N = metric.points.length;
   const SLOT_W = (VBW - PAD_X * 2) / N;
-  const BAR_W = Math.min(SLOT_W * 0.5, 120);
+  // 双柱模式下 bar 更窄并并排;单柱模式保持原尺寸
+  const BAR_W = isDual
+    ? Math.min(SLOT_W * 0.32, 80)
+    : Math.min(SLOT_W * 0.5, 120);
+  const BAR_GAP = isDual ? Math.min(SLOT_W * 0.04, 8) : 0;
 
   // 0 线 y 坐标(若有负数,按比例)
   const zeroY =
     minV < 0
       ? PAD_TOP + CHART_H * (maxV / range)
       : PAD_TOP + CHART_H;
+
+  // 双柱模式:股价线(从 stockChange 累计推算 — 视觉化用,不参与 y 轴)
+  const hasStockLine = isDual && metric.points.some((p) => p.stockChange !== undefined);
 
   return (
     <div className="px-4 py-4">
@@ -107,25 +117,45 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
 
         {metric.points.map((p, i) => {
           const xCenter = PAD_X + i * SLOT_W + SLOT_W / 2;
+          const h1 = (Math.abs(p.value) / range) * CHART_H;
+          const y1 = p.value >= 0 ? zeroY - h1 : zeroY;
+
+          if (isDual && p.value2 !== undefined) {
+            // 双柱:value(总资产, accent) | value2(总负债, down)
+            const xV1 = xCenter - BAR_W - BAR_GAP / 2;
+            const xV2 = xCenter + BAR_GAP / 2;
+            const h2 = (Math.abs(p.value2) / range) * CHART_H;
+            const y2 = p.value2 >= 0 ? zeroY - h2 : zeroY;
+            return (
+              <g key={p.period}>
+                <rect x={xV1} y={y1} width={BAR_W} height={Math.max(h1, 1)} fill="var(--color-accent)" />
+                <text x={xV1 + BAR_W / 2} y={y1 - 8} textAnchor="middle" fontSize="13" fill="var(--color-accent)" style={{ fontFamily: "var(--font-num)", fontWeight: 600 }}>
+                  {formatValueShort(p.value, metric.format)}
+                </text>
+                <rect x={xV2} y={y2} width={BAR_W} height={Math.max(h2, 1)} fill="var(--color-down)" />
+                <text x={xV2 + BAR_W / 2} y={y2 - 8} textAnchor="middle" fontSize="13" fill="var(--color-down)" style={{ fontFamily: "var(--font-num)", fontWeight: 600 }}>
+                  {formatValueShort(p.value2, metric.format)}
+                </text>
+              </g>
+            );
+          }
+
+          // 单柱模式(原逻辑)
           const x = xCenter - BAR_W / 2;
-          const h = (Math.abs(p.value) / range) * CHART_H;
-          const y = p.value >= 0 ? zeroY - h : zeroY;
           const isUp = p.value >= 0;
           return (
             <g key={p.period}>
-              {/* 柱体 */}
               <rect
                 x={x}
-                y={y}
+                y={y1}
                 width={BAR_W}
-                height={Math.max(h, 1)}
+                height={Math.max(h1, 1)}
                 fill={isUp ? "var(--color-accent)" : "var(--color-down)"}
                 className={i === N - 1 ? "opacity-100" : "opacity-85"}
               />
-              {/* 顶部 value 标签 */}
               <text
                 x={xCenter}
-                y={isUp ? y - 8 : y + h + 18}
+                y={isUp ? y1 - 8 : y1 + h1 + 18}
                 textAnchor="middle"
                 fontSize="14"
                 fill="var(--color-fg-1)"
@@ -136,6 +166,29 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
             </g>
           );
         })}
+
+        {/* 双柱模式下的股价 overlay 线(独立 y 轴,中部漂浮) */}
+        {hasStockLine && (() => {
+          const stockVals = metric.points.map((p) => p.stockChange ?? 0);
+          const sMax = Math.max(...stockVals, 0);
+          const sMin = Math.min(...stockVals, 0);
+          const sRange = sMax - sMin || 1;
+          const STOCK_H = CHART_H * 0.4;
+          const STOCK_TOP = zeroY + CHART_H * 0.05;
+          const stockY = (v: number) =>
+            STOCK_TOP + STOCK_H - ((v - sMin) / sRange) * STOCK_H;
+          return (
+            <polyline
+              points={metric.points
+                .map((p, i) => `${PAD_X + i * SLOT_W + SLOT_W / 2},${stockY(p.stockChange ?? 0)}`)
+                .join(" ")}
+              fill="none"
+              stroke="var(--color-chart-blue)"
+              strokeWidth="1.5"
+              opacity="0.7"
+            />
+          );
+        })()}
 
         {/* trend line(可选) */}
         {metric.trendLine && (
@@ -152,6 +205,26 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
             strokeWidth="1.5"
             strokeDasharray="3 3"
           />
+        )}
+
+        {/* 双柱模式 — 顶部 inline legend */}
+        {isDual && (
+          <g>
+            <rect x={PAD_X} y={8} width={10} height={10} fill="var(--color-accent)" />
+            <text x={PAD_X + 14} y={17} fontSize="12" fill="var(--color-fg-2)">
+              {metric.label}
+            </text>
+            <rect x={PAD_X + 90} y={8} width={10} height={10} fill="var(--color-down)" />
+            <text x={PAD_X + 104} y={17} fontSize="12" fill="var(--color-fg-2)">
+              {metric.value2Label}
+            </text>
+            {hasStockLine && (
+              <>
+                <line x1={PAD_X + 180} y1={13} x2={PAD_X + 196} y2={13} stroke="var(--color-chart-blue)" strokeWidth="1.5" opacity="0.7" />
+                <text x={PAD_X + 200} y={17} fontSize="12" fill="var(--color-fg-2)">股价</text>
+              </>
+            )}
+          </g>
         )}
       </svg>
     </div>
@@ -180,20 +253,32 @@ function MetricFooterTable({ metric }: { metric: FinancialMetric }) {
         valueFn={(p) => formatValueShort(p.value, metric.format)}
       />
 
-      {metric.points.some((p) => p.yoy !== undefined) && (
+      {/* 双柱模式:第二行显示 value2(如总负债);非双柱模式显示同比 */}
+      {metric.points.some((p) => p.value2 !== undefined) ? (
         <FooterRow
-          label="同比"
+          label={metric.value2Label ?? ""}
           points={metric.points}
-          color="trend"
           valueFn={(p) =>
-            p.yoy !== undefined
-              ? `${p.yoy >= 0 ? "+" : ""}${formatPct(p.yoy * 100, 2)}`
-              : "—"
+            p.value2 !== undefined ? formatValueShort(p.value2, metric.format) : "—"
           }
-          colorFn={(p) =>
-            p.yoy === undefined ? "text-fg-4" : p.yoy >= 0 ? "text-up" : "text-down"
-          }
+          colorFn={() => "text-fg-1"}
         />
+      ) : (
+        metric.points.some((p) => p.yoy !== undefined) && (
+          <FooterRow
+            label="同比"
+            points={metric.points}
+            color="trend"
+            valueFn={(p) =>
+              p.yoy !== undefined
+                ? `${p.yoy >= 0 ? "+" : ""}${formatPct(p.yoy * 100, 2)}`
+                : "—"
+            }
+            colorFn={(p) =>
+              p.yoy === undefined ? "text-fg-4" : p.yoy >= 0 ? "text-up" : "text-down"
+            }
+          />
+        )
       )}
 
       {metric.points.some((p) => p.stockChange !== undefined) && (

@@ -45,19 +45,36 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
         hint={`Financial Health · ${data.updatedAt}`}
       />
 
-      {/* 头部 grade card */}
-      <div className="mx-4 mt-3 flex items-center gap-6 border border-hairline px-4 py-3">
-        <div className="flex items-center gap-1">
-          <span className={cn("num text-4xl font-bold leading-none", GRADE_COLOR[data.overall])}>
-            {data.overall}
-          </span>
-          <TrendArrow trend={data.overallTrend} size={16} />
+      {/* 头部总体评价 — 整组信息密度提升:Grade + 行业 + 排名 + 5 类目分级速览 */}
+      <div className="mx-4 mt-3 border border-hairline">
+        {/* 上半 row:Grade + 行业 + 排名 / 中位数 / 平均 */}
+        <div className="flex items-center gap-6 border-b border-hairline px-4 py-3">
+          <div className="flex items-center gap-1">
+            <span className={cn("num text-4xl font-bold leading-none", GRADE_COLOR[data.overall])}>
+              {data.overall}
+            </span>
+            <TrendArrow trend={data.overallTrend} size={16} />
+          </div>
+          <div className="text-sm font-semibold text-fg-1">{data.industry}</div>
+          <div className="ml-auto flex gap-6 text-sm">
+            <KvBlock label="同行业排名" value={`${data.industryRank.rank}/${data.industryRank.total}`} />
+            <KvBlock label="行业中位数" value={data.industryMedian} grade={data.industryMedian} />
+            <KvBlock label="行业平均值" value={data.industryAvg} grade={data.industryAvg} />
+          </div>
         </div>
-        <div className="text-sm font-semibold text-fg-1">{data.industry}</div>
-        <div className="ml-auto flex gap-6 text-sm">
-          <KvBlock label="同行业排名" value={`${data.industryRank.rank}/${data.industryRank.total}`} />
-          <KvBlock label="行业中位数" value={data.industryMedian} grade={data.industryMedian} />
-          <KvBlock label="行业平均值" value={data.industryAvg} grade={data.industryAvg} />
+        {/* 下半 row:5 类目 grade 速览(密度提升,与下方雷达呼应)*/}
+        <div className="grid grid-cols-5 divide-x divide-hairline">
+          {data.categories.map((cat) => (
+            <div key={cat.label} className="flex items-center gap-3 px-4 py-2.5">
+              <span className={cn("num text-xl font-bold leading-none", GRADE_COLOR[cat.grade])}>
+                {cat.grade}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="caps text-fg-3">{cat.axis}</div>
+                <div className="truncate text-xs font-semibold text-fg-1">{cat.label}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

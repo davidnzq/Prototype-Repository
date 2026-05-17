@@ -33,13 +33,33 @@ const SEGMENTS: {
 ];
 
 export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
+  const last = d.priceHistory[d.priceHistory.length - 1];
+  const upsidePctHigh = last ? ((last.predictHigh - d.currentPrice) / d.currentPrice) * 100 : 0;
+  const upsidePctLow = last ? ((last.predictLow - d.currentPrice) / d.currentPrice) * 100 : 0;
+
   return (
     <section className="border-b border-line">
       <SectionHeader label="分析师评级" hint={d.updatedAt} />
-      <div className="grid grid-cols-[260px_220px_1fr] gap-6 px-4 py-4">
-        {/* 左:Donut */}
-        <div className="flex flex-col items-center justify-center">
+      <div className="grid grid-cols-[260px_220px_1fr] items-stretch gap-6 px-4 py-4">
+        {/* 左:Donut + 目标价 summary 填密度 */}
+        <div className="flex flex-col items-stretch">
           <DonutChart distribution={d.distribution} total={d.totalAnalysts} />
+          {last && (
+            <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-hairline pt-3 text-xs">
+              <PriceTargetKV label="现价" value={`$${formatNum(d.currentPrice, 2)}`} />
+              <PriceTargetKV
+                label="预测最高"
+                value={`$${formatNum(last.predictHigh, 2)}`}
+                delta={upsidePctHigh}
+              />
+              <PriceTargetKV label="共识评级" value={d.consensus} accent />
+              <PriceTargetKV
+                label="预测最低"
+                value={`$${formatNum(last.predictLow, 2)}`}
+                delta={upsidePctLow}
+              />
+            </div>
+          )}
         </div>
 
         {/* 中:评级 + 占比 表格 */}
@@ -49,6 +69,33 @@ export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
         <PriceChart history={d.priceHistory} />
       </div>
     </section>
+  );
+}
+
+function PriceTargetKV({
+  label,
+  value,
+  delta,
+  accent,
+}: {
+  label: string;
+  value: string;
+  delta?: number;
+  accent?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="caps text-fg-3">{label}</span>
+      <span className={cn("num font-semibold", accent ? "text-accent" : "text-fg-1")}>
+        {value}
+      </span>
+      {delta !== undefined && (
+        <span className={cn("num text-2xs", delta >= 0 ? "text-up" : "text-down")}>
+          {delta >= 0 ? "+" : ""}
+          {delta.toFixed(2)}%
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -193,7 +240,7 @@ function RatingTable({
 
 function PriceChart({ history }: { history: AC["priceHistory"] }) {
   const VBW = 720;
-  const VBH = 240;
+  const VBH = 280;
   const PAD_X = 8;
   const PAD_TOP = 32;
   const PAD_BOT = 24;
@@ -283,9 +330,9 @@ function PriceChart({ history }: { history: AC["priceHistory"] }) {
         {/* 末端 dot */}
         {last && (
           <>
-            <circle cx={xAt(history.length - 1)} cy={yAt(last.price)} r="3.5" fill="var(--color-accent)" />
-            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictHigh)} r="3" fill="var(--color-bg-1)" stroke="var(--color-up)" strokeWidth="1.5" />
-            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictLow)} r="3" fill="var(--color-bg-1)" stroke="var(--color-warn)" strokeWidth="1.5" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.price)} r="5.5" fill="var(--color-accent)" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictHigh)} r="5" fill="var(--color-bg-1)" stroke="var(--color-up)" strokeWidth="2" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictLow)} r="5" fill="var(--color-bg-1)" stroke="var(--color-warn)" strokeWidth="2" />
           </>
         )}
       </svg>

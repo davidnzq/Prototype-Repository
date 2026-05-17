@@ -272,6 +272,8 @@ export type MetricFormat = "currency" | "percent" | "number" | "ratio";
 export interface FinancialPeriodPoint {
   period: string;             // Q2 2025
   value: number;
+  /** 第二个值(双柱图用,如资产负债表 value=总资产,value2=总负债)*/
+  value2?: number;
   yoy?: number;               // 同比 0–1
   stockChange?: number;       // 股价同期涨跌幅 0–1(可选)
 }
@@ -286,6 +288,8 @@ export interface FinancialMetric {
   highlightLabel?: string;
   /** 第二条线(对比,如 EPS 走势中的虚线) */
   trendLine?: number[];
+  /** 双柱图第二列标签(如"总负债")— 当 points 含 value2 时启用双柱模式 */
+  value2Label?: string;
 }
 
 export interface FinancialBarReport {
@@ -368,7 +372,11 @@ export interface DividendYear {
 }
 
 export interface DividendRecord {
+  /** 登记日(record date)— 股权登记日 */
+  recordDate: string;
+  /** 除净日(ex-dividend date)— 当日开盘股票除息 */
   exDate: string;
+  /** 派息日(pay date)— 股息发放日 */
   payDate: string;
   amount: number;
   type: "Regular" | "Special";
@@ -853,15 +861,15 @@ export const mockBalanceSheet: FinancialBarReport = {
   defaultMetric: "assetsLiabilities",
   metrics: [
     {
-      key: "assetsLiabilities", label: "资产与负债", format: "currency",
+      key: "assetsLiabilities", label: "总资产", format: "currency",
+      value2Label: "总负债",
       points: [
-        { period: LB_PERIODS[0], value: 3312, yoy: 0.08 },
-        { period: LB_PERIODS[1], value: 3315, yoy: 0.082 },
-        { period: LB_PERIODS[2], value: 3592, yoy: 0.096 },
-        { period: LB_PERIODS[3], value: 3793, yoy: 0.115 },
-        { period: LB_PERIODS[4], value: 3711, yoy: 0.104 },
+        { period: LB_PERIODS[0], value: 3312, value2: 2644 },
+        { period: LB_PERIODS[1], value: 3315, value2: 2657, stockChange: -0.0751 },
+        { period: LB_PERIODS[2], value: 3592, value2: 2855, stockChange:  0.2425 },
+        { period: LB_PERIODS[3], value: 3793, value2: 2911, stockChange:  0.0687 },
+        { period: LB_PERIODS[4], value: 3711, value2: 2646, stockChange: -0.0656 },
       ],
-      trendLine: [2644, 2657, 2855, 2911, 2646],
     },
     {
       key: "equity", label: "权益类股", format: "currency",
@@ -1057,10 +1065,12 @@ export const mockDividendHistory: DividendYear[] = [
 ];
 
 export const mockDividendRecords: DividendRecord[] = [
-  { exDate: "2026-02-12", payDate: "2026-02-16", amount: 0.26, type: "Regular" },
-  { exDate: "2025-11-13", payDate: "2025-11-17", amount: 0.26, type: "Regular" },
-  { exDate: "2025-08-14", payDate: "2025-08-18", amount: 0.26, type: "Regular" },
-  { exDate: "2025-05-15", payDate: "2025-05-19", amount: 0.25, type: "Regular" },
+  // recordDate / exDate / payDate — AAPL 真实形态:登记日 ≈ 除净日(同日 T+0),派息日 = T+3
+  { recordDate: "2026-05-11", exDate: "2026-05-11", payDate: "2026-05-14", amount: 0.27, type: "Regular" },
+  { recordDate: "2026-02-09", exDate: "2026-02-09", payDate: "2026-02-12", amount: 0.26, type: "Regular" },
+  { recordDate: "2025-11-10", exDate: "2025-11-10", payDate: "2025-11-13", amount: 0.26, type: "Regular" },
+  { recordDate: "2025-08-11", exDate: "2025-08-11", payDate: "2025-08-14", amount: 0.26, type: "Regular" },
+  { recordDate: "2025-05-12", exDate: "2025-05-12", payDate: "2025-05-15", amount: 0.25, type: "Regular" },
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
