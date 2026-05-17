@@ -167,26 +167,41 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
           );
         })}
 
-        {/* 双柱模式下的股价 overlay 线(独立 y 轴,中部漂浮) */}
+        {/* 双柱模式下的股价 overlay 线(独立 y 轴,跨越整个柱区,zorder 在柱之上) */}
         {hasStockLine && (() => {
           const stockVals = metric.points.map((p) => p.stockChange ?? 0);
           const sMax = Math.max(...stockVals, 0);
           const sMin = Math.min(...stockVals, 0);
           const sRange = sMax - sMin || 1;
-          const STOCK_H = CHART_H * 0.4;
-          const STOCK_TOP = zeroY + CHART_H * 0.05;
+          // 用全 CHART_H 内边距 8%(避免贴顶/贴底),股价线从上到下漂浮在柱状区
+          const STOCK_PAD = CHART_H * 0.08;
+          const STOCK_TOP = PAD_TOP + STOCK_PAD;
+          const STOCK_H = CHART_H - STOCK_PAD * 2;
           const stockY = (v: number) =>
             STOCK_TOP + STOCK_H - ((v - sMin) / sRange) * STOCK_H;
           return (
-            <polyline
-              points={metric.points
-                .map((p, i) => `${PAD_X + i * SLOT_W + SLOT_W / 2},${stockY(p.stockChange ?? 0)}`)
-                .join(" ")}
-              fill="none"
-              stroke="var(--color-chart-blue)"
-              strokeWidth="1.5"
-              opacity="0.7"
-            />
+            <>
+              <polyline
+                points={metric.points
+                  .map((p, i) => `${PAD_X + i * SLOT_W + SLOT_W / 2},${stockY(p.stockChange ?? 0)}`)
+                  .join(" ")}
+                fill="none"
+                stroke="var(--color-chart-blue)"
+                strokeWidth="2"
+                opacity="0.9"
+              />
+              {/* 端点 dot */}
+              {metric.points.map((p, i) => (
+                <circle
+                  key={`sp-${p.period}`}
+                  cx={PAD_X + i * SLOT_W + SLOT_W / 2}
+                  cy={stockY(p.stockChange ?? 0)}
+                  r="3"
+                  fill="var(--color-chart-blue)"
+                  opacity="0.9"
+                />
+              ))}
+            </>
           );
         })()}
 

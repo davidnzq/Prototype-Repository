@@ -10,11 +10,9 @@ interface AnalystConsensusProps {
 }
 
 /**
- * 长桥版分析师评级 — 对应 Figma "机构观点 & 持股股东 / 分析师评级":
- *   左:Donut 6 段(强力推荐 accent / 买入 / 持有 / 跑输大盘 / 卖出 / 无意见)
- *   中:评级 + 占比 表格 6 行(首项 consensus 高亮)
- *   右:3 条折线图 — 股价 / 预测最高 / 预测最低(过去 24 月)
- *   样式沿用 LB Design-System token,无 hardcode 颜色。
+ * 长桥版分析师评级
+ *   左:Donut + 内嵌 6 段评级/占比图例(密度提升,无额外摘要)
+ *   右:3 条折线图 — 股价 / 预测最高 / 预测最低(legend 即结尾值,贴图表)
  */
 const SEGMENTS: {
   key: keyof AC["distribution"];
@@ -33,69 +31,20 @@ const SEGMENTS: {
 ];
 
 export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
-  const last = d.priceHistory[d.priceHistory.length - 1];
-  const upsidePctHigh = last ? ((last.predictHigh - d.currentPrice) / d.currentPrice) * 100 : 0;
-  const upsidePctLow = last ? ((last.predictLow - d.currentPrice) / d.currentPrice) * 100 : 0;
-
   return (
     <section className="border-b border-line">
       <SectionHeader label="分析师评级" hint={d.updatedAt} />
-      <div className="grid grid-cols-[260px_220px_1fr] items-stretch gap-6 px-4 py-4">
-        {/* 左:Donut + 目标价 summary 填密度 */}
-        <div className="flex flex-col items-stretch">
+      <div className="grid grid-cols-[480px_1fr] items-start gap-6 px-4 py-3">
+        {/* 左:Donut + 内嵌评级占比(评级与 % 紧贴一行,信息密度高)*/}
+        <div className="grid grid-cols-[220px_1fr] items-center gap-4">
           <DonutChart distribution={d.distribution} total={d.totalAnalysts} />
-          {last && (
-            <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-hairline pt-3 text-xs">
-              <PriceTargetKV label="现价" value={`$${formatNum(d.currentPrice, 2)}`} />
-              <PriceTargetKV
-                label="预测最高"
-                value={`$${formatNum(last.predictHigh, 2)}`}
-                delta={upsidePctHigh}
-              />
-              <PriceTargetKV label="共识评级" value={d.consensus} accent />
-              <PriceTargetKV
-                label="预测最低"
-                value={`$${formatNum(last.predictLow, 2)}`}
-                delta={upsidePctLow}
-              />
-            </div>
-          )}
+          <RatingLegend distribution={d.distribution} consensus={d.consensus} />
         </div>
-
-        {/* 中:评级 + 占比 表格 */}
-        <RatingTable distribution={d.distribution} consensus={d.consensus} />
 
         {/* 右:3 条折线 */}
         <PriceChart history={d.priceHistory} />
       </div>
     </section>
-  );
-}
-
-function PriceTargetKV({
-  label,
-  value,
-  delta,
-  accent,
-}: {
-  label: string;
-  value: string;
-  delta?: number;
-  accent?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="caps text-fg-3">{label}</span>
-      <span className={cn("num font-semibold", accent ? "text-accent" : "text-fg-1")}>
-        {value}
-      </span>
-      {delta !== undefined && (
-        <span className={cn("num text-2xs", delta >= 0 ? "text-up" : "text-down")}>
-          {delta >= 0 ? "+" : ""}
-          {delta.toFixed(2)}%
-        </span>
-      )}
-    </div>
   );
 }
 
@@ -191,9 +140,9 @@ function arcPath(
   ].join(" ");
 }
 
-// ─── 评级表 ──────────────────────────────────────────────────────────
+// ─── 评级 inline legend(label + % 紧贴一行,高密度) ─────────────────
 
-function RatingTable({
+function RatingLegend({
   distribution,
   consensus,
 }: {
@@ -201,38 +150,25 @@ function RatingTable({
   consensus: AnalystRatingLabel;
 }) {
   return (
-    <div className="flex flex-col justify-center">
-      <div className="grid grid-cols-[1fr_auto] items-center border-b border-hairline pb-1.5 text-xs text-fg-3">
-        <span>评级</span>
-        <span>占比</span>
-      </div>
-      <ul>
-        {SEGMENTS.map((s) => {
-          const isActive = s.label === consensus;
-          return (
-            <li
-              key={s.key}
-              className="grid grid-cols-[1fr_auto] items-center border-b border-hairline py-2 text-sm last:border-b-0"
-            >
-              <span className="inline-flex items-center gap-2">
-                <span className={cn("h-2 w-2 rounded-full", s.dot)} />
-                <span className={isActive ? "font-semibold text-accent" : "text-fg-2"}>
-                  {s.label}
-                </span>
-              </span>
-              <span
-                className={cn(
-                  "num",
-                  isActive ? "font-semibold text-accent" : "text-fg-1",
-                )}
-              >
-                {formatPct(distribution[s.key] * 100, 0)}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+    <ul className="flex flex-col gap-1.5">
+      {SEGMENTS.map((s) => {
+        const isActive = s.label === consensus;
+        return (
+          <li
+            key={s.key}
+            className="flex items-baseline gap-2 text-sm"
+          >
+            <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full", s.dot)} />
+            <span className={cn("flex-1 truncate", isActive ? "font-semibold text-accent" : "text-fg-2")}>
+              {s.label}
+            </span>
+            <span className={cn("num tabular-nums", isActive ? "font-semibold text-accent" : "text-fg-1")}>
+              {formatPct(distribution[s.key] * 100, 0)}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
