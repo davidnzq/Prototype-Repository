@@ -112,7 +112,8 @@ function ExtendedChart({ meta }: { meta: IntradayMeta }) {
       kind: seg.kind,
       line,
       area,
-      opacity: seg.kind === "reg" ? 1 : 0.78,
+      // 线: 全段统一粗细/颜色; 区分 pre/post 通过 area-fill 浅度 + session divider
+      opacity: 1,
       pts,
     });
 
@@ -193,20 +194,25 @@ function ExtendedChart({ meta }: { meta: IntradayMeta }) {
           />
         ))}
 
-        {/* Segments(独立 polyline) */}
+        {/* Segments — 全段 stroke 完全一致(粗细/颜色/opacity), area 用浅度区分时段 */}
         {segmentPaths.map((sp, i) => (
-          <g key={i} opacity={sp.opacity}>
-            <path d={sp.area} fill="url(#us-intraday-area)" />
-            <polyline
-              points={sp.line}
-              fill="none"
-              stroke={stroke}
-              strokeWidth={sp.kind === "reg" ? 1.6 : 1.1}
-              strokeLinejoin="round"
-              strokeLinecap="round"
+          <g key={i}>
+            <path
+              d={sp.area}
+              fill="url(#us-intraday-area)"
+              opacity={sp.kind === "reg" ? 1 : 0.55}
             />
           </g>
         ))}
+        {/* 单条连续 polyline 覆盖三段 (端点已数据连续, 视觉无断) */}
+        <polyline
+          points={segmentPaths.map((sp) => sp.line).join(" ")}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={1.6}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
 
         {/* 高点标注(带 8px 横线指针) */}
         <g>

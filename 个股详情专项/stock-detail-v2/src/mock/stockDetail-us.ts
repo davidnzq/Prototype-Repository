@@ -484,8 +484,8 @@ export const mockQuote: Quote = {
 };
 
 // US 客户端 — 24hr 延长盘价格序列(deterministic 模拟,均值回归到 anchor)
-//   - 段间端点连续:下一段起点 = 上一段末值,避免视觉断裂
-//   - anchor 拉回:wiggle 围绕 anchor,长程不漂移
+//   - 段间端点连续:首个值 = start 原值, 不加 wiggle, 保证 prev.last === curr.first
+//   - anchor 拉回:wiggle 围绕 anchor, 长程不漂移
 function genSeries(
   start: number,
   count: number,
@@ -493,9 +493,9 @@ function genSeries(
   seed: number,
   anchor: number = start,
 ): number[] {
-  const out: number[] = [];
+  const out: number[] = [Number(start.toFixed(2))]; // 第 0 个点 = start 原值
   let v = start;
-  for (let i = 0; i < count; i++) {
+  for (let i = 1; i < count; i++) {
     const wiggle = Math.sin((i + seed) * 0.6) * vol + Math.cos((i + seed) * 0.23) * vol * 0.4;
     // 均值回归: 偏离 anchor 越多, 回归力越强
     const meanRevert = (anchor - v) * 0.06;
