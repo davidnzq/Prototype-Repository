@@ -1247,11 +1247,24 @@ export const mockDolphinReports: DolphinReport[] = [
     summary: "Q1 营收 124.3B(+6.4% YoY)超预期,服务贡献 26.4B(+14.2%)是亮点。Wearables 拖累 -2.4%。",
   },
   {
+    date: "04/30",
+    title: "Apple Intelligence 商业化进展:从 Siri 升级到 Agent 经济",
+    category: "Quick",
+    rating: "Buy",
+    summary: "iOS 18.4 起 Apple Intelligence 月活突破 4.2 亿,订阅化在即。ARPU 抬升空间可观,关注 Q3 发布会。",
+  },
+  {
     date: "04/22",
     title: "Vision Pro 2:这次能成为 iPhone 时刻吗?",
     category: "Deep",
     rating: "Hold",
     summary: "Vision Pro 2 价格区间 $1,999-$2,499,定位 AR Pro Consumer。技术成熟但内容生态仍是关键。",
+  },
+  {
+    date: "04/15",
+    title: "美联储利率路径与科技股估值压力:Apple 是受益方还是受害方?",
+    category: "Macro",
+    summary: "若 25H2 降息节奏不及预期,科技股 P/E 中枢将面临回调;Apple 的高现金 + 股东回报模型相对抗压。",
   },
   {
     date: "04/10",
