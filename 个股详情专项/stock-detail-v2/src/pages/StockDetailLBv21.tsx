@@ -104,26 +104,34 @@ function TabOverview() {
   );
 }
 
+/** V2.1 财务(Figma 方案 V2.1):
+ *   #24 业绩摘要 → #11 利润表 → #12 资产负债 → #13 现金流 → #16 分配方案
+ *   (相对 V2 移除 FinancialHealthScore + RevenueComposition,二者迁至 分析 Tab)
+ */
 function TabFinancial() {
   return (
     <>
       <EarningsSummary data={mockEarningsHighlight} />
-      <FinancialHealthScore data={mockFinancialHealth} />
       <FinancialTable data={mockIncomeStatement} />
       <FinancialTable data={mockBalanceSheet} />
       <FinancialTable data={mockCashFlow} />
-      <RevenueComposition data={mockRevenueComposition} />
       <DividendPlan history={mockDividendHistory} records={mockDividendRecords} />
     </>
   );
 }
 
+/** V2.1 分析(Figma 方案 V2.1):
+ *   #08 分析师 → #09 持股股东 → #07 关键因子 → #14 营收构成 → #10 财务评分 → #15 估值分析
+ *   (新增 RevenueComposition + FinancialHealthScore,从 财务 Tab 迁入)
+ */
 function TabAnalysis() {
   return (
     <>
       <AnalystConsensus data={mockAnalystConsensus} />
       <InstitutionalHolding data={mockInstitutionalHolding} />
       <KeyFactors root={mockKeyFactorsTree} />
+      <RevenueComposition data={mockRevenueComposition} />
+      <FinancialHealthScore data={mockFinancialHealth} />
       <Valuation metrics={mockValuation} />
     </>
   );
