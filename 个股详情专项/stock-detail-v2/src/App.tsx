@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { StockDetailPage } from "@/pages/StockDetail";
 import { ComponentGalleryPage } from "@/pages/ComponentGallery";
 import { StockDetailLBPage } from "@/pages/StockDetailLB";
+import { StockDetailLBv21Page } from "@/pages/StockDetailLBv21";
 import { ComponentGalleryLBPage } from "@/pages/ComponentGalleryLB";
 import { StockDetailUSPage } from "@/pages/StockDetailUS";
 import { ComponentGalleryUSPage } from "@/pages/ComponentGalleryUS";
@@ -11,6 +12,7 @@ type PageKey =
   | "stock-detail"
   | "components"
   | "stock-detail-lb"
+  | "stock-detail-lb-v21"
   | "components-lb"
   | "stock-detail-us"
   | "components-us";
@@ -19,28 +21,31 @@ const HASH_TO_PAGE: Record<string, PageKey> = {
   "": "stock-detail",
   "#components":    "components",
   "#lb-stock":      "stock-detail-lb",
+  "#lb-stock-v21":  "stock-detail-lb-v21",
   "#lb-components": "components-lb",
   "#us-stock":      "stock-detail-us",
   "#us-components": "components-us",
 };
 
 const PAGE_TO_HASH: Record<PageKey, string> = {
-  "stock-detail":    "",
-  "components":      "#components",
-  "stock-detail-lb": "#lb-stock",
-  "components-lb":   "#lb-components",
-  "stock-detail-us": "#us-stock",
-  "components-us":   "#us-components",
+  "stock-detail":        "",
+  "components":          "#components",
+  "stock-detail-lb":     "#lb-stock",
+  "stock-detail-lb-v21": "#lb-stock-v21",
+  "components-lb":       "#lb-components",
+  "stock-detail-us":     "#us-stock",
+  "components-us":       "#us-components",
 };
 
 /**
- * App shell — 6 个可访问的视图:
- *   1. /              → Bloomberg 个股详情(5 Tab)
- *   2. #components    → Bloomberg 组件目录
- *   3. #lb-stock      → 长桥个股(桌面 Web,5 Tab)
- *   4. #lb-components → 长桥组件目录
- *   5. #us-stock      → US 客户端个股(Web 响应式,4 Tab,英文)
- *   6. #us-components → US 组件目录
+ * App shell — 7 个可访问的视图:
+ *   1. /                → Bloomberg 个股详情(5 Tab)
+ *   2. #components      → Bloomberg 组件目录
+ *   3. #lb-stock        → 长桥个股 V2(桌面 Web,5 Tab)
+ *   4. #lb-stock-v21    → 长桥个股 V2.1(V2 精简变体:概览去掉资讯/社区预览)
+ *   5. #lb-components   → 长桥组件目录
+ *   6. #us-stock        → US 客户端个股(Web 响应式,4 Tab,英文)
+ *   7. #us-components   → US 组件目录
  */
 export default function App() {
   const [page, setPage] = useState<PageKey>(() => {
@@ -65,12 +70,13 @@ export default function App() {
     <div className="min-h-screen bg-bg-1 text-fg-1">
       <CommandBar page={page} onSwitch={switchTo} />
 
-      {page === "stock-detail"    && <StockDetailPage />}
-      {page === "components"      && <ComponentGalleryPage />}
-      {page === "stock-detail-lb" && <StockDetailLBPage />}
-      {page === "components-lb"   && <ComponentGalleryLBPage />}
-      {page === "stock-detail-us" && <StockDetailUSPage />}
-      {page === "components-us"   && <ComponentGalleryUSPage />}
+      {page === "stock-detail"        && <StockDetailPage />}
+      {page === "components"          && <ComponentGalleryPage />}
+      {page === "stock-detail-lb"     && <StockDetailLBPage />}
+      {page === "stock-detail-lb-v21" && <StockDetailLBv21Page />}
+      {page === "components-lb"       && <ComponentGalleryLBPage />}
+      {page === "stock-detail-us"     && <StockDetailUSPage />}
+      {page === "components-us"       && <ComponentGalleryUSPage />}
 
       <FooterBar />
       <div className="h-14" />
@@ -88,12 +94,13 @@ function CommandBar({
   onSwitch: (p: PageKey) => void;
 }) {
   const crumb =
-      page === "stock-detail"    ? "DETAIL V1"
-    : page === "components"      ? "COMPONENTS V1"
-    : page === "stock-detail-lb" ? "DETAIL V2"
-    : page === "components-lb"   ? "COMPONENTS V2"
-    : page === "stock-detail-us" ? "DETAIL V3"
-    :                              "COMPONENTS V3";
+      page === "stock-detail"        ? "DETAIL V1"
+    : page === "components"          ? "COMPONENTS V1"
+    : page === "stock-detail-lb"     ? "DETAIL V2"
+    : page === "stock-detail-lb-v21" ? "DETAIL V2.1"
+    : page === "components-lb"       ? "COMPONENTS V2"
+    : page === "stock-detail-us"     ? "DETAIL V3"
+    :                                  "COMPONENTS V3";
 
   return (
     <header className="sticky top-0 z-30 flex h-8 items-center justify-between border-b border-line bg-bg-2 px-3 text-sm">
@@ -124,6 +131,12 @@ function CommandBar({
           onClick={() => onSwitch("stock-detail-lb")}
           label="Stock Detail V2"
           icon="📊"
+        />
+        <PageButton
+          active={page === "stock-detail-lb-v21"}
+          onClick={() => onSwitch("stock-detail-lb-v21")}
+          label="Stock Detail V2.1"
+          icon="📈"
         />
         <PageButton
           active={page === "components-lb"}
