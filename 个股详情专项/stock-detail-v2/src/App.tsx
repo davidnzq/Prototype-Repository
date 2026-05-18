@@ -41,8 +41,8 @@ const PAGE_TO_HASH: Record<PageKey, string> = {
 /**
  * App shell —
  *   显示口径(switcher 仅 3 个 button):
- *     📊 Stock Detail V1 = stock-detail-lb     (默认页 = "/")
- *     📈 Stock Detail V2 = stock-detail-lb-v21 ("#lb-stock-v21")
+ *     📊 Stock Detail P1 = stock-detail-lb     (默认页 = "/")
+ *     📈 Stock Detail P2 = stock-detail-lb-v21 ("#lb-stock-v21")
  *     🧩 Components       = components-lb       ("#lb-components")
  *
  *   隐藏入口(hash 直链仍可访问,后续冻结不动):
@@ -97,11 +97,11 @@ function CommandBar({
   page: PageKey;
   onSwitch: (p: PageKey) => void;
 }) {
-  // 显示口径(rename):LB → V1 / LB-v21 → V2 / LB Components → Components
+  // 显示口径(rename):LB → P1 / LB-v21 → P2 / LB Components → Components
   // 其它四个为隐藏入口(hash 路由保留以兼容直链)
   const crumb =
-      page === "stock-detail-lb"     ? "DETAIL V1"
-    : page === "stock-detail-lb-v21" ? "DETAIL V2"
+      page === "stock-detail-lb"     ? "DETAIL P1"
+    : page === "stock-detail-lb-v21" ? "DETAIL P2"
     : page === "components-lb"       ? "COMPONENTS"
     : page === "stock-detail"        ? "DETAIL · LEGACY BB"
     : page === "components"          ? "COMPONENTS · LEGACY BB"
@@ -119,22 +119,22 @@ function CommandBar({
       </div>
 
       {/* Page Switcher — 仅显示 3 个有效入口
-       *   📊 Stock Detail V1  → stock-detail-lb     (旧 V2)
-       *   📈 Stock Detail V2  → stock-detail-lb-v21 (旧 V2.1)
-       *   🧩 Components       → components-lb       (旧 Components V2)
+       *   📊 Stock Detail P1  → stock-detail-lb     (内部命名沿用 lb)
+       *   📈 Stock Detail P2  → stock-detail-lb-v21
+       *   🧩 Components       → components-lb
        * 其它 4 个入口隐藏(hash 仍可直链访问,后续冻结)。
        */}
       <div className="flex items-center gap-0 border border-hairline-strong">
         <PageButton
           active={page === "stock-detail-lb"}
           onClick={() => onSwitch("stock-detail-lb")}
-          label="Stock Detail V1"
+          label="Stock Detail P1"
           icon="📊"
         />
         <PageButton
           active={page === "stock-detail-lb-v21"}
           onClick={() => onSwitch("stock-detail-lb-v21")}
-          label="Stock Detail V2"
+          label="Stock Detail P2"
           icon="📈"
         />
         <PageButton
