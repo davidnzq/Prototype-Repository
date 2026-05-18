@@ -3,6 +3,7 @@ import { StockDetailPage } from "@/pages/StockDetail";
 import { ComponentGalleryPage } from "@/pages/ComponentGallery";
 import { StockDetailLBPage } from "@/pages/StockDetailLB";
 import { StockDetailLBv21Page } from "@/pages/StockDetailLBv21";
+import { StockDetailLBp3Page } from "@/pages/StockDetailLBp3";
 import { ComponentGalleryLBPage } from "@/pages/ComponentGalleryLB";
 import { StockDetailUSPage } from "@/pages/StockDetailUS";
 import { ComponentGalleryUSPage } from "@/pages/ComponentGalleryUS";
@@ -13,14 +14,16 @@ type PageKey =
   | "components"
   | "stock-detail-lb"
   | "stock-detail-lb-v21"
+  | "stock-detail-lb-p3"
   | "components-lb"
   | "stock-detail-us"
   | "components-us";
 
 const HASH_TO_PAGE: Record<string, PageKey> = {
-  "":               "stock-detail-lb",   // 默认 = V2
+  "":               "stock-detail-lb",   // 默认 = P1
   "#lb-stock":      "stock-detail-lb",   // 兼容旧 URL
   "#lb-stock-v21":  "stock-detail-lb-v21",
+  "#lb-stock-p3":   "stock-detail-lb-p3",
   "#lb-components": "components-lb",
   "#us-stock":      "stock-detail-us",
   "#us-components": "components-us",
@@ -31,6 +34,7 @@ const HASH_TO_PAGE: Record<string, PageKey> = {
 const PAGE_TO_HASH: Record<PageKey, string> = {
   "stock-detail-lb":     "",                   // 默认页 → 无 hash
   "stock-detail-lb-v21": "#lb-stock-v21",
+  "stock-detail-lb-p3":  "#lb-stock-p3",
   "components-lb":       "#lb-components",
   "stock-detail-us":     "#us-stock",
   "components-us":       "#us-components",
@@ -40,9 +44,10 @@ const PAGE_TO_HASH: Record<PageKey, string> = {
 
 /**
  * App shell —
- *   显示口径(switcher 仅 3 个 button):
+ *   显示口径(switcher 仅 4 个 button):
  *     Stock Detail P1 = stock-detail-lb     (默认页 = "/")
  *     Stock Detail P2 = stock-detail-lb-v21 ("#lb-stock-v21")
+ *     Stock Detail P3 = stock-detail-lb-p3  ("#lb-stock-p3")
  *     Components       = components-lb       ("#lb-components")
  *
  *   隐藏入口(hash 直链仍可访问,后续冻结不动):
@@ -78,6 +83,7 @@ export default function App() {
       {page === "components"          && <ComponentGalleryPage />}
       {page === "stock-detail-lb"     && <StockDetailLBPage />}
       {page === "stock-detail-lb-v21" && <StockDetailLBv21Page />}
+      {page === "stock-detail-lb-p3"  && <StockDetailLBp3Page />}
       {page === "components-lb"       && <ComponentGalleryLBPage />}
       {page === "stock-detail-us"     && <StockDetailUSPage />}
       {page === "components-us"       && <ComponentGalleryUSPage />}
@@ -102,6 +108,7 @@ function CommandBar({
   const crumb =
       page === "stock-detail-lb"     ? "DETAIL P1"
     : page === "stock-detail-lb-v21" ? "DETAIL P2"
+    : page === "stock-detail-lb-p3"  ? "DETAIL P3"
     : page === "components-lb"       ? "COMPONENTS"
     : page === "stock-detail"        ? "DETAIL · LEGACY BB"
     : page === "components"          ? "COMPONENTS · LEGACY BB"
@@ -118,10 +125,11 @@ function CommandBar({
         <span className="text-fg-3">{crumb}</span>
       </div>
 
-      {/* Page Switcher — 仅显示 3 个有效入口
-       *   📊 Stock Detail P1  → stock-detail-lb     (内部命名沿用 lb)
-       *   📈 Stock Detail P2  → stock-detail-lb-v21
-       *   🧩 Components       → components-lb
+      {/* Page Switcher — 仅显示 4 个有效入口
+       *   Stock Detail P1  → stock-detail-lb
+       *   Stock Detail P2  → stock-detail-lb-v21
+       *   Stock Detail P3  → stock-detail-lb-p3
+       *   Components       → components-lb
        * 其它 4 个入口隐藏(hash 仍可直链访问,后续冻结)。
        */}
       <div className="flex items-center gap-0 border border-hairline-strong">
@@ -134,6 +142,11 @@ function CommandBar({
           active={page === "stock-detail-lb-v21"}
           onClick={() => onSwitch("stock-detail-lb-v21")}
           label="Stock Detail P2"
+        />
+        <PageButton
+          active={page === "stock-detail-lb-p3"}
+          onClick={() => onSwitch("stock-detail-lb-p3")}
+          label="Stock Detail P3"
         />
         <PageButton
           active={page === "components-lb"}
