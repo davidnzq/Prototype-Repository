@@ -9,7 +9,7 @@ interface CompanyProfileProps {
 /**
  * 公司概况 — 长桥版(1280 宽适配 — 左右布局)
  *   左列(60%):公司描述 + 3 KV(Industry / Market cap / Industry rank)
- *   右列(40%):行业胶囊条(行业名 + 市值 + 涨跌 + 公司市值 + 排名 + RankBar)+ 加宽 Sparkline
+ *   右列(40%):行业胶囊条(行业名 + 市值 + 涨跌)+ 加宽 Sparkline
  */
 export function CompanyProfile({ profile }: CompanyProfileProps) {
   return (
@@ -70,9 +70,6 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
             </span>
           </div>
 
-          {/* 排名 bar 全宽 */}
-          <RankBar rank={profile.rank.rank} total={profile.rank.total} />
-
           {/* 行业 Sparkline 加宽 */}
           <Sparkline values={profile.industrySpark} />
         </div>
@@ -132,23 +129,6 @@ function FactRow({
       >
         {value}
       </span>
-    </div>
-  );
-}
-
-function RankBar({ rank, total }: { rank: number; total: number }) {
-  // rank 1 = leftmost; total = rightmost
-  const pct = ((rank - 1) / (total - 1)) * 100;
-  const ratio = rank / total;
-  const barColor =
-    ratio <= 0.2 ? "bg-up" : ratio >= 0.8 ? "bg-down" : "bg-accent";
-  return (
-    <div className="relative h-1 w-full bg-soft">
-      <div className={cn("absolute inset-y-0 left-0 w-full", barColor)} />
-      <div
-        className="absolute -top-0.5 h-2 w-1.5 -translate-x-1/2 bg-fg-1"
-        style={{ left: `${pct}%` }}
-      />
     </div>
   );
 }
