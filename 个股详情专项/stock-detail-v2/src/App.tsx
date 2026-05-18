@@ -39,14 +39,17 @@ const PAGE_TO_HASH: Record<PageKey, string> = {
 };
 
 /**
- * App shell — 7 个可访问的视图(默认 = V2):
- *   1. /                → 长桥个股 V2(默认)
- *   2. #lb-stock-v21    → 长桥个股 V2.1(概览去掉资讯/社区预览)
- *   3. #lb-components   → 长桥组件目录
- *   4. #us-stock        → US 客户端个股(Web 响应式,4 Tab,英文)
- *   5. #us-components   → US 组件目录
- *   6. #v1-stock        → Bloomberg V1 个股详情(冻结)
- *   7. #v1-components   → Bloomberg V1 组件目录(冻结)
+ * App shell —
+ *   显示口径(switcher 仅 3 个 button):
+ *     📊 Stock Detail V1 = stock-detail-lb     (默认页 = "/")
+ *     📈 Stock Detail V2 = stock-detail-lb-v21 ("#lb-stock-v21")
+ *     🧩 Components       = components-lb       ("#lb-components")
+ *
+ *   隐藏入口(hash 直链仍可访问,后续冻结不动):
+ *     #us-stock        → V3 US 个股(隐藏)
+ *     #us-components   → V3 US 组件(隐藏)
+ *     #v1-stock        → Bloomberg 原版个股(隐藏)
+ *     #v1-components   → Bloomberg 原版组件(隐藏)
  */
 export default function App() {
   const [page, setPage] = useState<PageKey>(() => {
@@ -94,14 +97,16 @@ function CommandBar({
   page: PageKey;
   onSwitch: (p: PageKey) => void;
 }) {
+  // 显示口径(rename):LB → V1 / LB-v21 → V2 / LB Components → Components
+  // 其它四个为隐藏入口(hash 路由保留以兼容直链)
   const crumb =
-      page === "stock-detail"        ? "DETAIL V1"
-    : page === "components"          ? "COMPONENTS V1"
-    : page === "stock-detail-lb"     ? "DETAIL V2"
-    : page === "stock-detail-lb-v21" ? "DETAIL V2.1"
-    : page === "components-lb"       ? "COMPONENTS V2"
-    : page === "stock-detail-us"     ? "DETAIL V3"
-    :                                  "COMPONENTS V3";
+      page === "stock-detail-lb"     ? "DETAIL V1"
+    : page === "stock-detail-lb-v21" ? "DETAIL V2"
+    : page === "components-lb"       ? "COMPONENTS"
+    : page === "stock-detail"        ? "DETAIL · LEGACY BB"
+    : page === "components"          ? "COMPONENTS · LEGACY BB"
+    : page === "stock-detail-us"     ? "DETAIL · V3 US (hidden)"
+    :                                  "COMPONENTS · V3 US (hidden)";
 
   return (
     <header className="sticky top-0 z-30 flex h-8 items-center justify-between border-b border-line bg-bg-2 px-3 text-sm">
@@ -113,50 +118,30 @@ function CommandBar({
         <span className="text-fg-3">{crumb}</span>
       </div>
 
-      {/* Page Switcher — 7 tab(V2 · V2.1 · V2 Components · V3 · V3 Components · V1 · V1 Components)*/}
+      {/* Page Switcher — 仅显示 3 个有效入口
+       *   📊 Stock Detail V1  → stock-detail-lb     (旧 V2)
+       *   📈 Stock Detail V2  → stock-detail-lb-v21 (旧 V2.1)
+       *   🧩 Components       → components-lb       (旧 Components V2)
+       * 其它 4 个入口隐藏(hash 仍可直链访问,后续冻结)。
+       */}
       <div className="flex items-center gap-0 border border-hairline-strong">
         <PageButton
           active={page === "stock-detail-lb"}
           onClick={() => onSwitch("stock-detail-lb")}
-          label="Stock Detail V2"
+          label="Stock Detail V1"
           icon="📊"
         />
         <PageButton
           active={page === "stock-detail-lb-v21"}
           onClick={() => onSwitch("stock-detail-lb-v21")}
-          label="Stock Detail V2.1"
+          label="Stock Detail V2"
           icon="📈"
         />
         <PageButton
           active={page === "components-lb"}
           onClick={() => onSwitch("components-lb")}
-          label="Components V2"
+          label="Components"
           icon="🧩"
-        />
-        <PageButton
-          active={page === "stock-detail-us"}
-          onClick={() => onSwitch("stock-detail-us")}
-          label="Stock Detail V3"
-          icon="📱"
-        />
-        <PageButton
-          active={page === "components-us"}
-          onClick={() => onSwitch("components-us")}
-          label="Components V3"
-          icon="🇺🇸"
-        />
-        {/* V1 冻结,放最后 */}
-        <PageButton
-          active={page === "stock-detail"}
-          onClick={() => onSwitch("stock-detail")}
-          label="Stock Detail V1"
-          icon="▤"
-        />
-        <PageButton
-          active={page === "components"}
-          onClick={() => onSwitch("components")}
-          label="Components V1"
-          icon="▦"
         />
       </div>
 
