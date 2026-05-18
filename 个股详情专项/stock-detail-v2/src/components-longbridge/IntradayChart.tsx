@@ -163,29 +163,13 @@ export function IntradayChart({ meta }: IntradayChartProps) {
           })}
         </div>
 
+        {/* 行情字段 5 项(主价/涨跌已在 QuoteHero 渲染,本处只放盘面 KV)*/}
         <div className="flex items-baseline gap-5 text-sm">
-          <InlineKV
-            label="Last"
-            value={formatNum(latest.price, 2)}
-            arrow={isUp ? "▲" : "▼"}
-            accent
-          />
-          <InlineKV
-            label="Chg"
-            value={`${isUp ? "+" : "−"}${formatNum(Math.abs(latest.change), 2)}`}
-            up={isUp}
-            down={!isUp}
-          />
-          <InlineKV
-            label="%"
-            value={`${isUp ? "+" : "−"}${formatNum(Math.abs(latest.pctChange) * 100, 2)}%`}
-            up={isUp}
-            down={!isUp}
-          />
-          <InlineKV label="O" value={formatNum(latest.open, 2)} />
-          <InlineKV label="H" value={formatNum(latest.high, 2)} up />
-          <InlineKV label="L" value={formatNum(latest.low, 2)} down />
-          <InlineKV label="Vol" value={formatCompact(latest.volume, 2)} />
+          <InlineKV label="今開"     value={formatNum(meta.open, 3)} />
+          <InlineKV label="最高"     value={formatNum(meta.high, 3)} up />
+          <InlineKV label="最低"     value={formatNum(meta.low, 3)}  down />
+          <InlineKV label="昨收"     value={formatNum(meta.prevClose, 3)} />
+          <InlineKV label="市盈率TTM" value={formatNum(meta.peTtm, 2)} />
         </div>
       </div>
 

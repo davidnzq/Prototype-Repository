@@ -76,6 +76,16 @@ export interface IntradayMeta {
   currency: string;
   rangeLabel: string;
   mas: { label: string; value: number; color: string }[];
+  /** 当日今开 */
+  open: number;
+  /** 当日最高 */
+  high: number;
+  /** 当日最低 */
+  low: number;
+  /** 上一交易日收盘 */
+  prevClose: number;
+  /** 滚动市盈率 TTM */
+  peTtm: number;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -446,6 +456,11 @@ export const mockIntradayMeta: IntradayMeta = {
     { label: "MA20", value: 274.85, color: "var(--chart-green)" },
     { label: "MA50", value: 261.30, color: "var(--chart-purple)" },
   ],
+  open: 299.820,
+  high: 300.450,
+  low: 295.380,
+  prevClose: 298.870,
+  peTtm: 35.73,
 };
 
 export const mockTags: StockTag[] = [
