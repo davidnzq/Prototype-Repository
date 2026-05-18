@@ -80,14 +80,8 @@ function ForecastLayout({ data }: { data: EarningsHighlight }) {
       <div className="border-t border-hairline">
         <div className="grid grid-cols-[1.2fr_1fr_1fr] gap-2 bg-card-2 px-4 py-2 text-xs text-fg-3">
           <span></span>
-          <div className="text-right leading-tight">
-            <div>公布值</div>
-            <div>同比</div>
-          </div>
-          <div className="text-right leading-tight">
-            <div>预测值</div>
-            <div>同比</div>
-          </div>
+          <div className="text-right">公布值 / 同比</div>
+          <div className="text-right">预测值 / 同比</div>
         </div>
         <ul className="divide-y divide-hairline">
           {data.forecastMetrics!.map((m) => (
@@ -110,15 +104,15 @@ function ForecastLayout({ data }: { data: EarningsHighlight }) {
 function MetricRow({ metric }: { metric: EarningsHighlightForecastMetric }) {
   const yoyPositive = metric.forecastYoY >= 0;
   return (
-    <li className="grid grid-cols-[1.2fr_1fr_1fr] items-center gap-2 px-4 py-2 text-sm">
+    <li className="grid grid-cols-[1.2fr_1fr_1fr] items-baseline gap-2 px-4 py-2 text-sm">
       <span className="font-medium text-fg-1">{metric.name}</span>
       <span className="text-right text-fg-3">{metric.actualLabel}</span>
-      <div className="text-right leading-tight">
-        <div className="num font-semibold text-fg-1">{metric.forecastDisplay}</div>
-        <div className={cn("num text-2xs", yoyPositive ? "text-up" : "text-down")}>
+      <div className="flex items-baseline justify-end gap-2">
+        <span className="num font-semibold text-fg-1">{metric.forecastDisplay}</span>
+        <span className={cn("num text-xs", yoyPositive ? "text-up" : "text-down")}>
           {yoyPositive ? "+" : ""}
           {formatPct(metric.forecastYoY * 100, 2)}
-        </div>
+        </span>
       </div>
     </li>
   );
