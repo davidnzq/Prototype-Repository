@@ -167,6 +167,14 @@ function Sparkline({ values }: { values: number[] }) {
   const isUp = values[values.length - 1] >= values[0];
   const color = isUp ? "var(--color-up)" : "var(--color-down)";
   const last = pts[pts.length - 1];
+  const first = pts[0];
+  // 闭合 area path:沿曲线 → 右下角 → 左下角 → 起点
+  const areaPath =
+    smoothPath && last && first
+      ? `${smoothPath} L ${last.x},${H} L ${first.x},${H} Z`
+      : "";
+  // gradient id 唯一化(防多实例冲突)
+  const gradId = `lb-spark-grad-${isUp ? "up" : "down"}`;
 
   return (
     <svg
@@ -175,6 +183,15 @@ function Sparkline({ values }: { values: number[] }) {
       viewBox={`0 0 ${W} ${H}`}
       className="block w-full"
     >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.32" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* 区域填充 — 从曲线到底部的渐变,模拟雪球/同花顺标普 500 风 */}
+      {areaPath && <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />}
+      {/* 主曲线 */}
       <path
         d={smoothPath}
         fill="none"
