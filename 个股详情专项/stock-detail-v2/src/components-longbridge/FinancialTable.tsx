@@ -26,7 +26,7 @@ export function FinancialTable({ data }: FinancialTableProps) {
 
   return (
     <section className="border-b border-line">
-      <SectionHeader label={data.title} hint={`${data.hint} · 单季`} />
+      <SectionHeader label={data.title} />
 
       {/* Metric tab 横向 */}
       <div className="flex flex-wrap gap-1 border-b border-hairline px-4 py-2 text-sm">
@@ -46,12 +46,7 @@ export function FinancialTable({ data }: FinancialTableProps) {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2 text-xs text-fg-3">
-          {metric.highlightLabel && (
-            <span className="rounded-sm bg-soft px-2 py-0.5">
-              {metric.highlightLabel}
-            </span>
-          )}
-          <span className="cursor-pointer transition-colors hover:text-fg-1">单季 / 累计 ▾</span>
+          <span className="cursor-pointer transition-colors hover:text-fg-1">单季 ▾</span>
         </div>
       </div>
 
@@ -63,10 +58,21 @@ export function FinancialTable({ data }: FinancialTableProps) {
 }
 
 function MetricBarChart({ metric }: { metric: FinancialMetric }) {
-  const isDual = metric.points.some((p) => p.value2 !== undefined);
-  const allValues = isDual
-    ? metric.points.flatMap((p) => [p.value, p.value2 ?? 0])
-    : metric.points.map((p) => p.value);
+  // chartMode:dual-bar(默认,value+value2 都画柱) | bar-line(value 柱 + secondary 折线 + baseline area)
+  const isBarLine =
+    metric.chartMode === "bar-line" &&
+    metric.points.some((p) => p.secondary !== undefined);
+  const isDual = !isBarLine && metric.points.some((p) => p.value2 !== undefined);
+
+  const allValues = isBarLine
+    ? metric.points.flatMap((p) => [
+        p.value,
+        p.secondary ?? 0,
+        p.baseline ?? 0,
+      ])
+    : isDual
+      ? metric.points.flatMap((p) => [p.value, p.value2 ?? 0])
+      : metric.points.map((p) => p.value);
   const positive = allValues.filter((v) => v >= 0);
   const negative = allValues.filter((v) => v < 0);
   const maxV = positive.length ? Math.max(...positive) : 0;
@@ -74,10 +80,11 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
   const range = maxV - minV || maxV || 1;
 
   // viewBox 设定:VBW=1200 匹配 1280 主容器
+  // 标准内边距:顶部 48(value 标签 + legend),底部 56(数值标签 + 时间段标签)
   const VBW = 1200;
-  const VBH = 240;
-  const PAD_TOP = 36;
-  const PAD_BOTTOM = 36;
+  const VBH = 260;
+  const PAD_TOP = 48;
+  const PAD_BOTTOM = 56;
   const PAD_X = 24;
   const CHART_H = VBH - PAD_TOP - PAD_BOTTOM;
   const N = metric.points.length;
@@ -97,6 +104,9 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
   // 双柱模式:股价线(从 stockChange 累计推算 — 视觉化用,不参与 y 轴)
   const hasStockLine = isDual && metric.points.some((p) => p.stockChange !== undefined);
 
+  // bar-line mode 共享 y 映射函数
+  const yFor = (v: number) => zeroY - (v / range) * CHART_H;
+
   return (
     <div className="px-4 py-4">
       <svg
@@ -114,6 +124,34 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
           stroke="var(--color-hairline)"
           strokeWidth="1"
         />
+
+        {/* bar-line 模式:baseline area fill(浅色 blue area) */}
+        {isBarLine && metric.points.some((p) => p.baseline !== undefined) && (() => {
+          const baselinePts = metric.points.map((p, i) => {
+            const x = PAD_X + i * SLOT_W + SLOT_W / 2;
+            const y = yFor(p.baseline ?? 0);
+            return { x, y };
+          });
+          // area:折线 + 闭合到 zeroY
+          const linePath = baselinePts.map((pt) => `${pt.x},${pt.y}`).join(" ");
+          const areaPath =
+            `M ${baselinePts[0].x},${zeroY} ` +
+            baselinePts.map((pt) => `L ${pt.x},${pt.y}`).join(" ") +
+            ` L ${baselinePts[baselinePts.length - 1].x},${zeroY} Z`;
+          return (
+            <g>
+              <path d={areaPath} fill="var(--color-chart-blue)" opacity="0.12" />
+              <polyline
+                points={linePath}
+                fill="none"
+                stroke="var(--color-chart-blue)"
+                strokeWidth="1"
+                opacity="0.4"
+                strokeDasharray="2 3"
+              />
+            </g>
+          );
+        })()}
 
         {metric.points.map((p, i) => {
           const xCenter = PAD_X + i * SLOT_W + SLOT_W / 2;
@@ -166,6 +204,36 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
             </g>
           );
         })}
+
+        {/* bar-line 模式:secondary 折线 + dots(orange,在柱之上) */}
+        {isBarLine && (() => {
+          const pts = metric.points.map((p, i) => ({
+            x: PAD_X + i * SLOT_W + SLOT_W / 2,
+            y: yFor(p.secondary ?? 0),
+          }));
+          return (
+            <g>
+              <polyline
+                points={pts.map((pt) => `${pt.x},${pt.y}`).join(" ")}
+                fill="none"
+                stroke="var(--color-warn)"
+                strokeWidth="2"
+                opacity="0.95"
+              />
+              {pts.map((pt, i) => (
+                <circle
+                  key={`sec-${metric.points[i].period}`}
+                  cx={pt.x}
+                  cy={pt.y}
+                  r="3.5"
+                  fill="var(--color-bg-1)"
+                  stroke="var(--color-warn)"
+                  strokeWidth="2"
+                />
+              ))}
+            </g>
+          );
+        })()}
 
         {/* 双柱模式下的股价 overlay 线(独立 y 轴,跨越整个柱区,zorder 在柱之上) */}
         {hasStockLine && (() => {
@@ -241,6 +309,44 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
             )}
           </g>
         )}
+
+        {/* bar-line 模式 — 顶部 inline legend(柱 / 折线 / area) */}
+        {isBarLine && (
+          <g>
+            <rect x={PAD_X} y={8} width={10} height={10} fill="var(--color-accent)" />
+            <text x={PAD_X + 14} y={17} fontSize="12" fill="var(--color-fg-2)">
+              {metric.label}
+            </text>
+            <line x1={PAD_X + 90} y1={13} x2={PAD_X + 106} y2={13} stroke="var(--color-warn)" strokeWidth="2" />
+            <circle cx={PAD_X + 98} cy={13} r="2.5" fill="var(--color-bg-1)" stroke="var(--color-warn)" strokeWidth="1.5" />
+            <text x={PAD_X + 110} y={17} fontSize="12" fill="var(--color-fg-2)">
+              {metric.secondaryLabel ?? "趋势"}
+            </text>
+            {metric.points.some((p) => p.baseline !== undefined) && (
+              <>
+                <rect x={PAD_X + 160} y={8} width={10} height={10} fill="var(--color-chart-blue)" opacity="0.25" />
+                <text x={PAD_X + 174} y={17} fontSize="12" fill="var(--color-fg-2)">基准</text>
+              </>
+            )}
+          </g>
+        )}
+
+        {/* 底部期间标签:Q2 2025 等 — X 坐标与柱子/下方表格 period 列对齐 */}
+        {metric.points.map((p, i) => {
+          const xCenter = PAD_X + i * SLOT_W + SLOT_W / 2;
+          return (
+            <text
+              key={`pl-${p.period}`}
+              x={xCenter}
+              y={VBH - 18}
+              textAnchor="middle"
+              fontSize="13"
+              fill="var(--color-fg-3)"
+            >
+              {p.period}
+            </text>
+          );
+        })}
       </svg>
     </div>
   );
@@ -354,7 +460,7 @@ function FooterRow({
 
 function formatValueShort(v: number, format: string): string {
   if (format === "percent") return formatPct(v * 100, 2);
-  if (format === "ratio") return v.toFixed(2);
+  if (format === "ratio") return `${v.toFixed(2)}x`;
   // currency / number
   const abs = Math.abs(v);
   const unit = format === "currency" ? "万元" : "万";

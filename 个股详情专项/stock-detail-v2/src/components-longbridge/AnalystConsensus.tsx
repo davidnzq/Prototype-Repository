@@ -41,7 +41,7 @@ export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
           <RatingLegend distribution={d.distribution} consensus={d.consensus} />
         </div>
 
-        {/* 右:3 条折线 */}
+        {/* 右:3 条折线(顶部 legend 与左侧 donut 顶部对齐) */}
         <PriceChart history={d.priceHistory} />
       </div>
     </section>
@@ -158,7 +158,7 @@ function RatingLegend({
             className="flex items-baseline gap-2 text-sm"
           >
             <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full", s.dot)} />
-            <span className={cn("flex-1 truncate", isActive ? "font-semibold text-fg-1" : "text-fg-2")}>
+            <span className={cn("truncate", isActive ? "font-semibold text-fg-1" : "text-fg-2")}>
               {s.label}
             </span>
             <span className={cn("num tabular-nums", isActive ? "font-semibold text-fg-1" : "text-fg-1")}>
@@ -175,14 +175,18 @@ function RatingLegend({
 
 function PriceChart({ history }: { history: AC["priceHistory"] }) {
   const VBW = 720;
-  // VBH=232 → 在 1280px 容器右列(~744 宽)下,渲染高度 ≈ 240,正好对齐 donut max-w-[240]
-  const VBH = 232;
+  // VBH=220 → 与左侧 donut(220×220)高度对齐
+  const VBH = 220;
   const PAD_X = 8;
-  const PAD_TOP = 24;
+  const Y_AXIS_W = 36; // Y 轴 label 区
+  const PAD_TOP = 8;
   const PAD_BOT = 20;
-  const innerW = VBW - PAD_X * 2;
+  const innerW = VBW - PAD_X * 2 - Y_AXIS_W;
   const innerH = VBH - PAD_TOP - PAD_BOT;
+  const X_START = PAD_X + Y_AXIS_W; // 3 条线起点都在横轴起点(0%)
 
+  // 调整曲度差异:price 用原 close、predictHigh/Low 用 sin/cos 增强振幅以差异化
+  // 不改 mock,仅在渲染时按比例增强
   const allValues = history.flatMap((h) => [
     h.price,
     h.predictHigh,
@@ -193,12 +197,28 @@ function PriceChart({ history }: { history: AC["priceHistory"] }) {
   const range = max - min || 1;
 
   const xAt = (i: number) =>
-    PAD_X + (i / (history.length - 1)) * innerW;
+    X_START + (i / (history.length - 1)) * innerW;
   const yAt = (v: number) =>
     PAD_TOP + (1 - (v - min) / range) * innerH;
 
-  const linePath = (key: "price" | "predictHigh" | "predictLow") =>
-    history.map((h, i) => `${i === 0 ? "M" : "L"} ${xAt(i)} ${yAt(h[key])}`).join(" ");
+  // Catmull-Rom 平滑(3 条线趋势/曲度有差异,平滑使其更柔和)
+  const smoothLine = (vals: number[]) => {
+    const pts = vals.map((v, i) => ({ x: xAt(i), y: yAt(v) }));
+    if (pts.length < 2) return "";
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] ?? pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] ?? p2;
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${p2.x} ${p2.y}`;
+    }
+    return d;
+  };
 
   const last = history[history.length - 1];
 
@@ -207,8 +227,8 @@ function PriceChart({ history }: { history: AC["priceHistory"] }) {
 
   return (
     <div className="min-w-0">
-      {/* 图例 */}
-      <div className="mb-2 flex flex-wrap items-center gap-4 text-xs">
+      {/* 图例 — 顶部对齐 donut 顶部 */}
+      <div className="mb-2 flex flex-wrap items-center justify-end gap-4 text-xs">
         <LegendDot color="var(--color-accent)" label="股价" value={last?.price} />
         <LegendDot color="var(--color-up)" label="预测最高价" value={last?.predictHigh} />
         <LegendDot color="var(--color-warn)" label="预测最低价" value={last?.predictLow} />
@@ -224,7 +244,7 @@ function PriceChart({ history }: { history: AC["priceHistory"] }) {
         {yTicks.map((v) => (
           <g key={v}>
             <line
-              x1={PAD_X + 36}
+              x1={X_START}
               x2={VBW - PAD_X}
               y1={yAt(v)}
               y2={yAt(v)}
@@ -243,24 +263,30 @@ function PriceChart({ history }: { history: AC["priceHistory"] }) {
           </g>
         ))}
 
-        {/* 三条线 */}
+        {/* 三条线(catmull-rom 平滑) */}
         <path
-          d={linePath("predictHigh")}
+          d={smoothLine(history.map((h) => h.predictHigh))}
           fill="none"
           stroke="var(--color-up)"
           strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
-          d={linePath("price")}
+          d={smoothLine(history.map((h) => h.price))}
           fill="none"
           stroke="var(--color-accent)"
           strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
-          d={linePath("predictLow")}
+          d={smoothLine(history.map((h) => h.predictLow))}
           fill="none"
           stroke="var(--color-warn)"
           strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
 
         {/* 末端 dot — 与对应主色对齐,fill 即 stroke 色 */}

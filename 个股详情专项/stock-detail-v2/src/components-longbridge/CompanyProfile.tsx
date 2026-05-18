@@ -48,10 +48,17 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
 
         {/* 右列 — 行业胶囊 + Sparkline */}
         <div className="space-y-2 border-t border-hairline pt-3">
-          {/* 行业名 + 行业市值 + 涨跌 */}
+          {/* 行业名 + 行业市值 + 涨跌 — 涨跌色统一,数值与百分比都带 trend 色 */}
           <div className="flex items-baseline gap-2 text-sm">
             <span className="font-semibold text-fg-1">{profile.industry}</span>
-            <span className="num text-fg-2">{profile.industryMarketCap}</span>
+            <span
+              className={cn(
+                "num",
+                profile.industryChangePct >= 0 ? "text-up" : "text-down",
+              )}
+            >
+              {profile.industryMarketCap}
+            </span>
             <span
               className={cn(
                 "num font-semibold",
@@ -150,17 +157,37 @@ function Sparkline({ values }: { values: number[] }) {
   // viewBox 600x80 — SVG width=100% 等比缩放,在右列(2fr)约 480-520px 宽
   const W = 600;
   const H = 80;
+  const PAD_Y = 4; // 留点上下边距,让终端 dot 不被裁切
   const maxV = Math.max(...values);
   const minV = Math.min(...values);
   const range = maxV - minV || 1;
-  const points = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * W;
-      const y = H - ((v - minV) / range) * H;
-      return `${x},${y}`;
-    })
-    .join(" ");
+  const pts = values.map((v, i) => ({
+    x: (i / (values.length - 1)) * W,
+    y: PAD_Y + (1 - (v - minV) / range) * (H - PAD_Y * 2),
+  }));
+
+  // Catmull-Rom 平滑曲线 → Cubic Bezier(柔和、单调过渡)
+  const smoothPath = (() => {
+    if (pts.length < 2) return "";
+    let d = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] ?? pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] ?? p2;
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  })();
+
   const isUp = values[values.length - 1] >= values[0];
+  const color = isUp ? "var(--color-up)" : "var(--color-down)";
+  const last = pts[pts.length - 1];
+
   return (
     <svg
       aria-hidden="true"
@@ -168,12 +195,23 @@ function Sparkline({ values }: { values: number[] }) {
       viewBox={`0 0 ${W} ${H}`}
       className="block w-full"
     >
-      <polyline
-        points={points}
+      <path
+        d={smoothPath}
         fill="none"
-        stroke={isUp ? "var(--color-up)" : "var(--color-down)"}
+        stroke={color}
         strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
+      {/* 终端原点(强调当前值) */}
+      {last && (
+        <circle
+          cx={last.x}
+          cy={last.y}
+          r="3"
+          fill={color}
+        />
+      )}
     </svg>
   );
 }

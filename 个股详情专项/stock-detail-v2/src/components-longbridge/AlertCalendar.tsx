@@ -57,7 +57,7 @@ export function AlertCalendar({ events }: AlertCalendarProps) {
         aria-label="打开全部日程"
         className="caps shrink-0 text-accent transition-colors hover:underline"
       >
-        全部日程 →
+        更多 →
       </button>
     </div>
   );

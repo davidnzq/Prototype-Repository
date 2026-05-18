@@ -30,22 +30,21 @@ const FALLBACK_SEG_COLORS = [
 ];
 
 export function RevenueComposition({ data }: RevenueCompositionProps) {
-  const [view, setView] = useState<"industry" | "region">(data.view);
+  const [view, setView] = useState<"industry" | "region">("industry");
 
-  // props.data.view 漂移时 sync 内部 state
+  // props.data.view 漂移时 sync 内部 state(默认覆写为 industry,见 #14)
   useEffect(() => {
-    setView(data.view);
+    setView("industry");
   }, [data.view]);
 
   // 防 mock segmentColors 不足时退化
   const segmentColors = data.latestSegments.map(
     (s, i) => s.color || FALLBACK_SEG_COLORS[i % FALLBACK_SEG_COLORS.length],
   );
-  const segmentLabels = data.latestSegments.map((s) => s.label);
 
   return (
     <section className="border-b border-line">
-      <SectionHeader label="营收构成" hint="营收构成 (Revenue Breakdown)" />
+      <SectionHeader label="营收构成" />
 
       {/* Tab switch */}
       <div className="flex items-center gap-2 px-4 pt-3">
@@ -58,7 +57,7 @@ export function RevenueComposition({ data }: RevenueCompositionProps) {
       </div>
 
       {/* 多年叠加柱状图 */}
-      <YearStackedBars bars={data.yearBars} segmentColors={segmentColors} segmentLabels={segmentLabels} />
+      <YearStackedBars bars={data.yearBars} segmentColors={segmentColors} />
 
       {/* 明细表 */}
       <div className="px-4 pb-4">
@@ -119,11 +118,9 @@ function SegmentRow({ seg, fallbackColor }: { seg: RevenueSeriesPoint; fallbackC
 function YearStackedBars({
   bars,
   segmentColors,
-  segmentLabels,
 }: {
   bars: RevenueYearBar[];
   segmentColors: string[];
-  segmentLabels: string[];
 }) {
   const maxTotal = Math.max(...bars.map((b) => b.total));
   const yAxisMax = Math.ceil(maxTotal / 1000) * 1000;
@@ -165,7 +162,7 @@ function YearStackedBars({
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fontSize="13"
+                fontSize="10"
                 fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
               >
@@ -202,7 +199,7 @@ function YearStackedBars({
                 x={xCenter}
                 y={VBH - 12}
                 textAnchor="middle"
-                fontSize="13"
+                fontSize="10"
                 fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
               >
@@ -212,19 +209,6 @@ function YearStackedBars({
           );
         })}
       </svg>
-
-      {/* 顶部图例 */}
-      <div className="mt-2 flex flex-wrap gap-3 text-xs text-fg-2">
-        {segmentLabels.map((label, i) => (
-          <span key={label} className="inline-flex items-center gap-1.5">
-            <i
-              className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-              style={{ background: segmentColors[i] }}
-            />
-            {label}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }

@@ -25,21 +25,6 @@ function displayLabel(label: string): string {
   return LABEL_MAP[label] ?? label;
 }
 
-/** 计算 current 在 percentiles {low, median, high} 之间的近似百分位 */
-function computePercentile(
-  current: number,
-  pct: { low: number; median: number; high: number },
-): number {
-  if (current <= pct.low) return 0;
-  if (current >= pct.high) return 100;
-  if (current < pct.median) {
-    const t = (current - pct.low) / (pct.median - pct.low || 1);
-    return Math.round(t * 50);
-  }
-  const t = (current - pct.median) / (pct.high - pct.median || 1);
-  return Math.round(50 + t * 50);
-}
-
 /**
  * 估值分析 — 长桥版
  * 4 个 metric 卡片 2×2 grid,每张:
@@ -50,7 +35,7 @@ function computePercentile(
 export function Valuation({ metrics }: ValuationProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="估值分析" hint="Valuation Analysis" />
+      <SectionHeader label="估值分析" />
       <div className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-2">
         {metrics.map((m) => (
           <ValuationCard key={m.key} metric={m} />
@@ -62,7 +47,6 @@ export function Valuation({ metrics }: ValuationProps) {
 
 function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
   const [range, setRange] = useState<RangeKey>("1年");
-  const pctileNum = computePercentile(m.current, m.percentiles);
 
   return (
     <div className="border border-hairline px-4 py-3">
@@ -104,12 +88,13 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
         </div>
       </div>
 
-      {/* 图例 */}
-      <div className="mb-1 flex items-center gap-3 text-xs text-fg-3">
-        <LegendDot color="var(--color-accent)" label="当前价" />
-        <LegendDot color="var(--color-warn)" label="历史高" />
-        <LegendDot color="var(--color-warn)" label="历史中位" />
-        <LegendDot color="var(--color-chart-blue)" label="历史低" />
+      {/* 图例(5 项,第一项跟卡片标题动态对应) — 位于大字 label 下方 */}
+      <div className="mb-1.5 flex flex-wrap items-center gap-3 text-xs text-fg-3">
+        <LegendDot color="var(--color-accent)" label={m.label} />
+        <LegendDot color="var(--color-chart-blue)" label="股价" />
+        <LegendDot color="var(--color-warn)" label="高分位" />
+        <LegendDot color="var(--color-fg-3)" label="中位数" />
+        <LegendDot color="var(--color-chart-blue)" label="低分位" />
       </div>
 
       <ValuationMiniChart metric={m} />
@@ -119,11 +104,6 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
         <span>{m.history[0]?.date}</span>
         <span>{m.history[m.history.length - 1]?.date}</span>
       </div>
-
-      {/* 百分位 label */}
-      <div className="mt-1.5 text-xs text-fg-3">
-        当前位于 <span className="num text-fg-1">第 {pctileNum} 百分位</span>
-      </div>
     </div>
   );
 }
@@ -131,8 +111,9 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
 function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
   // viewBox 设计:VBW=600 匹配 Card 在 1280 容器内 2 列 grid 的实际宽度,SVG width=100%
   const W = 600;
-  const H = 160;
+  const H = 172;
   const PAD = 6;
+  const PAD_TOP = 16; // 给 text label 让位,避免裁切
 
   const all = [
     ...m.history.map((p) => p.price),
@@ -147,16 +128,17 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
   const xAt = (i: number) =>
     PAD + (i / (m.history.length - 1)) * (W - PAD * 2);
   const yAt = (v: number) =>
-    PAD + (1 - (v - minV) / range) * (H - PAD * 2);
+    PAD_TOP + (1 - (v - minV) / range) * (H - PAD_TOP - PAD);
 
   const priceLine = m.history
     .map((p, i) => `${xAt(i)},${yAt(p.price)}`)
     .join(" ");
 
   // 区域填充(price line below to baseline)
-  const areaPath = `M ${xAt(0)},${H - PAD} L ${m.history
+  const baseY = H - PAD;
+  const areaPath = `M ${xAt(0)},${baseY} L ${m.history
     .map((p, i) => `${xAt(i)},${yAt(p.price)}`)
-    .join(" L ")} L ${xAt(m.history.length - 1)},${H - PAD} Z`;
+    .join(" L ")} L ${xAt(m.history.length - 1)},${baseY} Z`;
 
   return (
     <svg

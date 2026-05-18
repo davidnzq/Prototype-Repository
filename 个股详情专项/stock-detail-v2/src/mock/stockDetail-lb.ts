@@ -284,6 +284,10 @@ export interface FinancialPeriodPoint {
   value: number;
   /** 第二个值(双柱图用,如资产负债表 value=总资产,value2=总负债)*/
   value2?: number;
+  /** 副 series(折线,bar-line 模式下用,如 CashFlow 趋势对比) */
+  secondary?: number;
+  /** baseline area(浅色 area fill,可选) */
+  baseline?: number;
   yoy?: number;               // 同比 0–1
   stockChange?: number;       // 股价同期涨跌幅 0–1(可选)
 }
@@ -300,6 +304,10 @@ export interface FinancialMetric {
   trendLine?: number[];
   /** 双柱图第二列标签(如"总负债")— 当 points 含 value2 时启用双柱模式 */
   value2Label?: string;
+  /** chart 模式:dual-bar(默认,value+value2 都画柱) / bar-line(value 柱 + secondary 折线) */
+  chartMode?: "dual-bar" | "bar-line";
+  /** 副 series 标签(bar-line 模式下用) */
+  secondaryLabel?: string;
 }
 
 export interface FinancialBarReport {
@@ -620,8 +628,10 @@ export const mockKeyFactorsTree: KeyFactorNode = {
                   label: "iPhone",
                   importance: "high",
                   children: [
-                    { id: "iphone-asp", label: "iPhone 单价", importance: "high", value: "$928" },
-                    { id: "iphone-vol", label: "iPhone 销量", importance: "high", value: "2.34 亿" },
+                    { id: "iphone-asp",      label: "iPhone 单价",   importance: "high",   value: "$928"   },
+                    { id: "iphone-vol",      label: "iPhone 销量",   importance: "high",   value: "2.34 亿" },
+                    { id: "iphone-pro",      label: "Pro 系列占比",  importance: "high",   value: "42%"    },
+                    { id: "iphone-air",      label: "Air / 轻薄款",  importance: "medium"                  },
                   ],
                 },
                 { id: "mac", label: "Mac", importance: "medium", value: "$30B" },
@@ -635,9 +645,10 @@ export const mockKeyFactorsTree: KeyFactorNode = {
               importance: "high",
               value: "$96B · +14%",
               children: [
-                { id: "appstore", label: "App Store 抽成", importance: "medium", value: "$28B" },
-                { id: "icloud", label: "iCloud / Apple One", importance: "low", value: "$8B" },
-                { id: "advertising", label: "广告业务", importance: "low" },
+                { id: "appstore",    label: "App Store 抽成",     importance: "medium", value: "$28B" },
+                { id: "icloud",      label: "iCloud / Apple One", importance: "low",    value: "$8B"  },
+                { id: "tvplus",      label: "TV+ 订阅",           importance: "low"                     },
+                { id: "advertising", label: "广告业务",           importance: "low"                     },
               ],
             },
           ],
@@ -668,11 +679,18 @@ export const mockKeyFactorsTree: KeyFactorNode = {
       label: "地区收入占比",
       importance: "medium",
       children: [
-        { id: "americas", label: "美洲", importance: "medium" },
-        { id: "europe", label: "欧洲", importance: "medium" },
-        { id: "greater-china", label: "大中华区", importance: "high" },
-        { id: "japan", label: "日本", importance: "low" },
-        { id: "asia-pacific", label: "亚太其他", importance: "low" },
+        { id: "americas",     label: "美洲",     importance: "medium" },
+        { id: "europe",       label: "欧洲",     importance: "medium" },
+        {
+          id: "greater-china",
+          label: "大中华区",
+          importance: "high",
+          children: [
+            { id: "gc-ai", label: "AI 本土化合作", importance: "high", value: "百度/阿里" },
+          ],
+        },
+        { id: "japan",        label: "日本",     importance: "low"    },
+        { id: "asia-pacific", label: "亚太其他", importance: "low"    },
       ],
     },
     {
@@ -817,7 +835,7 @@ export const mockIncomeStatement: FinancialBarReport = {
   defaultMetric: "eps",
   metrics: [
     {
-      key: "eps", label: "每股收益(USD)", format: "currency",
+      key: "eps", label: "每股收益", format: "currency",
       highlightLabel: "利润含金量",
       points: [
         { period: LB_PERIODS[0], value: 1.65, yoy: -0.3125, stockChange: undefined },
@@ -887,6 +905,17 @@ export const mockIncomeStatement: FinancialBarReport = {
         { period: LB_PERIODS[4], value: 0.2487, yoy:  0.0072 },
       ],
     },
+    {
+      // 利润含金量 = 经营现金流 / 净利润
+      key: "profitQuality", label: "利润含金量", format: "ratio",
+      points: [
+        { period: LB_PERIODS[0], value: 1.38, yoy:  0.024 },
+        { period: LB_PERIODS[1], value: 1.40, yoy:  0.032 },
+        { period: LB_PERIODS[2], value: 1.28, yoy: -0.018 },
+        { period: LB_PERIODS[3], value: 1.32, yoy:  0.006 },
+        { period: LB_PERIODS[4], value: 1.28, yoy: -0.014 },
+      ],
+    },
   ],
 };
 
@@ -898,6 +927,7 @@ export const mockBalanceSheet: FinancialBarReport = {
   defaultMetric: "assetsLiabilities",
   metrics: [
     {
+      // 1. 资产与负债(双柱:总资产 vs 总负债)
       key: "assetsLiabilities", label: "总资产", format: "currency",
       value2Label: "总负债",
       points: [
@@ -909,16 +939,18 @@ export const mockBalanceSheet: FinancialBarReport = {
       ],
     },
     {
-      key: "equity", label: "权益类股", format: "currency",
+      // 2. 权益乘数 = 总资产 / 股东权益
+      key: "equityMultiplier", label: "权益乘数", format: "ratio",
       points: [
-        { period: LB_PERIODS[0], value: 668,  yoy: 0.084 },
-        { period: LB_PERIODS[1], value: 658,  yoy: 0.072 },
-        { period: LB_PERIODS[2], value: 737,  yoy: 0.108 },
-        { period: LB_PERIODS[3], value: 882,  yoy: 0.156 },
-        { period: LB_PERIODS[4], value: 1065, yoy: 0.184 },
+        { period: LB_PERIODS[0], value: 4.96, yoy:  0.082 },
+        { period: LB_PERIODS[1], value: 5.04, yoy:  0.094 },
+        { period: LB_PERIODS[2], value: 4.88, yoy:  0.062 },
+        { period: LB_PERIODS[3], value: 4.30, yoy: -0.024 },
+        { period: LB_PERIODS[4], value: 3.48, yoy: -0.118 },
       ],
     },
     {
+      // 3. 每股净资产 BVPS
       key: "bookValue", label: "每股净资产", format: "currency",
       points: [
         { period: LB_PERIODS[0], value: 4.42, yoy:  0.062 },
@@ -929,6 +961,7 @@ export const mockBalanceSheet: FinancialBarReport = {
       ],
     },
     {
+      // 4. 资产周转率
       key: "assetTurnover", label: "资产周转率", format: "ratio",
       points: [
         { period: LB_PERIODS[0], value: 1.04, yoy:  0.008 },
@@ -936,6 +969,51 @@ export const mockBalanceSheet: FinancialBarReport = {
         { period: LB_PERIODS[2], value: 1.09, yoy:  0.018 },
         { period: LB_PERIODS[3], value: 1.05, yoy:  0.006 },
         { period: LB_PERIODS[4], value: 1.02, yoy: -0.018 },
+      ],
+    },
+    {
+      // 5. 现金及短投(Cash & ST Investments)
+      key: "cashShortInvest", label: "现金及短投", format: "currency",
+      points: [
+        { period: LB_PERIODS[0], value: 615, yoy:  0.082 },
+        { period: LB_PERIODS[1], value: 622, yoy:  0.094 },
+        { period: LB_PERIODS[2], value: 731, yoy:  0.124 },
+        { period: LB_PERIODS[3], value: 678, yoy:  0.086 },
+        { period: LB_PERIODS[4], value: 553, yoy: -0.092 },
+      ],
+    },
+    {
+      // 6. 存货与应收(Inventory + AR)— 双柱
+      key: "inventoryAR", label: "存货", format: "currency",
+      value2Label: "应收账款",
+      points: [
+        { period: LB_PERIODS[0], value: 65,  value2: 287 },
+        { period: LB_PERIODS[1], value: 71,  value2: 312 },
+        { period: LB_PERIODS[2], value: 78,  value2: 442 },
+        { period: LB_PERIODS[3], value: 73,  value2: 386 },
+        { period: LB_PERIODS[4], value: 68,  value2: 304 },
+      ],
+    },
+    {
+      // 7. 长期投资 LT Investments
+      key: "ltInvest", label: "长期投资", format: "currency",
+      points: [
+        { period: LB_PERIODS[0], value: 1006, yoy:  0.018 },
+        { period: LB_PERIODS[1], value: 1042, yoy:  0.024 },
+        { period: LB_PERIODS[2], value: 1132, yoy:  0.062 },
+        { period: LB_PERIODS[3], value: 1212, yoy:  0.094 },
+        { period: LB_PERIODS[4], value: 1185, yoy:  0.058 },
+      ],
+    },
+    {
+      // 8. 净债务 Net Debt(总债务 − 现金及等价物)
+      key: "netDebt", label: "净债务", format: "currency",
+      points: [
+        { period: LB_PERIODS[0], value:  482, yoy: -0.062 },
+        { period: LB_PERIODS[1], value:  468, yoy: -0.084 },
+        { period: LB_PERIODS[2], value:  395, yoy: -0.124 },
+        { period: LB_PERIODS[3], value:  428, yoy: -0.092 },
+        { period: LB_PERIODS[4], value:  512, yoy: -0.018 },
       ],
     },
   ],
@@ -949,46 +1027,59 @@ export const mockCashFlow: FinancialBarReport = {
   defaultMetric: "ocf",
   metrics: [
     {
+      // 1. 经营现金流(CFO)— bar + 趋势 line(secondary)
       key: "ocf", label: "经营现金流", format: "currency",
+      chartMode: "bar-line",
+      secondaryLabel: "趋势",
       points: [
-        { period: LB_PERIODS[0], value: 26_840, yoy:  0.082 },
-        { period: LB_PERIODS[1], value: 30_120, yoy:  0.094 },
-        { period: LB_PERIODS[2], value: 38_640, yoy:  0.106 },
-        { period: LB_PERIODS[3], value: 41_280, yoy:  0.082 },
-        { period: LB_PERIODS[4], value: 28_440, yoy:  0.058 },
+        { period: LB_PERIODS[0], value: 26_840, yoy:  0.082, secondary: 25_120, baseline: 24_800 },
+        { period: LB_PERIODS[1], value: 30_120, yoy:  0.094, secondary: 28_440, baseline: 27_200 },
+        { period: LB_PERIODS[2], value: 38_640, yoy:  0.106, secondary: 36_280, baseline: 32_400 },
+        { period: LB_PERIODS[3], value: 41_280, yoy:  0.082, secondary: 39_120, baseline: 35_600 },
+        { period: LB_PERIODS[4], value: 28_440, yoy:  0.058, secondary: 30_640, baseline: 31_200 },
       ],
     },
     {
-      key: "fcf", label: "自由现金流", format: "currency",
-      points: [
-        { period: LB_PERIODS[0], value: 24_660, yoy:  0.072 },
-        { period: LB_PERIODS[1], value: 27_780, yoy:  0.088 },
-        { period: LB_PERIODS[2], value: 36_020, yoy:  0.098 },
-        { period: LB_PERIODS[3], value: 38_440, yoy:  0.092 },
-        { period: LB_PERIODS[4], value: 26_240, yoy:  0.054 },
-      ],
-    },
-    {
+      // 2. 投资现金流(CFI)
       key: "icf", label: "投资现金流", format: "currency",
+      chartMode: "bar-line",
+      secondaryLabel: "趋势",
       points: [
-        { period: LB_PERIODS[0], value: -4_280, yoy:  0.354 },
-        { period: LB_PERIODS[1], value: -5_240, yoy:  0.224 },
-        { period: LB_PERIODS[2], value: -6_840, yoy:  0.305 },
-        { period: LB_PERIODS[3], value: -8_240, yoy:  0.354 },
-        { period: LB_PERIODS[4], value: -5_640, yoy:  0.318 },
+        { period: LB_PERIODS[0], value: -4_280, yoy:  0.354, secondary: -3_960, baseline: -4_120 },
+        { period: LB_PERIODS[1], value: -5_240, yoy:  0.224, secondary: -4_820, baseline: -4_840 },
+        { period: LB_PERIODS[2], value: -6_840, yoy:  0.305, secondary: -6_120, baseline: -5_640 },
+        { period: LB_PERIODS[3], value: -8_240, yoy:  0.354, secondary: -7_680, baseline: -6_420 },
+        { period: LB_PERIODS[4], value: -5_640, yoy:  0.318, secondary: -6_080, baseline: -5_840 },
       ],
     },
     {
+      // 3. 融资现金流(CFF)
       key: "ffc", label: "融资现金流", format: "currency",
+      chartMode: "bar-line",
+      secondaryLabel: "趋势",
       points: [
-        { period: LB_PERIODS[0], value: -24_840, yoy:  0.224 },
-        { period: LB_PERIODS[1], value: -27_280, yoy:  0.198 },
-        { period: LB_PERIODS[2], value: -30_140, yoy:  0.208 },
-        { period: LB_PERIODS[3], value: -32_640, yoy:  0.224 },
-        { period: LB_PERIODS[4], value: -22_180, yoy:  0.184 },
+        { period: LB_PERIODS[0], value: -24_840, yoy:  0.224, secondary: -23_280, baseline: -24_200 },
+        { period: LB_PERIODS[1], value: -27_280, yoy:  0.198, secondary: -25_640, baseline: -26_120 },
+        { period: LB_PERIODS[2], value: -30_140, yoy:  0.208, secondary: -28_480, baseline: -28_640 },
+        { period: LB_PERIODS[3], value: -32_640, yoy:  0.224, secondary: -30_840, baseline: -29_840 },
+        { period: LB_PERIODS[4], value: -22_180, yoy:  0.184, secondary: -24_120, baseline: -26_440 },
       ],
     },
     {
+      // 4. 自由现金流(FCF)
+      key: "fcf", label: "自由现金流", format: "currency",
+      chartMode: "bar-line",
+      secondaryLabel: "趋势",
+      points: [
+        { period: LB_PERIODS[0], value: 24_660, yoy:  0.072, secondary: 23_120, baseline: 22_800 },
+        { period: LB_PERIODS[1], value: 27_780, yoy:  0.088, secondary: 26_240, baseline: 25_120 },
+        { period: LB_PERIODS[2], value: 36_020, yoy:  0.098, secondary: 33_440, baseline: 30_120 },
+        { period: LB_PERIODS[3], value: 38_440, yoy:  0.092, secondary: 36_280, baseline: 32_840 },
+        { period: LB_PERIODS[4], value: 26_240, yoy:  0.054, secondary: 28_240, baseline: 28_840 },
+      ],
+    },
+    {
+      // 5. 现金流充裕率 = FCF / Net Income
       key: "cashRatio", label: "现金流充裕率", format: "percent",
       points: [
         { period: LB_PERIODS[0], value: 0.794, yoy:  0.024 },
@@ -996,6 +1087,29 @@ export const mockCashFlow: FinancialBarReport = {
         { period: LB_PERIODS[2], value: 0.892, yoy:  0.046 },
         { period: LB_PERIODS[3], value: 0.918, yoy:  0.054 },
         { period: LB_PERIODS[4], value: 0.886, yoy:  0.038 },
+      ],
+    },
+    {
+      // 6. 举债与偿债(双柱:Debt Issued vs Debt Repaid)
+      key: "debtFlow", label: "举债", format: "currency",
+      value2Label: "偿债",
+      points: [
+        { period: LB_PERIODS[0], value: 5_840, value2: 3_240 },
+        { period: LB_PERIODS[1], value: 4_220, value2: 4_120 },
+        { period: LB_PERIODS[2], value: 6_540, value2: 3_840 },
+        { period: LB_PERIODS[3], value: 7_120, value2: 4_540 },
+        { period: LB_PERIODS[4], value: 3_240, value2: 5_640 },
+      ],
+    },
+    {
+      // 7. 资本支出 CapEx
+      key: "capex", label: "资本支出", format: "currency",
+      points: [
+        { period: LB_PERIODS[0], value: 2_180, yoy:  0.082 },
+        { period: LB_PERIODS[1], value: 2_340, yoy:  0.092 },
+        { period: LB_PERIODS[2], value: 2_620, yoy:  0.106 },
+        { period: LB_PERIODS[3], value: 2_840, yoy:  0.124 },
+        { period: LB_PERIODS[4], value: 2_200, yoy:  0.054 },
       ],
     },
   ],
@@ -1229,6 +1343,17 @@ export interface DiscussionPost {
 }
 
 // EarningsSummary — 业绩摘要
+export interface EarningsHighlightForecastMetric {
+  /** 指标名称 — 如 "营业收入" / "息税前利润" / "每股收益" */
+  name: string;
+  /** 公布值标签 — 通常为 "待公布" */
+  actualLabel: string;
+  /** 预测值的数值显示 — 如 "792 亿" / "1.75" */
+  forecastDisplay: string;
+  /** 预测值同比(小数,正数即上涨) */
+  forecastYoY: number;
+}
+
 export interface EarningsHighlight {
   reportedAt: string;
   fiscalPeriod: string;
@@ -1236,6 +1361,21 @@ export interface EarningsHighlight {
   eps: { actual: number; estimate: number; yoy: number };
   surprise: number; // %
   guidance?: { rev: [number, number]; eps: [number, number] };
+  // Plan13 新增字段(可选向后兼容):若任意 forecast 字段存在 → 切换到新版"财报预测"布局
+  /** 币种,如 "USD" */
+  currency?: string;
+  /** 报告类型,如 "单季报" / "中报" / "年报" */
+  reportType?: string;
+  /** 财报标题,如 "2027 财年 Q1 财报预测" */
+  fiscalPeriodLabel?: string;
+  /** 财报区间,如 "2026.01.30-2026.04.30" */
+  reportDateRange?: string;
+  /** 前瞻段落(完整中文叙事) */
+  forewordText?: string;
+  /** 预测 metrics 表格行 */
+  forecastMetrics?: EarningsHighlightForecastMetric[];
+  /** 业绩披露日,如 "2027 财年第 1 季度业绩披露 2026.05.20 (美东)" */
+  disclosureDate?: string;
 }
 
 // EarningsForecast — 业绩预测
@@ -1443,6 +1583,19 @@ export const mockEarningsHighlight: EarningsHighlight = {
   eps: { actual: 2.11, estimate: 1.93, yoy: 0.128 },
   surprise: 0.0933,
   guidance: { rev: [130_000, 134_000], eps: [2.18, 2.28] },
+  // Plan13 — 财报预测模式(参考截图 24-1.jpg, NVDA 风格,作为模板用 AAPL 主线)
+  currency: "USD",
+  reportType: "单季报",
+  fiscalPeriodLabel: "2027 财年 Q1 财报预测",
+  reportDateRange: "2026.01.30-2026.04.30",
+  forewordText:
+    "前瞻:英伟达(NVDA)的分析师预测的营业收入是 792 亿(+79.82%);息税前利润是 522 亿(+124.4%);每股收益是 1.75(+130.2%)。",
+  forecastMetrics: [
+    { name: "营业收入",   actualLabel: "待公布", forecastDisplay: "792 亿", forecastYoY: 0.7982 },
+    { name: "息税前利润", actualLabel: "待公布", forecastDisplay: "522 亿", forecastYoY: 1.244  },
+    { name: "每股收益",   actualLabel: "待公布", forecastDisplay: "1.75",   forecastYoY: 1.302  },
+  ],
+  disclosureDate: "2027 财年第 1 季度业绩披露 2026.05.20 (美东)",
 };
 
 export const mockEarningsForecast: EarningsForecastQuarter[] = [

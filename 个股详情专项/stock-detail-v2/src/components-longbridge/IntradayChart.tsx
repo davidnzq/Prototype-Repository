@@ -106,7 +106,6 @@ export function IntradayChart({ meta }: IntradayChartProps) {
     dateTicks,
     scaleY,
     latest,
-    range,
     priceMax,
     priceMin,
     avgVol,
@@ -137,7 +136,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
 
   return (
     <section className="border-b border-hairline px-4 py-4">
-      {/* Row 1: tab bar + inline KV */}
+      {/* Row 1: tab bar */}
       <div className="mb-3 flex items-end justify-between border-b border-hairline pb-3">
         <div role="tablist" className="flex items-center overflow-hidden rounded-sm border border-hairline">
           {TABS.map((tab, i) => {
@@ -161,15 +160,6 @@ export function IntradayChart({ meta }: IntradayChartProps) {
               </button>
             );
           })}
-        </div>
-
-        {/* 行情字段 5 项(主价/涨跌已在 QuoteHero 渲染,本处只放盘面 KV)*/}
-        <div className="flex items-baseline gap-5 text-sm">
-          <InlineKV label="今开"     value={formatNum(meta.open, 3)} />
-          <InlineKV label="最高"     value={formatNum(meta.high, 3)} up />
-          <InlineKV label="最低"     value={formatNum(meta.low, 3)}  down />
-          <InlineKV label="昨收"     value={formatNum(meta.prevClose, 3)} />
-          <InlineKV label="市盈率TTM" value={formatNum(meta.peTtm, 2)} />
         </div>
       </div>
 
@@ -444,80 +434,15 @@ export function IntradayChart({ meta }: IntradayChartProps) {
         </svg>
       </div>
 
-      {/* Row 4: 底部 axis + LINE mode VWAP 图例 */}
+      {/* Row 4: 底部 axis */}
       <div className="mt-3 flex items-center justify-between border-t border-hairline pt-2">
         <div className="num flex flex-1 justify-between px-12 text-2xs font-medium text-fg-3">
           {dateTicks.map((d, i) => (
             <span key={i}>{d}</span>
           ))}
         </div>
-
-        {mode === "LINE" && vwap && (
-          <div className="flex items-center gap-4 text-xs">
-            <span className="inline-flex items-center gap-1.5">
-              <i
-                className="inline-block h-0.5 w-3"
-                style={{ background: "var(--color-chart-yellow)" }}
-              />
-              <span className="caps">VWAP</span>
-              <span className="num text-fg-2">
-                {formatNum(vwap[vwap.length - 1], 2)}
-              </span>
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <i className="inline-block h-0.5 w-3 bg-fg-3" />
-              <span className="caps">前收</span>
-              <span className="num text-fg-2">{formatNum(baseline, 2)}</span>
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* 数据范围标注 */}
-      <div className="num mt-2 text-2xs text-fg-4">
-        Source: Longbridge OpenAPI · {activeTab} · {candles.length} bars · Range{" "}
-        {formatNum(priceMin, 2)}–{formatNum(priceMax, 2)} ({formatNum(range, 2)})
       </div>
     </section>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────
-
-function InlineKV({
-  label,
-  value,
-  up,
-  down,
-  accent,
-  arrow,
-}: {
-  label: string;
-  value: string;
-  up?: boolean;
-  down?: boolean;
-  accent?: boolean;
-  arrow?: string;
-}) {
-  return (
-    <span className="inline-flex items-baseline gap-1.5">
-      <span className="caps">{label}</span>
-      <span
-        className={cn(
-          "num font-medium",
-          accent && "text-accent",
-          up && "text-up",
-          down && "text-down",
-          !accent && !up && !down && "text-fg-1",
-        )}
-      >
-        {arrow && (
-          <span className={cn("mr-0.5 text-2xs", up ? "text-up" : down ? "text-down" : "")}>
-            {arrow}
-          </span>
-        )}
-        {value}
-      </span>
-    </span>
-  );
-}

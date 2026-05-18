@@ -3,12 +3,13 @@ import type { HotEvent } from "@/mock/stockDetail-lb";
 
 interface AlertHotProps {
   events: HotEvent[];
+  onItemClick?: (event: HotEvent) => void;
 }
 
 /**
  * 全局事件条 · 热点 — 滚动跑马灯
  */
-export function AlertHot({ events }: AlertHotProps) {
+export function AlertHot({ events, onItemClick }: AlertHotProps) {
   return (
     <div className="flex items-center gap-3 border-b border-hairline bg-card-2 px-3 py-1.5 text-sm">
       <span className="caps shrink-0 text-warn">🔥 热点</span>
@@ -23,13 +24,16 @@ export function AlertHot({ events }: AlertHotProps) {
           const icon =
             e.sentiment === "bull" ? "↑" : e.sentiment === "bear" ? "↓" : "–";
           return (
-            <span key={i} className="inline-flex items-baseline gap-2 whitespace-nowrap">
+            <span
+              key={i}
+              onClick={() => onItemClick?.(e)}
+              className="inline-flex items-baseline gap-2 whitespace-nowrap rounded-sm px-1 -mx-1 transition-colors hover:bg-soft cursor-pointer"
+            >
               <span className="num text-fg-3">{e.time}</span>
               <span className={cn("inline-flex items-baseline gap-1 truncate", c)}>
                 <span className="num">{icon}</span>
                 <span>{e.title}</span>
               </span>
-              <span className="num text-fg-4">{e.source}</span>
             </span>
           );
         })}

@@ -25,19 +25,15 @@ export function DividendPlan({ history, records }: DividendPlanProps) {
 
   return (
     <section className="border-b border-line">
-      <SectionHeader label="分红方案" hint="Dividend Plan" />
+      <SectionHeader label="分红方案" />
 
       <div className="px-4 py-3">
-        {/* 顶栏:当期 yield 大字(右上)*/}
-        <div className="mb-2 flex items-baseline justify-between">
-          <span className="caps text-fg-3">近 5 年股息分布:每股派息 (DPS, USD) 与股息率 (Yield)</span>
-          <div className="flex items-baseline gap-2">
-            <span className="caps text-fg-3">最近股息率 (TTM Yield)</span>
-            <span className="num text-2xl font-bold text-accent">
-              {formatPct(latest.yieldPct * 100, 2)}
-            </span>
-            <span className="num text-xs text-fg-3">· 派发率 {formatPct(latest.payoutRatio * 100, 1)}</span>
-          </div>
+        {/* 顶栏:当期 yield(居左)*/}
+        <div className="mb-2 flex items-baseline gap-2">
+          <span className="caps text-fg-3">股息率</span>
+          <span className="num text-2xl font-bold text-accent">
+            {formatPct(latest.yieldPct * 100, 2)}
+          </span>
         </div>
 
         <HorizontalDpsChart history={history} />
@@ -99,8 +95,8 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
         style={{ gridTemplateColumns: COLS }}
       >
         <span className="caps">年份</span>
-        <span className="caps">DPS 趋势 (近 5 年)</span>
-        <span className="caps text-right">DPS (USD)</span>
+        <span className="caps"></span>
+        <span className="caps text-right">股息 (USD)</span>
         <span className="caps text-right">股息率</span>
       </li>
     </ul>
@@ -110,12 +106,11 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
 // ─── Dividend records table (4 columns) ──────────────────────────────
 
 function DividendTable({ records }: { records: DividendRecord[] }) {
-  const COLS = "grid-cols-[2fr_1fr_1fr_1fr_1fr]";
+  const COLS = "grid-cols-[2fr_1fr_1fr_1fr]";
   return (
     <div className="border-t border-hairline px-4 pb-4">
       <div className={cn("grid gap-3 border-b border-hairline py-2 text-xs text-fg-3", COLS)}>
         <div className="caps">分红方案</div>
-        <div className="caps">宣布日</div>
         <div className="caps">登记日</div>
         <div className="caps">除净日</div>
         <div className="caps">派息日</div>
@@ -139,7 +134,6 @@ function DividendTable({ records }: { records: DividendRecord[] }) {
                 </span>
               )}
             </div>
-            <div className="num text-fg-2">{r.announcedDate}</div>
             <div className="num text-fg-2">{r.recordDate}</div>
             <div className="num text-fg-2">{r.exDate}</div>
             <div className="num font-semibold text-fg-1">{r.payDate}</div>

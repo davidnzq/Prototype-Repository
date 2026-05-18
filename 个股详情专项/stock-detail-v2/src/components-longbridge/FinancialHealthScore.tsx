@@ -42,7 +42,7 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
     <section className="border-b border-line">
       <SectionHeader
         label="财务评分"
-        hint={`财务评分 (Financial Health) · ${data.updatedAt}`}
+        hint={`${data.updatedAt} 更新`}
       />
 
       {/* 头部总体评价 — 单 row,紧凑布局(去重 5 类目,避免与雷达重复)*/}

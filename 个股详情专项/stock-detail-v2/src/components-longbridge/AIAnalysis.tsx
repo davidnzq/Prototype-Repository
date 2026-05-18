@@ -47,7 +47,6 @@ export function AIAnalysis({ data }: AIAnalysisProps) {
             </span>
           );
         })}
-        <span className="caps ml-auto text-accent">▲ 海豚 AI 驱动</span>
       </div>
 
       {/* Row 2 — 单条叙事 entry(参考 Perplexity)*/}
@@ -68,7 +67,7 @@ function NarrativeEntry({ data }: { data: AIAnalysisData }) {
         <div className="pr-3">
           <div className="num text-sm font-semibold text-fg-1">{data.entryDate}</div>
           <div className="num mt-1 text-xs leading-tight text-fg-3">
-            {data.entryLocale}
+            {data.entryLocale.replace(/^New York 时间\s*/, "")}
           </div>
         </div>
 
@@ -110,7 +109,7 @@ function NarrativeEntry({ data }: { data: AIAnalysisData }) {
                 type="button"
                 className="ml-auto inline-flex items-baseline gap-1 text-xs text-accent transition-colors hover:text-fg-1 hover:underline"
               >
-                <span>{data.fullAnalysisHint}</span>
+                <span>更多</span>
                 <span aria-hidden="true">→</span>
               </button>
             )}

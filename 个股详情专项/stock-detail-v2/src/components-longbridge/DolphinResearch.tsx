@@ -40,7 +40,7 @@ const RATING_LABEL: Record<NonNullable<DolphinReport["rating"]>, string> = {
 export function DolphinResearch({ reports }: DolphinResearchProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="海豚投研" hint="海豚投研 · 自有研究" />
+      <SectionHeader label="海豚研究" />
       <div className="divide-y divide-hairline">
         {reports.map((r, i) => (
           <div key={i} className="px-4 py-3 hover:bg-soft transition-colors duration-200">
@@ -76,15 +76,6 @@ export function DolphinResearch({ reports }: DolphinResearchProps) {
             <p className="mt-1 line-clamp-2 text-sm leading-relaxed-snug text-fg-2">
               {r.summary}
             </p>
-            <div className="mt-2 flex justify-end">
-              <a
-                href={r.link ?? "#"}
-                className="inline-flex items-baseline gap-1 text-xs text-accent transition-colors duration-200 hover:underline"
-              >
-                <span>阅读全文</span>
-                <span aria-hidden="true">→</span>
-              </a>
-            </div>
           </div>
         ))}
       </div>

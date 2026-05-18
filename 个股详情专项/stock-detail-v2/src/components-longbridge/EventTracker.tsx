@@ -56,12 +56,12 @@ function EventRow({
 }) {
   return (
     <li className="grid grid-cols-[44px_24px_1fr] items-start gap-3">
-      {/* 日期列 */}
+      {/* 日期列 — 月份与日数字颜色一致 */}
       <div className="text-right">
         {showDate && (
           <>
             <div className="text-xs text-fg-3">{e.month}</div>
-            <div className="num text-xl font-semibold leading-tight text-fg-1">
+            <div className="num text-xl font-semibold leading-tight text-fg-3">
               {e.day}
             </div>
           </>
@@ -101,7 +101,6 @@ function EventRow({
       <div className="pb-5">
         <div className="flex items-start gap-2">
           <div className="flex-1 text-sm leading-relaxed text-fg-1">{e.title}</div>
-          {e.impact && <ImpactBadge impact={e.impact} />}
         </div>
         <div className="mt-1 flex items-baseline gap-2 text-xs">
           <span className="num text-fg-3">{e.time}</span>
@@ -123,24 +122,5 @@ function EventRow({
         </div>
       </div>
     </li>
-  );
-}
-
-function ImpactBadge({ impact }: { impact: "high" | "medium" | "low" }) {
-  const config = {
-    high:   { label: "高",  aria: "High impact",   cls: "border-warn text-warn" },
-    medium: { label: "中",  aria: "Medium impact", cls: "border-fg-3 text-fg-2" },
-    low:    { label: "低",  aria: "Low impact",    cls: "border-hairline text-fg-3" },
-  }[impact];
-  return (
-    <span
-      aria-label={config.aria}
-      className={cn(
-        "shrink-0 rounded-sm border px-1.5 text-2xs font-semibold leading-snug",
-        config.cls,
-      )}
-    >
-      {config.label}
-    </span>
   );
 }

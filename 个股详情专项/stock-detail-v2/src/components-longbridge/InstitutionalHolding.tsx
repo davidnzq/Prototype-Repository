@@ -1,4 +1,4 @@
-import { cn, formatPct } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { InstitutionalHolding as IH } from "@/mock/stockDetail-lb";
 import { SectionHeader } from "./QuoteKV";
 
@@ -14,13 +14,13 @@ interface InstitutionalHoldingProps {
 export function InstitutionalHolding({ data }: InstitutionalHoldingProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="持股股东" hint="机构持仓 (13F)" />
+      <SectionHeader label="持股股东" />
       <div className="px-4 py-3">
         {/* 表头 */}
         <div className="grid grid-cols-[1fr_120px_140px_120px] gap-2 border-b border-hairline pb-2 text-xs text-fg-3">
           <div>股东名称</div>
           <div className="text-right">持股比例</div>
-          <div className="text-right">持股变动 (万股)</div>
+          <div className="text-right">期內增減持 (万股)</div>
           <div className="text-right">披露时间</div>
         </div>
 
@@ -33,7 +33,8 @@ export function InstitutionalHolding({ data }: InstitutionalHoldingProps) {
             >
               <span className="truncate text-fg-1">{h.name}</span>
               <span className="num text-right font-semibold text-fg-1">
-                {formatPct(h.pctOut * 100, 2)}
+                {h.pctOut < 0 ? "−" : ""}
+                {Math.abs(h.pctOut * 100).toFixed(2)}%
               </span>
               <span
                 className={cn(
@@ -41,7 +42,7 @@ export function InstitutionalHolding({ data }: InstitutionalHoldingProps) {
                   h.sharesChange >= 0 ? "text-up" : "text-down",
                 )}
               >
-                {h.sharesChange >= 0 ? "+" : "−"}
+                {h.sharesChange >= 0 ? "" : "−"}
                 {Math.abs(h.sharesChange).toFixed(2)} 万股
               </span>
               <span className="num text-right text-fg-3">{h.disclosureDate}</span>
