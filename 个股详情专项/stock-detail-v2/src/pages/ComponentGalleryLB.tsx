@@ -126,7 +126,7 @@ const ENTRIES: ComponentEntry[] = [
   { id: "valuation", num: "15", name: "Valuation", nameZh: "估值分析", category: "估值与分红",
     desc: "长桥版 — 2×2 grid 4 mini chart(市盈率/市净率/市销率/股息率),股价线 + 高/中/低分位虚线 + 同行业排名",
     node: <Valuation metrics={mockValuation} /> },
-  { id: "dividend-plan", num: "16", name: "DividendPlan", nameZh: "分配方案", category: "估值与分红",
+  { id: "dividend-plan", num: "16", name: "DividendPlan", nameZh: "分红方案", category: "估值与分红",
     desc: "长桥版 — 摘要 KV(DPS/股息率/派发率)+ 日程&公告 风格分红记录列表(日期块 + 类型 + 派息金额)",
     node: <DividendPlan history={mockDividendHistory} records={mockDividendRecords} /> },
 
