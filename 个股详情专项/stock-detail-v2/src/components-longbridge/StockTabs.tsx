@@ -7,12 +7,12 @@ interface StockTabsProps {
   onChange: (k: StockTabKey) => void;
 }
 
-const TABS: { key: StockTabKey; label: string; hint: string }[] = [
-  { key: "overview",   label: "概览", hint: "概览" },
-  { key: "financial",  label: "财务", hint: "财务" },
-  { key: "analysis",   label: "分析", hint: "分析" },
-  { key: "news",       label: "资讯", hint: "资讯" },
-  { key: "discussion", label: "讨论", hint: "讨论" },
+const TABS: { key: StockTabKey; label: string }[] = [
+  { key: "overview",   label: "概览" },
+  { key: "financial",  label: "财务" },
+  { key: "analysis",   label: "分析" },
+  { key: "news",       label: "资讯" },
+  { key: "discussion", label: "讨论" },
 ];
 
 export function StockTabs({ active, onChange }: StockTabsProps) {
@@ -38,14 +38,6 @@ export function StockTabs({ active, onChange }: StockTabsProps) {
             )}
           >
             <span>{t.label}</span>
-            <span
-              className={cn(
-                "num text-xs",
-                isActive ? "text-accent" : "text-fg-4",
-              )}
-            >
-              {t.hint}
-            </span>
             {isActive && (
               <span
                 aria-hidden="true"
