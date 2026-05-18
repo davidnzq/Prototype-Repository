@@ -340,7 +340,7 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
               x={xCenter}
               y={VBH - 18}
               textAnchor="middle"
-              fontSize="13"
+              fontSize="11"
               fill="var(--color-fg-3)"
             >
               {p.period}
