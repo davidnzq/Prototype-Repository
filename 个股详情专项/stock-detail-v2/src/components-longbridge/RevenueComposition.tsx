@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn, formatNum, formatPct } from "@/lib/utils";
 import type {
   RevenueCompositionData,
@@ -17,12 +17,35 @@ interface RevenueCompositionProps {
  * - 2013–2025 多年叠加柱状图
  * - 下方明细表:名称 / 营收(亿) / 占比
  */
+/** 默认 segment fallback 色板(token 风格)*/
+const FALLBACK_SEG_COLORS = [
+  "var(--color-chart-blue)",
+  "var(--color-chart-purple)",
+  "var(--color-chart-yellow)",
+  "var(--color-chart-green)",
+  "var(--color-chart-pink)",
+  "var(--color-chart-red)",
+  "var(--color-chart-orange)",
+  "var(--color-chart-grey)",
+];
+
 export function RevenueComposition({ data }: RevenueCompositionProps) {
   const [view, setView] = useState<"industry" | "region">(data.view);
 
+  // props.data.view 漂移时 sync 内部 state
+  useEffect(() => {
+    setView(data.view);
+  }, [data.view]);
+
+  // 防 mock segmentColors 不足时退化
+  const segmentColors = data.latestSegments.map(
+    (s, i) => s.color || FALLBACK_SEG_COLORS[i % FALLBACK_SEG_COLORS.length],
+  );
+  const segmentLabels = data.latestSegments.map((s) => s.label);
+
   return (
     <section className="border-b border-line">
-      <SectionHeader label="营收构成" hint="Revenue Composition" />
+      <SectionHeader label="营收构成" hint="营收构成 (Revenue Breakdown)" />
 
       {/* Tab switch */}
       <div className="flex items-center gap-2 px-4 pt-3">
@@ -35,17 +58,17 @@ export function RevenueComposition({ data }: RevenueCompositionProps) {
       </div>
 
       {/* 多年叠加柱状图 */}
-      <YearStackedBars bars={data.yearBars} segmentColors={data.latestSegments.map((s) => s.color)} segmentLabels={data.latestSegments.map((s) => s.label)} />
+      <YearStackedBars bars={data.yearBars} segmentColors={segmentColors} segmentLabels={segmentLabels} />
 
       {/* 明细表 */}
       <div className="px-4 pb-4">
-        <div className="grid grid-cols-[1fr_120px_80px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
+        <div className="grid grid-cols-[minmax(160px,1fr)_120px_80px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
           <div>名称</div>
-          <div className="text-right">营收收入</div>
+          <div className="text-right">营收 (亿)</div>
           <div className="text-right">占比</div>
         </div>
-        {data.latestSegments.map((s) => (
-          <SegmentRow key={s.label} seg={s} />
+        {data.latestSegments.map((s, i) => (
+          <SegmentRow key={s.label} seg={s} fallbackColor={segmentColors[i]} />
         ))}
       </div>
     </section>
@@ -77,13 +100,13 @@ function TabPill({
   );
 }
 
-function SegmentRow({ seg }: { seg: RevenueSeriesPoint }) {
+function SegmentRow({ seg, fallbackColor }: { seg: RevenueSeriesPoint; fallbackColor?: string }) {
   return (
-    <div className="grid grid-cols-[1fr_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-sm last:border-b-0">
+    <div className="grid grid-cols-[minmax(160px,1fr)_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-sm last:border-b-0">
       <span className="inline-flex items-center gap-2">
         <i
           className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ background: seg.color }}
+          style={{ background: seg.color || fallbackColor }}
         />
         <span className="text-fg-1">{seg.label}</span>
       </span>

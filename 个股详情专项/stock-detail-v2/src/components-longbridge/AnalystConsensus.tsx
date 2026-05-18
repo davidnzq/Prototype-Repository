@@ -34,7 +34,7 @@ export function AnalystConsensus({ data: d }: AnalystConsensusProps) {
   return (
     <section className="border-b border-line">
       <SectionHeader label="分析师评级" hint={d.updatedAt} />
-      <div className="grid grid-cols-[480px_1fr] items-start gap-6 px-4 py-3">
+      <div className="grid grid-cols-[minmax(420px,2fr)_3fr] items-start gap-6 px-4 py-3">
         {/* 左:Donut + 内嵌评级占比(评级与 % 紧贴一行,信息密度高)*/}
         <div className="grid grid-cols-[220px_1fr] items-center gap-4">
           <DonutChart distribution={d.distribution} total={d.totalAnalysts} />
@@ -92,23 +92,22 @@ function DonutChart({
       {/* 中心总数 */}
       <text
         x={CX}
-        y={CY - 4}
+        y={CY + 6}
         textAnchor="middle"
-        className="num"
-        fontSize="28"
-        fontWeight="700"
-        fill="var(--color-fg-1)"
+        fontSize="15"
+        fill="var(--color-fg-2)"
       >
-        {total}
-      </text>
-      <text
-        x={CX}
-        y={CY + 18}
-        textAnchor="middle"
-        fontSize="11"
-        fill="var(--color-fg-3)"
-      >
-        位分析师
+        <tspan
+          className="num"
+          fontSize="26"
+          fontWeight="700"
+          fill="var(--color-fg-1)"
+        >
+          {total}
+        </tspan>
+        <tspan dx="6" fontSize="12" fill="var(--color-fg-3)">
+          位分析师
+        </tspan>
       </text>
     </svg>
   );
@@ -159,10 +158,10 @@ function RatingLegend({
             className="flex items-baseline gap-2 text-sm"
           >
             <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full", s.dot)} />
-            <span className={cn("flex-1 truncate", isActive ? "font-semibold text-accent" : "text-fg-2")}>
+            <span className={cn("flex-1 truncate", isActive ? "font-semibold text-fg-1" : "text-fg-2")}>
               {s.label}
             </span>
-            <span className={cn("num tabular-nums", isActive ? "font-semibold text-accent" : "text-fg-1")}>
+            <span className={cn("num tabular-nums", isActive ? "font-semibold text-fg-1" : "text-fg-1")}>
               {formatPct(distribution[s.key] * 100, 0)}
             </span>
           </li>
@@ -264,15 +263,16 @@ function PriceChart({ history }: { history: AC["priceHistory"] }) {
           strokeWidth="1.5"
         />
 
-        {/* 末端 dot */}
+        {/* 末端 dot — 与对应主色对齐,fill 即 stroke 色 */}
         {last && (
           <>
-            <circle cx={xAt(history.length - 1)} cy={yAt(last.price)} r="5.5" fill="var(--color-accent)" />
-            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictHigh)} r="5" fill="var(--color-bg-1)" stroke="var(--color-up)" strokeWidth="2" />
-            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictLow)} r="5" fill="var(--color-bg-1)" stroke="var(--color-warn)" strokeWidth="2" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.price)} r="5" fill="var(--color-accent)" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictHigh)} r="5" fill="var(--color-up)" />
+            <circle cx={xAt(history.length - 1)} cy={yAt(last.predictLow)} r="5" fill="var(--color-warn)" />
           </>
         )}
       </svg>
+      <div className="mt-1 text-right text-2xs text-fg-3">最近 24 个月</div>
     </div>
   );
 }

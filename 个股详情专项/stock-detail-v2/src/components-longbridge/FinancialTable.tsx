@@ -51,7 +51,7 @@ export function FinancialTable({ data }: FinancialTableProps) {
               {metric.highlightLabel}
             </span>
           )}
-          <span>单季 ▾</span>
+          <span className="cursor-pointer transition-colors hover:text-fg-1">单季 / 累计 ▾</span>
         </div>
       </div>
 
@@ -357,7 +357,8 @@ function formatValueShort(v: number, format: string): string {
   if (format === "ratio") return v.toFixed(2);
   // currency / number
   const abs = Math.abs(v);
-  if (abs >= 10_000) return `${(v / 10_000).toFixed(2)} 万`;
+  const unit = format === "currency" ? "万元" : "万";
+  if (abs >= 10_000) return `${(v / 10_000).toFixed(2)} ${unit}`;
   if (abs >= 100) return formatNum(v, 0);
   return formatNum(v, 2);
 }

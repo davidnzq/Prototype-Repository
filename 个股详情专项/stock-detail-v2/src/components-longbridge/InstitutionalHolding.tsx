@@ -14,13 +14,13 @@ interface InstitutionalHoldingProps {
 export function InstitutionalHolding({ data }: InstitutionalHoldingProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="持股股东" hint="Institutional Holding" />
+      <SectionHeader label="持股股东" hint="机构持仓 (13F)" />
       <div className="px-4 py-3">
         {/* 表头 */}
         <div className="grid grid-cols-[1fr_120px_140px_120px] gap-2 border-b border-hairline pb-2 text-xs text-fg-3">
           <div>股东名称</div>
           <div className="text-right">持股比例</div>
-          <div className="text-right">较内份额增减</div>
+          <div className="text-right">持股变动 (万股)</div>
           <div className="text-right">披露时间</div>
         </div>
 

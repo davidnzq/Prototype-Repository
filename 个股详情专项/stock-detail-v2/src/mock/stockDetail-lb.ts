@@ -382,6 +382,8 @@ export interface DividendYear {
 }
 
 export interface DividendRecord {
+  /** 宣布日(announcement date)— 董事会宣布派息日 */
+  announcedDate: string;
   /** 登记日(record date)— 股权登记日 */
   recordDate: string;
   /** 除净日(ex-dividend date)— 当日开盘股票除息 */
@@ -390,6 +392,26 @@ export interface DividendRecord {
   payDate: string;
   amount: number;
   type: "Regular" | "Special";
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// ValuationHistory 5 年 P/E 时间序列(Plan12 抽出至 mock)
+// ────────────────────────────────────────────────────────────────────────────
+export interface ValuationHistoryRollingPoint {
+  date: string;   // "2021" 年度
+  value: number;  // PE 倍数
+}
+export interface ValuationHistoryRollingData {
+  /** 5 年 P/E 序列(年度) */
+  series: ValuationHistoryRollingPoint[];
+  /** 同行平均 PE */
+  peerAvg: number;
+  /** 当前 PE */
+  current: number;
+  /** 5 年均值 */
+  fiveYAvg: number;
+  /** 相对同行溢价/折价 % */
+  premiumVsPeer: number;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1080,13 +1102,28 @@ export const mockDividendHistory: DividendYear[] = [
 ];
 
 export const mockDividendRecords: DividendRecord[] = [
-  // recordDate / exDate / payDate — AAPL 真实形态:登记日 ≈ 除净日(同日 T+0),派息日 = T+3
-  { recordDate: "2026-05-11", exDate: "2026-05-11", payDate: "2026-05-14", amount: 0.27, type: "Regular" },
-  { recordDate: "2026-02-09", exDate: "2026-02-09", payDate: "2026-02-12", amount: 0.26, type: "Regular" },
-  { recordDate: "2025-11-10", exDate: "2025-11-10", payDate: "2025-11-13", amount: 0.26, type: "Regular" },
-  { recordDate: "2025-08-11", exDate: "2025-08-11", payDate: "2025-08-14", amount: 0.26, type: "Regular" },
-  { recordDate: "2025-05-12", exDate: "2025-05-12", payDate: "2025-05-15", amount: 0.25, type: "Regular" },
+  // announcedDate ≈ 业绩公告日(T-7),recordDate ≈ exDate(同日),payDate = T+3
+  { announcedDate: "2026-05-01", recordDate: "2026-05-11", exDate: "2026-05-11", payDate: "2026-05-14", amount: 0.27, type: "Regular" },
+  { announcedDate: "2026-01-30", recordDate: "2026-02-09", exDate: "2026-02-09", payDate: "2026-02-12", amount: 0.26, type: "Regular" },
+  { announcedDate: "2025-10-31", recordDate: "2025-11-10", exDate: "2025-11-10", payDate: "2025-11-13", amount: 0.26, type: "Regular" },
+  { announcedDate: "2025-08-01", recordDate: "2025-08-11", exDate: "2025-08-11", payDate: "2025-08-14", amount: 0.26, type: "Regular" },
+  { announcedDate: "2025-05-02", recordDate: "2025-05-12", exDate: "2025-05-12", payDate: "2025-05-15", amount: 0.25, type: "Regular" },
 ];
+
+export const mockValuationHistoryRolling: ValuationHistoryRollingData = {
+  series: [
+    { date: "2021", value: 28.2 },
+    { date: "2022", value: 24.6 },
+    { date: "2023", value: 31.4 },
+    { date: "2024", value: 36.8 },
+    { date: "2025", value: 33.2 },
+    { date: "2026", value: 34.8 },
+  ],
+  peerAvg: 28.4,
+  current: 34.8,
+  fiveYAvg: 31.5,
+  premiumVsPeer: 22.5,
+};
 
 // ════════════════════════════════════════════════════════════════════════════
 // 阶段二:5 Tab 框架 + 新增 12 个原子的 schema
@@ -1104,6 +1141,8 @@ export interface HotEvent {
 export interface CalendarEvent {
   date: string;
   time?: string;
+  /** 时区缩写(EDT / HKT / CST) — 与 time 配合显示 */
+  tz?: string;
   title: string;
   type: "Earnings" | "Dividend" | "Conference" | "Filing" | "Other";
   isPast?: boolean;
@@ -1156,6 +1195,8 @@ export interface DolphinReport {
   rating?: "Strong Buy" | "Buy" | "Hold" | "Sell";
   targetPrice?: number;
   summary: string;
+  /** 阅读全文链接(Plan12 新增) */
+  link?: string;
 }
 
 // NewsItem — 资讯(长桥版扩展:相关股票涨跌幅 chip)
@@ -1181,7 +1222,8 @@ export interface DiscussionPost {
   content: string;
   likes: number;
   comments: number;
-  attached?: { ticker: string; pct: number };
+  /** 关联股票 chip(ticker + 中文名 + 涨跌幅) */
+  attached?: { ticker: string; name?: string; pct: number };
   /** 长桥版:嵌入 mini chart(若有,渲染为内嵌价格折线) */
   embeddedChart?: { ticker: string; values: number[]; pct: number };
 }
@@ -1221,11 +1263,11 @@ export const mockHotEvents: HotEvent[] = [
 ];
 
 export const mockCalendarEvents: CalendarEvent[] = [
-  { date: "05/14", time: "16:30", title: "Q2 2026 Earnings Call",         type: "Earnings",   isPast: false },
-  { date: "05/15", time: "08:00", title: "10-Q Filing Deadline",          type: "Filing",     isPast: false },
-  { date: "05/18",                title: "Ex-Dividend Date — $0.26",      type: "Dividend",   isPast: false },
-  { date: "06/10",                title: "WWDC 2026 Keynote",             type: "Conference", isPast: false },
-  { date: "05/08", time: "16:00", title: "Q1 2026 Earnings — Beat $0.18", type: "Earnings",   isPast: true },
+  { date: "05/14", time: "16:30", tz: "EDT", title: "2026 Q2 业绩电话会", type: "Earnings", isPast: false },
+  { date: "05/15", time: "08:00", tz: "EDT", title: "10-Q 季报提交截止",  type: "Filing",   isPast: false },
+  { date: "05/18",                          title: "除净日 — $0.26 派息", type: "Dividend", isPast: false },
+  { date: "06/10",                          title: "WWDC 2026 主题演讲",  type: "Conference", isPast: false },
+  { date: "05/08", time: "16:00", tz: "EDT", title: "2026 Q1 业绩 — 超预期 $0.18", type: "Earnings", isPast: true },
 ];
 
 export const mockAIAnalysis: AIAnalysisData = {
@@ -1281,6 +1323,7 @@ export const mockDolphinReports: DolphinReport[] = [
     rating: "Buy",
     targetPrice: 320.0,
     summary: "Q1 营收 124.3B(+6.4% YoY)超预期,服务贡献 26.4B(+14.2%)是亮点。Wearables 拖累 -2.4%。",
+    link: "/research/dolphin/aapl-q1-2026",
   },
   {
     date: "04/30",
@@ -1288,6 +1331,7 @@ export const mockDolphinReports: DolphinReport[] = [
     category: "Quick",
     rating: "Buy",
     summary: "iOS 18.4 起 Apple Intelligence 月活突破 4.2 亿,订阅化在即。ARPU 抬升空间可观,关注 Q3 发布会。",
+    link: "/research/dolphin/aapl-ai-2026q2",
   },
   {
     date: "04/22",
@@ -1295,18 +1339,21 @@ export const mockDolphinReports: DolphinReport[] = [
     category: "Deep",
     rating: "Hold",
     summary: "Vision Pro 2 价格区间 $1,999-$2,499,定位 AR Pro Consumer。技术成熟但内容生态仍是关键。",
+    link: "/research/dolphin/vision-pro-2",
   },
   {
     date: "04/15",
     title: "美联储利率路径与科技股估值压力:Apple 是受益方还是受害方?",
     category: "Macro",
     summary: "若 25H2 降息节奏不及预期,科技股 P/E 中枢将面临回调;Apple 的高现金 + 股东回报模型相对抗压。",
+    link: "/research/dolphin/fed-tech-2026",
   },
   {
     date: "04/10",
     title: "苹果中国市场:从渠道到 AI 本土化的全链条复盘",
     category: "Deep",
     summary: "大中华区 Q1 增长 8%,但市场份额仍受华为蚕食。AI 本土化(百度/阿里合作)是关键反击。",
+    link: "/research/dolphin/aapl-china-2026",
   },
 ];
 
@@ -1385,7 +1432,7 @@ export const mockDiscussions: DiscussionPost[] = [
     content: "服务 14% YoY 增长在大盘是稀缺资产。继续持有,目标 $320。",
     likes: 56,
     comments: 12,
-    attached: { ticker: "AAPL", pct: 0.034 },
+    attached: { ticker: "AAPL", name: "苹果", pct: 0.034 },
   },
 ];
 

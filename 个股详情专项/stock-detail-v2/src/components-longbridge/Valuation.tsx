@@ -10,6 +10,36 @@ interface ValuationProps {
 const RANGES = ["1年", "3年", "5年", "10年"] as const;
 type RangeKey = (typeof RANGES)[number];
 
+/** mock label → 带英文括注的展示 label */
+const LABEL_MAP: Record<string, string> = {
+  "市盈率": "市盈率 (P/E)",
+  "市净率": "市净率 (P/B)",
+  "市销率": "市销率 (P/S)",
+  "股息率": "股息率 (Dividend Yield)",
+  "P/E": "市盈率 (P/E)",
+  "P/B": "市净率 (P/B)",
+  "P/S": "市销率 (P/S)",
+  "Dividend": "股息率 (Dividend Yield)",
+};
+function displayLabel(label: string): string {
+  return LABEL_MAP[label] ?? label;
+}
+
+/** 计算 current 在 percentiles {low, median, high} 之间的近似百分位 */
+function computePercentile(
+  current: number,
+  pct: { low: number; median: number; high: number },
+): number {
+  if (current <= pct.low) return 0;
+  if (current >= pct.high) return 100;
+  if (current < pct.median) {
+    const t = (current - pct.low) / (pct.median - pct.low || 1);
+    return Math.round(t * 50);
+  }
+  const t = (current - pct.median) / (pct.high - pct.median || 1);
+  return Math.round(50 + t * 50);
+}
+
 /**
  * 估值分析 — 长桥版
  * 4 个 metric 卡片 2×2 grid,每张:
@@ -21,7 +51,7 @@ export function Valuation({ metrics }: ValuationProps) {
   return (
     <section className="border-b border-line">
       <SectionHeader label="估值分析" hint="Valuation Analysis" />
-      <div className="grid grid-cols-2 gap-4 px-4 py-4">
+      <div className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-2">
         {metrics.map((m) => (
           <ValuationCard key={m.key} metric={m} />
         ))}
@@ -32,12 +62,13 @@ export function Valuation({ metrics }: ValuationProps) {
 
 function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
   const [range, setRange] = useState<RangeKey>("1年");
+  const pctileNum = computePercentile(m.current, m.percentiles);
 
   return (
     <div className="border border-hairline px-4 py-3">
       {/* 顶部:label + 时间区间 tab */}
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-semibold text-fg-1">{m.label}</span>
+        <span className="text-sm font-semibold text-fg-1">{displayLabel(m.label)}</span>
         <div className="flex items-center gap-0.5 text-xs">
           {RANGES.map((r) => (
             <button
@@ -60,7 +91,7 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
       {/* KV:current + 排名 */}
       <div className="mb-2 flex items-baseline gap-6">
         <div>
-          <div className="text-xs text-fg-3">{m.label}</div>
+          <div className="text-xs text-fg-3">{displayLabel(m.label)}</div>
           <div className="num text-lg font-semibold text-fg-1">
             {formatValuationValue(m.current, m.format)}
           </div>
@@ -75,10 +106,10 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
 
       {/* 图例 */}
       <div className="mb-1 flex items-center gap-3 text-xs text-fg-3">
-        <LegendDot color="var(--color-accent)" label="股价" />
-        <LegendDot color="var(--color-chart-red)" label="高分位" />
-        <LegendDot color="var(--color-warn)" label="中位" />
-        <LegendDot color="var(--color-chart-blue)" label="低分位" />
+        <LegendDot color="var(--color-accent)" label="当前价" />
+        <LegendDot color="var(--color-warn)" label="历史高" />
+        <LegendDot color="var(--color-warn)" label="历史中位" />
+        <LegendDot color="var(--color-chart-blue)" label="历史低" />
       </div>
 
       <ValuationMiniChart metric={m} />
@@ -87,6 +118,11 @@ function ValuationCard({ metric: m }: { metric: ValuationMetric }) {
       <div className="num mt-1 flex justify-between text-xs text-fg-3">
         <span>{m.history[0]?.date}</span>
         <span>{m.history[m.history.length - 1]?.date}</span>
+      </div>
+
+      {/* 百分位 label */}
+      <div className="mt-1.5 text-xs text-fg-3">
+        当前位于 <span className="num text-fg-1">第 {pctileNum} 百分位</span>
       </div>
     </div>
   );
@@ -130,10 +166,10 @@ function ValuationMiniChart({ metric: m }: { metric: ValuationMetric }) {
       className="block w-full"
     >
       {/* 区域填充 */}
-      <path d={areaPath} fill="var(--color-accent)" fillOpacity="0.08" />
+      <path d={areaPath} fill="var(--color-accent)" fillOpacity="0.14" />
 
       {/* 分位虚线 */}
-      <ReferenceLine y={yAt(m.percentiles.high)} color="var(--color-chart-red)" width={W} />
+      <ReferenceLine y={yAt(m.percentiles.high)} color="var(--color-warn)" width={W} />
       <ReferenceLine y={yAt(m.percentiles.median)} color="var(--color-warn)" width={W} />
       <ReferenceLine y={yAt(m.percentiles.low)} color="var(--color-chart-blue)" width={W} />
 

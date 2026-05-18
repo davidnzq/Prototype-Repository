@@ -27,7 +27,7 @@ export function QuoteHero({ quote }: QuoteHeroProps) {
         <span className="text-fg-3">{quote.bbgType}</span>
         <span className="text-fg-4">·</span>
         <span className="text-fg-2">{quote.nameEn}</span>
-        <span className="text-fg-3">/ {quote.nameZh}</span>
+        <span className="text-fg-2">/ {quote.nameZh}</span>
 
         {/* 长桥版 — 关注 ❤️ */}
         {quote.watchers !== undefined && <WatcherBadge count={quote.watchers} />}
@@ -54,7 +54,7 @@ export function QuoteHero({ quote }: QuoteHeroProps) {
           >
             {formatNum(quote.price, 3)}
           </span>
-          <div className={cn("num flex flex-col items-end gap-0.5 text-base font-semibold leading-tight", trendColor)}>
+          <div className={cn("num flex flex-col items-end gap-0.5 text-lg font-semibold leading-tight", trendColor)}>
             <span className="inline-flex items-center gap-1">
               <span className="text-2xs">{trendArrow}</span>
               {formatDelta(signedDelta, 3)}
@@ -87,7 +87,7 @@ export function QuoteHero({ quote }: QuoteHeroProps) {
         )}
 
         <div className="flex items-baseline gap-2 text-sm">
-          <span className="caps">VS PREV</span>
+          <span className="caps">较前收</span>
           <span className="num text-fg-2">{formatNum(quote.prev, 3)}</span>
         </div>
       </div>
@@ -106,8 +106,8 @@ export function QuoteHero({ quote }: QuoteHeroProps) {
         <KV label="Open" value={formatNum(quote.open, 2)} />
         <KV label="High" value={formatNum(quote.high, 2)} highlight="up" />
         <KV label="Low" value={formatNum(quote.low, 2)} highlight="down" />
-        <KV label="Volume" value="48.24M" />
-        <KV label="Mkt Cap" value="4.27T" accent />
+        <KV label="Volume" value={`${(quote.volume / 1e6).toFixed(2)}M`} />
+        <KV label="Mkt Cap" value={`${(quote.marketCap / 1e12).toFixed(2)}T`} accent />
         <KV label="P/E" value={formatNum(quote.pe, 2)} />
       </div>
     </section>
@@ -121,7 +121,7 @@ function WatcherBadge({ count }: { count: number }) {
       : count.toLocaleString();
   return (
     <span className="inline-flex items-center gap-1 text-fg-3">
-      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-down">
+      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-fg-3">
         <path d="M12 21s-7-4.5-9.5-9.5C0.5 6 4 2 8 2c2 0 3.5 1 4 2 0.5-1 2-2 4-2 4 0 7.5 4 5.5 9.5C19 16.5 12 21 12 21z" />
       </svg>
       <span className="num">{display}</span>

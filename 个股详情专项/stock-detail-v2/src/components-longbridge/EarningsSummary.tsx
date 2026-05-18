@@ -14,7 +14,7 @@ interface EarningsSummaryProps {
 export function EarningsSummary({ data }: EarningsSummaryProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="Earnings Summary" hint={`ERN · ${data.fiscalPeriod}`} />
+      <SectionHeader label="业绩摘要 (Earnings Summary)" hint={`ERN · ${data.fiscalPeriod}`} />
 
       <div className="grid grid-cols-3 divide-x divide-hairline">
         <Metric
@@ -32,7 +32,7 @@ export function EarningsSummary({ data }: EarningsSummaryProps) {
           surprise={(data.eps.actual - data.eps.estimate) / data.eps.estimate}
         />
         <div className="px-4 py-4">
-          <div className="caps mb-2">Surprise</div>
+          <div className="caps mb-2">超预期</div>
           <div className="flex items-baseline gap-2">
             <span
               className={cn(
@@ -45,7 +45,7 @@ export function EarningsSummary({ data }: EarningsSummaryProps) {
             </span>
           </div>
           <div className="caps mt-2">
-            {data.surprise >= 0 ? "▲ BEAT" : "▼ MISS"}
+            {data.surprise >= 0 ? "▲ 超预期" : "▼ 未达预期"}
           </div>
           <div className="num mt-3 text-xs text-fg-3">
             Reported: {data.reportedAt}
@@ -101,7 +101,7 @@ function Metric({
           <span className="text-fg-2">{estimate}</span>
         </div>
         <div className="flex items-baseline justify-between">
-          <span className="caps">Surprise</span>
+          <span className="caps">超预期</span>
           <span className={cn(surprise >= 0 ? "text-up" : "text-down")}>
             {formatPct(surprise * 100, 2)}
           </span>

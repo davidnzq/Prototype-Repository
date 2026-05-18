@@ -17,7 +17,7 @@ interface EventTrackerProps {
 export function EventTracker({ events }: EventTrackerProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="事件追踪" hint="" />
+      <SectionHeader label="事件追踪" hint="近期事件 (Recent Events)" />
       <ul className="px-4 py-3">
         {events.map((e, i) => {
           const prev = events[i - 1];
@@ -108,7 +108,7 @@ function EventRow({
           {e.priceChange !== undefined && (
             <>
               <span className="text-fg-4">·</span>
-              <span className="num text-fg-3">事件后</span>
+              <span className="num text-fg-3">事件后涨跌</span>
               <span
                 className={cn(
                   "num font-semibold",
@@ -128,12 +128,13 @@ function EventRow({
 
 function ImpactBadge({ impact }: { impact: "high" | "medium" | "low" }) {
   const config = {
-    high:   { label: "高",  cls: "border-warn text-warn" },
-    medium: { label: "中",  cls: "border-fg-3 text-fg-2" },
-    low:    { label: "低",  cls: "border-hairline text-fg-3" },
+    high:   { label: "高",  aria: "High impact",   cls: "border-warn text-warn" },
+    medium: { label: "中",  aria: "Medium impact", cls: "border-fg-3 text-fg-2" },
+    low:    { label: "低",  aria: "Low impact",    cls: "border-hairline text-fg-3" },
   }[impact];
   return (
     <span
+      aria-label={config.aria}
       className={cn(
         "shrink-0 rounded-sm border px-1.5 text-2xs font-semibold leading-snug",
         config.cls,

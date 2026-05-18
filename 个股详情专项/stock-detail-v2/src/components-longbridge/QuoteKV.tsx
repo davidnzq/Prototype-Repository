@@ -12,7 +12,7 @@ interface QuoteKVProps {
 export function QuoteKV({ groups }: QuoteKVProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="Key Metrics" hint="实时计算 / 滚动 12 月" />
+      <SectionHeader label="关键指标 (Key Metrics)" hint="实时 · 滚动 12 月 (Rolling 12M)" />
       <div className="grid grid-cols-5 divide-x divide-hairline">
         {groups.map((g) => (
           <KVGroup key={g.label} group={g} />

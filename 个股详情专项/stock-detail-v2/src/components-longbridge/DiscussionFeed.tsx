@@ -19,7 +19,7 @@ export function DiscussionFeed({ posts, variant = "feed" }: DiscussionFeedProps)
     <section className="border-b border-line">
       <SectionHeader
         label="讨论"
-        hint={variant === "preview" ? "热门 · 前 3" : "全部"}
+        hint={variant === "preview" ? "热门讨论 (Top 3)" : "全部"}
       />
       <ul className="divide-y divide-hairline">
         {data.map((p, i) => (
@@ -32,7 +32,7 @@ export function DiscussionFeed({ posts, variant = "feed" }: DiscussionFeedProps)
 
 function PostItem({ post: p, compact }: { post: DiscussionPost; compact: boolean }) {
   return (
-    <li className="px-4 py-3 transition-colors hover:bg-soft">
+    <li className="px-4 py-4 transition-colors hover:bg-soft">
       {/* Header: 头像 + 用户 + 时间 */}
       <div className="flex items-start gap-3">
         <Avatar letter={p.avatar ?? p.user[0]} color={p.avatarColor} />
@@ -42,7 +42,10 @@ function PostItem({ post: p, compact }: { post: DiscussionPost; compact: boolean
             <span className="num text-xs text-fg-4">{p.time}</span>
             {p.attached && (
               <span className="ml-auto inline-flex items-baseline gap-1.5 text-xs">
-                <span className="num font-semibold text-fg-2">${p.attached.ticker}</span>
+                <span className="font-semibold text-fg-2">
+                  {p.attached.name ? `${p.attached.name} ` : ""}
+                  <span className="num">${p.attached.ticker}</span>
+                </span>
                 <span
                   className={cn(
                     "num font-semibold",
@@ -65,13 +68,21 @@ function PostItem({ post: p, compact }: { post: DiscussionPost; compact: boolean
           >
             {p.content}
           </p>
+          {compact && (
+            <button
+              type="button"
+              className="mt-1 text-xs text-accent transition-colors hover:underline"
+            >
+              ... 展开
+            </button>
+          )}
 
           {/* 嵌入 mini chart */}
           {p.embeddedChart && !compact && <EmbeddedChart chart={p.embeddedChart} />}
 
           {/* 互动数据 */}
           <div className="num mt-2 flex items-center gap-4 text-xs text-fg-3">
-            <span>♡ {p.likes}</span>
+            <span>👍 {p.likes}</span>
             <span>💬 {p.comments}</span>
           </div>
         </div>

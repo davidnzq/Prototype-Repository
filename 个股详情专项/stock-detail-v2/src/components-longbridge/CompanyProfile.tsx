@@ -22,7 +22,7 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
             {profile.description}
           </p>
           {/* 基本面信息 — 普通投资者必看 */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 border-t border-hairline pt-3 text-xs">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 border-t border-hairline pt-3 text-xs">
             <FactRow label="CEO" value={profile.ceo} />
             <FactRow label="成立" value={`${profile.founded} 年 · IPO ${profile.ipoDate.slice(0, 4)}`} num />
             <FactRow label="总部" value={profile.hq} />
@@ -40,14 +40,14 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
             />
             <KvItem
               label="行业市值排名"
-              value={`${profile.rank.rank} / ${profile.rank.total}`}
+              value={`排名 ${profile.rank.rank} / 共 ${profile.rank.total} 家`}
               num
             />
           </div>
         </div>
 
         {/* 右列 — 行业胶囊 + Sparkline */}
-        <div className="space-y-2 border border-hairline px-4 py-3">
+        <div className="space-y-2 border-t border-hairline pt-3">
           {/* 行业名 + 行业市值 + 涨跌 */}
           <div className="flex items-baseline gap-2 text-sm">
             <span className="font-semibold text-fg-1">{profile.industry}</span>
@@ -60,23 +60,6 @@ export function CompanyProfile({ profile }: CompanyProfileProps) {
             >
               {profile.industryChangePct >= 0 ? "+" : ""}
               {formatPct(profile.industryChangePct * 100, 2)}
-            </span>
-          </div>
-
-          {/* AAPL 总市值 + 排名 — 拆出 label/value 结构提高层次 */}
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs">
-            <span className="inline-flex items-baseline gap-1.5">
-              <span className="text-fg-3">本股总市值</span>
-              <span className="num font-semibold text-fg-1">
-                {profile.companyMarketCap}
-              </span>
-            </span>
-            <span className="text-fg-4">·</span>
-            <span className="inline-flex items-baseline gap-1.5">
-              <span className="text-fg-3">行业排名</span>
-              <span className="num font-semibold text-fg-1">
-                {profile.rank.rank}/{profile.rank.total}
-              </span>
             </span>
           </div>
 
@@ -134,7 +117,8 @@ function FactRow({
       <span className="text-fg-3">{label}</span>
       <span
         className={cn(
-          "min-w-0 truncate text-right",
+          "min-w-0 text-right",
+          !link && "truncate",
           num && "num",
           link ? "text-accent" : "text-fg-1",
         )}
@@ -148,9 +132,12 @@ function FactRow({
 function RankBar({ rank, total }: { rank: number; total: number }) {
   // rank 1 = leftmost; total = rightmost
   const pct = ((rank - 1) / (total - 1)) * 100;
+  const ratio = rank / total;
+  const barColor =
+    ratio <= 0.2 ? "bg-up" : ratio >= 0.8 ? "bg-down" : "bg-accent";
   return (
     <div className="relative h-1 w-full bg-soft">
-      <div className="absolute inset-y-0 left-0 w-full bg-accent" />
+      <div className={cn("absolute inset-y-0 left-0 w-full", barColor)} />
       <div
         className="absolute -top-0.5 h-2 w-1.5 -translate-x-1/2 bg-fg-1"
         style={{ left: `${pct}%` }}

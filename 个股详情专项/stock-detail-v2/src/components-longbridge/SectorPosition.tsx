@@ -14,7 +14,7 @@ interface SectorPositionProps {
 export function SectorPosition({ data }: SectorPositionProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="Sector Position" hint="PEER" />
+      <SectionHeader label="行业地位 (Sector Position)" hint="PEER" />
 
       {/* 概览栏 */}
       <div className="flex items-baseline gap-6 border-b border-hairline px-4 py-2.5 text-sm">
@@ -34,6 +34,7 @@ export function SectorPosition({ data }: SectorPositionProps) {
       </div>
 
       {/* Peer table */}
+      <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-hairline">
@@ -51,7 +52,7 @@ export function SectorPosition({ data }: SectorPositionProps) {
               key={p.ticker}
               className={cn(
                 "border-b border-hairline last:border-b-0",
-                p.highlighted && "bg-brand-soft",
+                p.highlighted && "bg-accent-soft",
               )}
             >
               <Td>
@@ -65,7 +66,7 @@ export function SectorPosition({ data }: SectorPositionProps) {
                 </span>
               </Td>
               <Td>
-                <span className={p.highlighted ? "font-semibold text-fg-1" : "text-fg-2"}>{p.name}</span>
+                <span className={p.highlighted ? "font-semibold text-accent" : "text-fg-2"}>{p.name}</span>
               </Td>
               <Td right>
                 <span className="num text-fg-1">{formatCompact(p.marketCap, 2)}</span>
@@ -87,6 +88,7 @@ export function SectorPosition({ data }: SectorPositionProps) {
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }

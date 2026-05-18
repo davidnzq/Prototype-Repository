@@ -139,7 +139,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
     <section className="border-b border-hairline px-4 py-4">
       {/* Row 1: tab bar + inline KV */}
       <div className="mb-3 flex items-end justify-between border-b border-hairline pb-3">
-        <div role="tablist" className="flex items-center">
+        <div role="tablist" className="flex items-center overflow-hidden rounded-sm border border-hairline">
           {TABS.map((tab, i) => {
             const active = activeTab === tab;
             return (
@@ -150,8 +150,8 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 aria-selected={active}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "border-r border-hairline px-3 py-1 text-sm font-semibold",
-                  i === 0 && "border-l border-hairline",
+                  "px-3 py-1 text-sm font-semibold transition-colors",
+                  i !== TABS.length - 1 && "border-r border-hairline",
                   active
                     ? "bg-accent-soft text-accent"
                     : "text-fg-3 hover:bg-soft hover:text-fg-1",
@@ -165,7 +165,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
 
         {/* 行情字段 5 项(主价/涨跌已在 QuoteHero 渲染,本处只放盘面 KV)*/}
         <div className="flex items-baseline gap-5 text-sm">
-          <InlineKV label="今開"     value={formatNum(meta.open, 3)} />
+          <InlineKV label="今开"     value={formatNum(meta.open, 3)} />
           <InlineKV label="最高"     value={formatNum(meta.high, 3)} up />
           <InlineKV label="最低"     value={formatNum(meta.low, 3)}  down />
           <InlineKV label="昨收"     value={formatNum(meta.prevClose, 3)} />
@@ -236,7 +236,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
               >
-                52W H {formatNum(h52, 2)}
+                52周高 (52W H) {formatNum(h52, 2)}
               </text>
             </g>
           )}
@@ -261,7 +261,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
                 fill="var(--color-fg-3)"
                 style={{ fontFamily: "var(--font-num)" }}
               >
-                52W L {formatNum(l52, 2)}
+                52周低 (52W L) {formatNum(l52, 2)}
               </text>
             </g>
           )}
@@ -391,7 +391,7 @@ export function IntradayChart({ meta }: IntradayChartProps) {
         {/* LINE mode 涨跌幅 inline 标(浮在右上) */}
         {mode === "LINE" && (
           <div className="absolute right-14 top-1 z-10 flex items-baseline gap-2 text-xs">
-            <span className="caps">vs Baseline</span>
+            <span className="caps">较开盘</span>
             <span className={cn("num font-semibold", isUp ? "text-up" : "text-down")}>
               {isUp ? "+" : "−"}
               {formatNum(Math.abs(latest.price - baseline), 2)}{" "}

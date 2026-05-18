@@ -13,7 +13,7 @@ interface NewsCardBigProps {
 export function NewsCardBig({ items }: NewsCardBigProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="资讯" hint="按时间排序" />
+      <SectionHeader label="资讯" hint="最新资讯 (Recent News)" />
       <ul className="divide-y divide-hairline">
         {items.map((n, i) => (
           <NewsRow key={i} item={n} />

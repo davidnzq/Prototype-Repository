@@ -23,7 +23,7 @@ interface AIAnalysisProps {
 export function AIAnalysis({ data }: AIAnalysisProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="AI Analysis" hint={`GEN ${data.generatedAt}`} />
+      <SectionHeader label="AI 分析" hint={`生成于 ${data.generatedAt}`} />
 
       {/* Row 1 — Signal pills + brand stamp */}
       <div className="flex items-center gap-2 border-b border-hairline px-4 py-2.5">
@@ -47,7 +47,7 @@ export function AIAnalysis({ data }: AIAnalysisProps) {
             </span>
           );
         })}
-        <span className="caps ml-auto text-accent">▲ POWERED BY DOLPHIN AI</span>
+        <span className="caps ml-auto text-accent">▲ 海豚 AI 驱动</span>
       </div>
 
       {/* Row 2 — 单条叙事 entry(参考 Perplexity)*/}
@@ -108,7 +108,7 @@ function NarrativeEntry({ data }: { data: AIAnalysisData }) {
             {data.fullAnalysisHint && (
               <button
                 type="button"
-                className="ml-auto inline-flex items-baseline gap-1 text-xs text-accent transition-colors hover:text-fg-1"
+                className="ml-auto inline-flex items-baseline gap-1 text-xs text-accent transition-colors hover:text-fg-1 hover:underline"
               >
                 <span>{data.fullAnalysisHint}</span>
                 <span aria-hidden="true">→</span>

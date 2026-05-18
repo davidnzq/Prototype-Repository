@@ -30,9 +30,9 @@ export function DividendPlan({ history, records }: DividendPlanProps) {
       <div className="px-4 py-3">
         {/* 顶栏:当期 yield 大字(右上)*/}
         <div className="mb-2 flex items-baseline justify-between">
-          <span className="caps text-fg-3">近 5 年 每股股息(USD) · 股息率</span>
+          <span className="caps text-fg-3">近 5 年股息分布:每股派息 (DPS, USD) 与股息率 (Yield)</span>
           <div className="flex items-baseline gap-2">
-            <span className="caps text-fg-3">当期股息率</span>
+            <span className="caps text-fg-3">最近股息率 (TTM Yield)</span>
             <span className="num text-2xl font-bold text-accent">
               {formatPct(latest.yieldPct * 100, 2)}
             </span>
@@ -55,7 +55,7 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
   const maxDps = Math.max(...history.map((h) => h.dps));
   const N = history.length;
   // 网格列模板:年份 | 柱区 | DPS | 股息率(去掉派发率列)
-  const COLS = "48px 1fr 90px 80px";
+  const COLS = "56px minmax(80px,1fr) 100px 90px";
 
   return (
     <ul className="flex flex-col gap-1.5">
@@ -87,7 +87,7 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
               ${formatNum(h.dps, 2)}
             </span>
 
-            <span className="num text-right text-sm text-warn">
+            <span className="num text-right text-sm text-fg-1">
               {(h.yieldPct * 100).toFixed(2)}%
             </span>
           </li>
@@ -95,11 +95,11 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
       })}
       {/* 表头脚注 */}
       <li
-        className="grid items-center gap-3 border-t border-hairline pt-1.5 text-2xs text-fg-3"
+        className="grid items-center gap-3 border-t border-hairline pt-3 text-2xs text-fg-3"
         style={{ gridTemplateColumns: COLS }}
       >
         <span className="caps">年份</span>
-        <span className="caps">每股股息</span>
+        <span className="caps">DPS 趋势 (近 5 年)</span>
         <span className="caps text-right">DPS (USD)</span>
         <span className="caps text-right">股息率</span>
       </li>
@@ -110,10 +110,12 @@ function HorizontalDpsChart({ history }: { history: DividendYear[] }) {
 // ─── Dividend records table (4 columns) ──────────────────────────────
 
 function DividendTable({ records }: { records: DividendRecord[] }) {
+  const COLS = "grid-cols-[2fr_1fr_1fr_1fr_1fr]";
   return (
     <div className="border-t border-hairline px-4 pb-4">
-      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-3 border-b border-hairline py-2 text-xs text-fg-3">
+      <div className={cn("grid gap-3 border-b border-hairline py-2 text-xs text-fg-3", COLS)}>
         <div className="caps">分红方案</div>
+        <div className="caps">宣布日</div>
         <div className="caps">登记日</div>
         <div className="caps">除净日</div>
         <div className="caps">派息日</div>
@@ -122,7 +124,7 @@ function DividendTable({ records }: { records: DividendRecord[] }) {
         {records.map((r, i) => (
           <li
             key={i}
-            className="grid grid-cols-[2fr_1fr_1fr_1fr] items-center gap-3 py-2 text-sm"
+            className={cn("grid items-center gap-3 py-2 text-sm", COLS)}
           >
             <div className="flex items-baseline gap-2">
               <span className="text-fg-1">
@@ -131,12 +133,13 @@ function DividendTable({ records }: { records: DividendRecord[] }) {
               {r.type === "Special" && (
                 <span className={cn(
                   "rounded-sm px-1.5 py-0.5 text-2xs font-semibold",
-                  "bg-warn/15 text-warn",
+                  "bg-accent-soft text-accent",
                 )}>
                   特别
                 </span>
               )}
             </div>
+            <div className="num text-fg-2">{r.announcedDate}</div>
             <div className="num text-fg-2">{r.recordDate}</div>
             <div className="num text-fg-2">{r.exDate}</div>
             <div className="num font-semibold text-fg-1">{r.payDate}</div>

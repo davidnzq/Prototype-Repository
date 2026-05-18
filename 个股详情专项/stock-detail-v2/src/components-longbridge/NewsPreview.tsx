@@ -14,7 +14,7 @@ interface NewsPreviewProps {
 export function NewsPreview({ items, variant = "preview" }: NewsPreviewProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="资讯" hint={variant === "feed" ? "全部" : "最近 6 条"} />
+      <SectionHeader label="资讯" hint={variant === "feed" ? "全部资讯 (News Feed)" : "近 6 条 (Preview)"} />
       <ul className="divide-y divide-hairline">
         {items.map((n, i) => (
           <NewsRow key={i} item={n} />

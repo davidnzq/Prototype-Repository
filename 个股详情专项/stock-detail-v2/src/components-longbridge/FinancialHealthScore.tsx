@@ -42,7 +42,7 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
     <section className="border-b border-line">
       <SectionHeader
         label="财务评分"
-        hint={`Financial Health · ${data.updatedAt}`}
+        hint={`财务评分 (Financial Health) · ${data.updatedAt}`}
       />
 
       {/* 头部总体评价 — 单 row,紧凑布局(去重 5 类目,避免与雷达重复)*/}
@@ -76,7 +76,7 @@ export function FinancialHealthScore({ data }: FinancialHealthScoreProps) {
             </button>
           </div>
 
-          <div className="grid grid-cols-[1fr_140px_120px_80px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
+          <div className="grid grid-cols-[minmax(200px,1fr)_120px_100px_80px] gap-2 border-b border-hairline pb-1.5 text-xs text-fg-3">
             <div>指标</div>
             <div className="text-right">数值</div>
             <div className="text-right">评分</div>
@@ -136,7 +136,7 @@ function CategoryRow({
         type="button"
         onClick={onToggle}
         className={cn(
-          "grid w-full grid-cols-[1fr_140px_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-left text-sm transition-colors",
+          "grid w-full grid-cols-[minmax(200px,1fr)_120px_100px_80px] items-center gap-2 border-b border-hairline py-1.5 text-left text-sm transition-colors",
           expanded ? "bg-soft" : "hover:bg-soft/50",
         )}
       >
@@ -151,14 +151,14 @@ function CategoryRow({
           <span className="num text-base">{cat.grade}</span>
         </div>
         <div className="flex justify-end">
-          <TrendArrow trend="flat" size={12} />
+          <TrendArrow trend={(cat as { trend?: RatingTrend }).trend ?? "flat"} size={12} />
         </div>
       </button>
       {expanded &&
         cat.indicators.map((ind) => (
           <div
             key={ind.label}
-            className="grid grid-cols-[1fr_140px_120px_80px] items-center gap-2 border-b border-hairline py-1.5 text-sm"
+            className="grid grid-cols-[minmax(200px,1fr)_120px_100px_80px] items-center gap-2 border-b border-hairline py-1.5 text-sm"
           >
             <span className="pl-6 text-fg-2">{ind.label}</span>
             <span className="num text-right text-fg-1">{ind.value}</span>

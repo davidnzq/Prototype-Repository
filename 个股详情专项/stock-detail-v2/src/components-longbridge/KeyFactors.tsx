@@ -67,15 +67,26 @@ export function KeyFactors({ root }: KeyFactorsProps) {
   const height = cursor.y + PAD_Y;
   const width = PAD_X * 2 + (maxDepth + 1) * COL_W;
 
+  // 节点重要性统计(排除 depth===0 的中心节点)
+  const importanceCount = allNodes
+    .filter((p) => p.depth > 0)
+    .reduce(
+      (acc, p) => {
+        acc[p.node.importance] = (acc[p.node.importance] ?? 0) + 1;
+        return acc;
+      },
+      { high: 0, medium: 0, low: 0 } as Record<KeyFactorImportance, number>,
+    );
+
   return (
     <section className="border-b border-line">
-      <SectionHeader label="Key Factors" hint="关键因子 · 思维导图" />
+      <SectionHeader label="关键因子" hint="思维导图 (Mind Map)" />
 
       {/* 图例 */}
       <div className="flex items-center gap-5 border-b border-hairline px-4 py-2 text-xs text-fg-3">
-        <LegendDot importance="high" label="重要" />
-        <LegendDot importance="medium" label="次要" />
-        <LegendDot importance="low" label="一般" />
+        <LegendDot importance="high" label={`重要 (${importanceCount.high})`} />
+        <LegendDot importance="medium" label={`次要 (${importanceCount.medium})`} />
+        <LegendDot importance="low" label={`一般 (${importanceCount.low})`} />
       </div>
 
       <div className="overflow-x-auto">
@@ -135,7 +146,7 @@ function TreeNode({ positioned }: { positioned: Positioned }) {
         className="text-base"
         fill={labelFill}
         style={{
-          fontWeight: depth === 0 ? 700 : node.importance === "high" ? 600 : 500,
+          fontWeight: depth === 0 ? 800 : node.importance === "high" ? 600 : 500,
           fontFamily: "var(--font-sans)",
         }}
       >

@@ -13,11 +13,25 @@ const CAT_COLOR: Record<DolphinReport["category"], string> = {
   Macro:    "text-chart-purple",
 };
 
+const CAT_LABEL: Record<DolphinReport["category"], string> = {
+  Deep:     "深度",
+  Quick:    "快讯",
+  Earnings: "业绩",
+  Macro:    "宏观",
+};
+
 const RATING_COLOR: Record<NonNullable<DolphinReport["rating"]>, string> = {
   "Strong Buy": "bg-up text-fg-inverse",
   Buy:          "bg-up-soft text-up border border-up",
   Hold:         "bg-soft text-warn border border-warn",
   Sell:         "bg-down-soft text-down border border-down",
+};
+
+const RATING_LABEL: Record<NonNullable<DolphinReport["rating"]>, string> = {
+  "Strong Buy": "强烈买入",
+  Buy:          "买入",
+  Hold:         "持有",
+  Sell:         "卖出",
 };
 
 /**
@@ -26,33 +40,51 @@ const RATING_COLOR: Record<NonNullable<DolphinReport["rating"]>, string> = {
 export function DolphinResearch({ reports }: DolphinResearchProps) {
   return (
     <section className="border-b border-line">
-      <SectionHeader label="Dolphin Research" hint="海豚投研 · 自有研究" />
+      <SectionHeader label="海豚投研" hint="海豚投研 · 自有研究" />
       <div className="divide-y divide-hairline">
         {reports.map((r, i) => (
-          <div key={i} className="px-4 py-3 hover:bg-soft transition-colors">
+          <div key={i} className="px-4 py-3 hover:bg-soft transition-colors duration-200">
             <div className="flex items-baseline gap-3">
               <span className="num text-sm text-fg-3">{r.date}</span>
               <span className={cn("caps text-xs font-semibold", CAT_COLOR[r.category])}>
-                {r.category}
+                {CAT_LABEL[r.category]}
               </span>
               {r.rating && (
                 <span
                   className={cn(
-                    "num text-xs font-bold tracking-wider px-1.5 py-0.5",
+                    "text-xs font-bold tracking-wider px-1.5 py-0.5",
                     RATING_COLOR[r.rating],
                   )}
                 >
-                  {r.rating.toUpperCase()}
+                  {RATING_LABEL[r.rating]}
                 </span>
               )}
-              {r.targetPrice && (
-                <span className="num text-sm text-fg-2">
-                  PT <span className="text-accent">${formatNum(r.targetPrice, 0)}</span>
+              {/* 目标价 — 即使没值也占位避免布局偏移 */}
+              <span
+                className={cn(
+                  "num text-sm text-fg-2",
+                  !r.targetPrice && "invisible",
+                )}
+              >
+                目标价 (PT){" "}
+                <span className="text-accent">
+                  ${formatNum(r.targetPrice ?? 0, 0)}
                 </span>
-              )}
+              </span>
             </div>
             <h3 className="mt-1.5 text-lg font-semibold leading-snug text-fg-1">{r.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed-snug text-fg-2">{r.summary}</p>
+            <p className="mt-1 line-clamp-2 text-sm leading-relaxed-snug text-fg-2">
+              {r.summary}
+            </p>
+            <div className="mt-2 flex justify-end">
+              <a
+                href={r.link ?? "#"}
+                className="inline-flex items-baseline gap-1 text-xs text-accent transition-colors duration-200 hover:underline"
+              >
+                <span>阅读全文</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
           </div>
         ))}
       </div>

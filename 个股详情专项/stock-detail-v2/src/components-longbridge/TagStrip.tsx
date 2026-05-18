@@ -25,9 +25,9 @@ export function TagStrip({ tags }: TagStripProps) {
 
   return (
     <section className="border-b border-hairline px-4 py-3">
-      <CategoryRow label="Themes" tags={grouped.industry} />
-      <CategoryRow label="Concept" tags={grouped.concept} />
-      <CategoryRow label="Holders" tags={grouped.holding} />
+      <CategoryRow label="主题 (Themes)" tags={grouped.industry} />
+      <CategoryRow label="概念 (Concept)" tags={grouped.concept} />
+      <CategoryRow label="持仓 (Holders)" tags={grouped.holding} />
     </section>
   );
 }
@@ -38,7 +38,7 @@ function CategoryRow({ label, tags }: { label: string; tags: StockTag[] }) {
   if (tags.length === 0) return null;
   return (
     <div className="flex items-baseline gap-3 border-b border-hairline py-2 last:border-b-0">
-      <span className="caps min-w-[60px] shrink-0">{label}</span>
+      <span className="caps min-w-[88px] shrink-0">{label}</span>
       <div className="flex flex-wrap items-baseline gap-x-1 gap-y-1.5 text-base">
         {tags.map((tag, i) => (
           <span key={tag.label} className="inline-flex items-baseline gap-0.5">
@@ -59,11 +59,11 @@ function Tag({ tag }: { tag: StockTag }) {
       type="button"
       aria-pressed={tag.selected}
       className={cn(
-        "inline-flex items-baseline gap-1.5 rounded-sm px-1.5 py-0.5",
+        "inline-flex items-baseline gap-1.5 rounded-sm px-2 py-1",
         "transition-colors duration-75",
         tag.selected
           ? "bg-accent-soft text-accent"
-          : "text-fg-1 hover:bg-soft hover:text-link",
+          : "text-fg-1 hover:bg-soft hover:text-accent",
       )}
     >
       <span className="font-medium">{tag.label}</span>
@@ -72,7 +72,7 @@ function Tag({ tag }: { tag: StockTag }) {
           className={cn(
             "num text-sm",
             tag.selected
-              ? "text-accent"
+              ? "text-fg-1"
               : isUp
                 ? "text-up"
                 : isDown
