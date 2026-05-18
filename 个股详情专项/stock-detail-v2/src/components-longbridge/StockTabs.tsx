@@ -8,7 +8,7 @@ interface StockTabsProps {
 }
 
 const TABS: { key: StockTabKey; label: string; hint: string }[] = [
-  { key: "overview",   label: "概览", hint: "Overview" },
+  { key: "overview",   label: "概览", hint: "概览" },
   { key: "financial",  label: "财务", hint: "财务" },
   { key: "analysis",   label: "分析", hint: "分析" },
   { key: "news",       label: "资讯", hint: "资讯" },
