@@ -82,23 +82,19 @@ export function StockDetailLBp3Page() {
   );
 }
 
-/** P3 概览:IntradayChart / AIAnalysis / EventTracker+DolphinResearch
+/** P3 概览:IntradayChart / AIAnalysis / EventTracker / DolphinResearch
  *   - 无 #04 QuoteKV(同 P2)
  *   - 无 #05 CompanyProfile(下沉到 分析 Tab 首位)
  *   - 无 NewsPreview / DiscussionPreview(同 P2)
+ *   - EventTracker + DolphinResearch 上下堆叠(全宽);P1/P2 是左右并排
  */
 function TabOverview() {
   return (
     <>
       <IntradayChart meta={mockIntradayMeta} />
       <AIAnalysis data={mockAIAnalysis} />
-      {/* 左右并排:事件追踪 + 海豚投研 */}
-      <div className="grid grid-cols-2 border-b border-line">
-        <div className="border-r border-line">
-          <EventTracker events={mockTrackedEvents} />
-        </div>
-        <DolphinResearch reports={mockDolphinReports} />
-      </div>
+      <EventTracker events={mockTrackedEvents} />
+      <DolphinResearch reports={mockDolphinReports} />
     </>
   );
 }
