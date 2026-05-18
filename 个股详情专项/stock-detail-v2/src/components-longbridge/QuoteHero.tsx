@@ -121,7 +121,15 @@ export function QuoteHero({ quote }: QuoteHeroProps) {
         <KV label="Low" value={formatNum(quote.low, 2)} highlight="down" />
         <KV label="Prev. Close" value={formatNum(quote.prev, 2)} />
         <KV label="Volume" value={`${(quote.volume / 1e6).toFixed(2)}M`} />
-        <KV label="P/E TTM" value={formatNum(quote.pe, 2)} accent />
+        <KV
+          label={
+            <>
+              P/E<sup className="ml-0.5 text-[0.55em] font-normal">TTM</sup>
+            </>
+          }
+          value={formatNum(quote.pe, 2)}
+          accent
+        />
       </div>
     </section>
   );
@@ -242,7 +250,7 @@ function KV({
   highlight,
   accent,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: string;
   highlight?: "up" | "down";
   accent?: boolean;
