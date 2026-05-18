@@ -80,11 +80,11 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
   const range = maxV - minV || maxV || 1;
 
   // viewBox 设定:VBW=1200 匹配 1280 主容器
-  // 标准内边距:顶部 48(value 标签 + legend),底部 56(数值标签 + 时间段标签)
+  // 标准内边距(对齐 RevenueComposition):顶部 48(value 标签 + legend),底部 32(period 标签)
   const VBW = 1200;
   const VBH = 260;
   const PAD_TOP = 48;
-  const PAD_BOTTOM = 56;
+  const PAD_BOTTOM = 32;
   const PAD_X = 24;
   const CHART_H = VBH - PAD_TOP - PAD_BOTTOM;
   const N = metric.points.length;
@@ -108,7 +108,7 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
   const yFor = (v: number) => zeroY - (v / range) * CHART_H;
 
   return (
-    <div className="px-4 py-4">
+    <div className="px-4 py-3">
       <svg
         aria-hidden="true"
         width="100%"
@@ -338,9 +338,9 @@ function MetricBarChart({ metric }: { metric: FinancialMetric }) {
             <text
               key={`pl-${p.period}`}
               x={xCenter}
-              y={VBH - 18}
+              y={VBH - 12}
               textAnchor="middle"
-              fontSize="11"
+              fontSize="10"
               fill="var(--color-fg-3)"
             >
               {p.period}
