@@ -18,7 +18,6 @@ import { DolphinResearch } from "@/components-longbridge/DolphinResearch";
 import { DiscussionFeed } from "@/components-longbridge/DiscussionFeed";
 import { NewsCardBig } from "@/components-longbridge/NewsCardBig";
 import { EventTracker } from "@/components-longbridge/EventTracker";
-import { QuoteKV } from "@/components-longbridge/QuoteKV";
 import { EarningsSummary } from "@/components-longbridge/EarningsSummary";
 
 import {
@@ -42,7 +41,6 @@ import {
   mockNewsItems,
   mockDiscussions,
   mockTrackedEvents,
-  mockQuoteKV,
   mockEarningsHighlight,
   mockAIAnalysis,
 } from "@/mock/stockDetail-lb";
@@ -82,15 +80,14 @@ export function StockDetailLBv21Page() {
   );
 }
 
-/** V2.1 概览:
- *   - 相对 V2 移除 NewsPreview + DiscussionPreview
- *   - 相对 V2 新增 AIAnalysis(置于 CompanyProfile 之前)
+/** P2 概览:IntradayChart / AIAnalysis / CompanyProfile / EventTracker+DolphinResearch
+ *   去掉 #04 QuoteKV
+ *   相对 P1:新增 AIAnalysis,且无 NewsPreview / DiscussionPreview
  */
 function TabOverview() {
   return (
     <>
       <IntradayChart meta={mockIntradayMeta} />
-      <QuoteKV groups={mockQuoteKV} />
       <AIAnalysis data={mockAIAnalysis} />
       <CompanyProfile profile={mockCompanyProfile} />
       {/* 左右并排:事件追踪 + 海豚投研 */}

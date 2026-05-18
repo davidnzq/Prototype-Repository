@@ -41,9 +41,9 @@ const PAGE_TO_HASH: Record<PageKey, string> = {
 /**
  * App shell —
  *   显示口径(switcher 仅 3 个 button):
- *     📊 Stock Detail P1 = stock-detail-lb     (默认页 = "/")
- *     📈 Stock Detail P2 = stock-detail-lb-v21 ("#lb-stock-v21")
- *     🧩 Components       = components-lb       ("#lb-components")
+ *     Stock Detail P1 = stock-detail-lb     (默认页 = "/")
+ *     Stock Detail P2 = stock-detail-lb-v21 ("#lb-stock-v21")
+ *     Components       = components-lb       ("#lb-components")
  *
  *   隐藏入口(hash 直链仍可访问,后续冻结不动):
  *     #us-stock        → V3 US 个股(隐藏)
@@ -129,19 +129,16 @@ function CommandBar({
           active={page === "stock-detail-lb"}
           onClick={() => onSwitch("stock-detail-lb")}
           label="Stock Detail P1"
-          icon="📊"
         />
         <PageButton
           active={page === "stock-detail-lb-v21"}
           onClick={() => onSwitch("stock-detail-lb-v21")}
           label="Stock Detail P2"
-          icon="📈"
         />
         <PageButton
           active={page === "components-lb"}
           onClick={() => onSwitch("components-lb")}
           label="Components"
-          icon="🧩"
         />
       </div>
 
@@ -163,26 +160,23 @@ function PageButton({
   active,
   onClick,
   label,
-  icon,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
-  icon: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-baseline gap-1.5 px-3 py-1 text-sm font-semibold transition-colors",
+        "inline-flex items-baseline px-3 py-1 text-sm font-semibold transition-colors",
         active
           ? "bg-accent text-fg-inverse"
           : "text-fg-3 hover:bg-soft hover:text-fg-1",
       )}
     >
-      <span className="text-xs">{icon}</span>
-      <span>{label}</span>
+      {label}
     </button>
   );
 }

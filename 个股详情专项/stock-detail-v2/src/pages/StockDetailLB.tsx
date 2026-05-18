@@ -18,7 +18,6 @@ import { NewsPreview } from "@/components-longbridge/NewsPreview";
 import { DiscussionFeed, DiscussionPreview } from "@/components-longbridge/DiscussionFeed";
 import { NewsCardBig } from "@/components-longbridge/NewsCardBig";
 import { EventTracker } from "@/components-longbridge/EventTracker";
-import { QuoteKV } from "@/components-longbridge/QuoteKV";
 import { EarningsSummary } from "@/components-longbridge/EarningsSummary";
 
 import {
@@ -42,7 +41,6 @@ import {
   mockNewsItems,
   mockDiscussions,
   mockTrackedEvents,
-  mockQuoteKV,
   mockEarningsHighlight,
 } from "@/mock/stockDetail-lb";
 
@@ -79,11 +77,13 @@ export function StockDetailLBPage() {
   );
 }
 
+/** P1 概览:IntradayChart / CompanyProfile / EventTracker+DolphinResearch / NewsPreview / DiscussionPreview
+ *   去掉 #04 QuoteKV
+ */
 function TabOverview() {
   return (
     <>
       <IntradayChart meta={mockIntradayMeta} />
-      <QuoteKV groups={mockQuoteKV} />
       <CompanyProfile profile={mockCompanyProfile} />
       {/* 左右并排:事件追踪 + 海豚投研 */}
       <div className="grid grid-cols-2 border-b border-line">
@@ -98,11 +98,13 @@ function TabOverview() {
   );
 }
 
+/** P1 财务:EarningsSummary / Income / Balance / CashFlow / RevenueComposition / DividendPlan
+ *   去掉 #10 FinancialHealthScore(迁至 分析 Tab)
+ */
 function TabFinancial() {
   return (
     <>
       <EarningsSummary data={mockEarningsHighlight} />
-      <FinancialHealthScore data={mockFinancialHealth} />
       <FinancialTable data={mockIncomeStatement} />
       <FinancialTable data={mockBalanceSheet} />
       <FinancialTable data={mockCashFlow} />
@@ -112,12 +114,16 @@ function TabFinancial() {
   );
 }
 
+/** P1 分析:AnalystConsensus / InstitutionalHolding / KeyFactors / FinancialHealthScore / Valuation
+ *   在 #07 KeyFactors 之后插入 #10 FinancialHealthScore
+ */
 function TabAnalysis() {
   return (
     <>
       <AnalystConsensus data={mockAnalystConsensus} />
       <InstitutionalHolding data={mockInstitutionalHolding} />
       <KeyFactors root={mockKeyFactorsTree} />
+      <FinancialHealthScore data={mockFinancialHealth} />
       <Valuation metrics={mockValuation} />
     </>
   );
