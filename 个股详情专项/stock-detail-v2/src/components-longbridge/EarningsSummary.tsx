@@ -110,12 +110,12 @@ function ForecastLayout({ data }: { data: EarningsHighlight }) {
 function MetricRow({ metric }: { metric: EarningsHighlightForecastMetric }) {
   const yoyPositive = metric.forecastYoY >= 0;
   return (
-    <li className="grid grid-cols-[1.2fr_1fr_1fr] items-center gap-2 px-4 py-4">
-      <span className="text-base font-medium text-fg-1">{metric.name}</span>
+    <li className="grid grid-cols-[1.2fr_1fr_1fr] items-center gap-2 px-4 py-2 text-sm">
+      <span className="font-medium text-fg-1">{metric.name}</span>
       <span className="text-right text-fg-3">{metric.actualLabel}</span>
       <div className="text-right leading-tight">
-        <div className="num text-base font-semibold text-fg-1">{metric.forecastDisplay}</div>
-        <div className={cn("num text-xs", yoyPositive ? "text-up" : "text-down")}>
+        <div className="num font-semibold text-fg-1">{metric.forecastDisplay}</div>
+        <div className={cn("num text-2xs", yoyPositive ? "text-up" : "text-down")}>
           {yoyPositive ? "+" : ""}
           {formatPct(metric.forecastYoY * 100, 2)}
         </div>
