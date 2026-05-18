@@ -21,9 +21,7 @@ export function EventTracker({ events }: EventTrackerProps) {
       <ul className="px-4 py-3">
         {events.map((e, i) => {
           const prev = events[i - 1];
-          const next = events[i + 1];
           const isFirstOfDay = !prev || prev.day !== e.day || prev.month !== e.month;
-          const isLastOfDay = !next || next.day !== e.day || next.month !== e.month;
           const isLast = i === events.length - 1;
           return (
             <EventRow
@@ -32,7 +30,6 @@ export function EventTracker({ events }: EventTrackerProps) {
               showDate={isFirstOfDay}
               showLineAbove={!isFirstOfDay}
               showLineBelow={!isLast}
-              isDayBoundary={isLastOfDay && !isLast}
             />
           );
         })}
@@ -46,13 +43,11 @@ function EventRow({
   showDate,
   showLineAbove,
   showLineBelow,
-  isDayBoundary,
 }: {
   event: TrackedEvent;
   showDate: boolean;
   showLineAbove: boolean;
   showLineBelow: boolean;
-  isDayBoundary: boolean;
 }) {
   return (
     <li className="grid grid-cols-[44px_24px_1fr] items-start gap-3">
@@ -70,11 +65,16 @@ function EventRow({
 
       {/* 时间轴列 */}
       <div className="relative">
-        {/* 上半段虚线(同日非首条事件)*/}
+        {/* 上半段虚线(同日非首条事件)— 用 gradient 模拟,比 border-dashed 在 1px 宽时更可见 */}
         {showLineAbove && (
           <span
             aria-hidden="true"
-            className="absolute left-1/2 top-0 h-3 -translate-x-1/2 border-l border-dashed border-hairline-strong"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(to bottom, var(--color-fg-3) 0 3px, transparent 3px 6px)",
+              width: "1px",
+            }}
+            className="absolute left-1/2 top-0 h-3 -translate-x-1/2"
           />
         )}
         {/* 圆环 */}
@@ -85,14 +85,16 @@ function EventRow({
             "border-fg-3",
           )}
         />
-        {/* 下半段虚线 */}
+        {/* 下半段虚线 — 圆环下方接续 */}
         {showLineBelow && (
           <span
             aria-hidden="true"
-            className={cn(
-              "absolute left-1/2 top-3 bottom-0 -translate-x-1/2 border-l border-dashed",
-              isDayBoundary ? "border-hairline" : "border-hairline-strong",
-            )}
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(to bottom, var(--color-fg-3) 0 3px, transparent 3px 6px)",
+              width: "1px",
+            }}
+            className="absolute left-1/2 top-3 bottom-0 -translate-x-1/2"
           />
         )}
       </div>
