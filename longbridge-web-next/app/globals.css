@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "../docs/brand-kit/tokens.css";
+
+/* Fonts loaded via <link> in app/layout.tsx (Google Fonts). */
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Base
+ * ═══════════════════════════════════════════════════════════════════════ */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * v2 utility classes
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+/* Tabular numerals — prices / P&L / 数据栅格 */
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Caps label — common in editorial + terminal UI */
+.caps {
+  font: 600 10px/14px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+/* Ticker style — monospace + slight tracking */
+.ticker {
+  font-family: var(--font-num);
+  letter-spacing: 0.04em;
+}
+
+/* Editorial kicker — brand-color caps, 49 处仍在使用(Phase 6 audit) */
+.kicker {
+  font: 700 10px/14px var(--font-sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * Animations
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@keyframes peek-drawer-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.peek-drawer-slide {
+  animation: peek-drawer-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
