@@ -141,7 +141,7 @@ function CommandBar({
         <PageButton
           active={page === "stock-detail-lb-v21"}
           onClick={() => onSwitch("stock-detail-lb-v21")}
-          label="Stock Detail P2"
+          label="Stock Detail P2(确定方向)"
         />
         <PageButton
           active={page === "stock-detail-lb-p3"}
